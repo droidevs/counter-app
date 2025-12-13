@@ -28,5 +28,10 @@
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
 
+        <item name="drawableAdd">@drawable/ic_add</item>
+        <item name="drawableDelete">@drawable/ic_delete</item>
+        <item name="drawableEdit">@drawable/ic_edit</item>
+        <item name="drawableReset">@drawable/ic_reset</item>
+        <item name="drawableSettings">@drawable/ic_settings</item>
     </style>
 </resources>
