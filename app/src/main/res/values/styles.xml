@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextViewStyle" parent="Widget.AppCompat.TextView">
+        <item name="fontFamily">san-serif</item>
+    </style>
+
+    <style name="ButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="DrawerSelectTheme" parent="AppTheme">
+    </style>
+
+    <style name="increment_button">
+        <item name="android:textSize">90sp</item>
+    </style>
+
+    <style name="decrement_button">
+        <item name="android:textSize">45sp</item>
+    </style>
+
+    <style name="counter_value">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>
