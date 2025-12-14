@@ -1,6 +1,7 @@
 package io.droidevs.counterapp
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -15,9 +16,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import io.droidevs.counterapp.databinding.ActivityMainBinding
+import io.droidevs.counterapp.databinding.ItemCounterBinding
 
 class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
     var binding : ActivityMainBinding? = null
+
 
     private var toolbar : MaterialToolbar? = null
     private lateinit var navController : NavController;

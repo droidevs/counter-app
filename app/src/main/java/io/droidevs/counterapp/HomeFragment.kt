@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.adapter.CounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
 import io.droidevs.counterapp.model.CounterSnapshot
 import java.time.Instant
@@ -17,7 +19,7 @@ class HomeFragment : Fragment() {
 
     var binding : FragmentHomeBinding? = null
     var recycler : RecyclerView? = null
-    var totalCountersText : View? = null
+    var totalCountersText : TextView? = null
 
 
     val dummyCounters = listOf(
@@ -84,9 +86,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater)
 
         recycler = binding?.recyclerLastCounters
-        totalCountersText = binding?.txtTotalCounters
-        var btnViewAll = binding?.btnViewAll
-        var btnCreate = binding?.btnNewCounter
+        totalCountersText = binding?.txtTotalCounters as TextView
 
         setUpRecyclerView()
         setUpButtons()
@@ -97,11 +97,22 @@ class HomeFragment : Fragment() {
     private fun setUpRecyclerView() {
         recycler?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
+        recycler?.adapter = CounterAdapter(counters = dummyCounters.toMutableList())
 
+        totalCountersText?.text = "Total Counters: ${dummyCounters.size}"
     }
 
     private fun setUpButtons() {
+        var btnViewAll = binding?.btnViewAll
+        var btnCreate = binding?.btnNewCounter
 
+        btnViewAll?.setOnClickListener { v -> {
+            TODO("Open full List fragment")
+        } }
+
+        btnCreate?.setOnClickListener { v -> {
+            TODO("open create counter screen")
+        } }
     }
 
     companion object {
