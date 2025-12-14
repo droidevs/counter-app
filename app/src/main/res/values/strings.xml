@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CounterApp</string>
+
+    <!-- Menu -->
+    <string name="menu_counters_list">Open the list of counters</string>
+    <string name="menu_reset">Reset counter</string>
+    <string name="menu_edit">Edit counter</string>
+    <string name="menu_delete">Delete counter</string>
+
 </resources>
