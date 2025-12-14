@@ -9,6 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 
@@ -16,6 +20,9 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
     var binding : ActivityMainBinding? = null
 
     private var toolbar : MaterialToolbar? = null
+    private lateinit var navController : NavController;
+    private lateinit var appBarConfiguration : AppBarConfiguration;
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +42,19 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
             TODO("open a drawer")
         }
         toolbar?.setOnMenuItemClickListener(this)
-
         setSupportActionBar(toolbar)
+
+        var navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+        navController = navHostFragment.navController
+
+        appBarConfiguration = AppBarConfiguration.Builder(R.id.homeFragment).build()
+
+        NavigationUI.setupActionBarWithNavController(
+            this,
+            navController = navController,
+            configuration = appBarConfiguration
+        )
 
     }
 
@@ -58,5 +76,12 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
             }
         }
         return true
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return NavigationUI.navigateUp(
+            navController = navController,
+            configuration = appBarConfiguration
+        ) || super.onSupportNavigateUp()
     }
 }
