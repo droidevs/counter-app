@@ -14,6 +14,7 @@ class HomeFragment : Fragment() {
 
 
     var binding : FragmentHomeBinding? = null
+    var totalCountersText : View? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,11 +28,19 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater)
 
+        totalCountersText = binding?.txtTotalCounters
+        var btnViewAll = binding?.btnViewAll
+        var btnCreate = binding?.btnNewCounter
+
+        setUpButtons()
 
         return binding?.root
     }
 
 
+    private fun setUpButtons() {
+
+    }
 
     companion object {
         @JvmStatic

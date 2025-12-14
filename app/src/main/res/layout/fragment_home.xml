@@ -7,5 +7,35 @@
     tools:context=".HomeFragment">
 
 
+    <Button
+        android:id="@+id/btnViewAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/view_all_counters"
+        android:layout_marginTop="8dp"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Total counters -->
+    <TextView
+        android:id="@+id/txtTotalCounters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/total_counters_0"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"/>
+
+    <!--Create new counter -->
+    <Button
+        android:id="@+id/btnNewCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_new_counter"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>
