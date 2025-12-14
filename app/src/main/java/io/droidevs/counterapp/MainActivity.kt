@@ -1,6 +1,7 @@
 package io.droidevs.counterapp
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -37,6 +38,11 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
 
         setSupportActionBar(toolbar)
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.counter_menu, menu)
+        return true
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
