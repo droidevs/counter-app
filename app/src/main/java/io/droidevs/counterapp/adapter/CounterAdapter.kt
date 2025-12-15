@@ -45,4 +45,9 @@ internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>
         var createdAt = binding.tvCreatedDate
         var updatedAt = binding.tvLastEditedDate
     }
+
+    public fun updateCounters(counters: List<CounterSnapshot>) {
+        this.counters.clear()
+        this.counters.addAll(counters)
+    }
 }

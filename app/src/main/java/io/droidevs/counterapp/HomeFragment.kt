@@ -6,72 +6,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.adapter.CounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
 import io.droidevs.counterapp.model.CounterSnapshot
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 
 class HomeFragment : Fragment() {
 
 
+    private val viewModel: HomeViewModel by viewModels()
+
     var binding : FragmentHomeBinding? = null
     var recycler : RecyclerView? = null
     var totalCountersText : TextView? = null
 
-
-    val dummyCounters = listOf(
-        CounterSnapshot(
-            id = "1",
-            name = "Water Intake",
-            currentCount = 3,
-            maxCount = 8,
-            createdAt = Instant.now().minusSeconds(3600),
-            lastUpdatedAt = Instant.now().minusSeconds(1800)
-        ),
-        CounterSnapshot(
-            id = "2",
-            name = "Push-ups",
-            currentCount = 15,
-            maxCount = 30,
-            createdAt = Instant.now().minusSeconds(7200),
-            lastUpdatedAt = Instant.now().minusSeconds(600)
-        ),
-        CounterSnapshot(
-            id = "3",
-            name = "Meditation",
-            currentCount = 1,
-            maxCount = 1,
-            createdAt = Instant.now().minusSeconds(10800),
-            lastUpdatedAt = Instant.now().minusSeconds(100)
-        ),
-        CounterSnapshot(
-            id = "4",
-            name = "Steps",
-            currentCount = 5000,
-            maxCount = 10000,
-            createdAt = Instant.now().minusSeconds(14400),
-            lastUpdatedAt = Instant.now().minusSeconds(300)
-        ),
-        CounterSnapshot(
-            id = "5",
-            name = "Reading",
-            currentCount = 20,
-            maxCount = null, // unlimited
-            createdAt = Instant.now().minusSeconds(20000),
-            lastUpdatedAt = Instant.now().minusSeconds(200)
-        ),
-        CounterSnapshot(
-            id = "6",
-            name = "Coffee Cups",
-            currentCount = 2,
-            maxCount = 5,
-            createdAt = Instant.now().minusSeconds(25000),
-            lastUpdatedAt = Instant.now().minusSeconds(150)
-        )
-    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,12 +48,21 @@ class HomeFragment : Fragment() {
         return binding?.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
+            viewModel.countersSnapshots.collect { counters ->
+                (recycler?.adapter as CounterAdapter).updateCounters(counters)
+                // TODO(add anew state for viewmodel to reference the number of the counters in the database)
+                // temporary fix
+                totalCountersText?.text = "Total Counters: ${counters.size}"
+            }
+        }
+    }
+
     private fun setUpRecyclerView() {
         recycler?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
-        recycler?.adapter = CounterAdapter(counters = dummyCounters.toMutableList())
-
-        totalCountersText?.text = "Total Counters: ${dummyCounters.size}"
     }
 
     private fun setUpButtons() {
