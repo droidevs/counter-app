@@ -47,5 +47,6 @@ internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>
     public fun updateCounters(counters: List<CounterSnapshot>) {
         this.counters.clear()
         this.counters.addAll(counters)
+        notifyDataSetChanged()
     }
 }

@@ -17,7 +17,7 @@ import java.time.Instant
 
 class CounterApp : Application() {
 
-    private val isTest = false
+    private val isTest = true
 
     val testCounters = listOf(
         Counter(
@@ -125,7 +125,7 @@ class CounterApp : Application() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        runBlocking {
+                        CoroutineScope(Dispatchers.IO).launch {
                             database.counterDao().insertAll(testCounters.map { it.toEntity() })
                         }
 
@@ -137,14 +137,7 @@ class CounterApp : Application() {
                 applicationContext,
                 AppDatabase::class.java,
                 "counter_db"
-            ).addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    CoroutineScope(Dispatchers.IO).launch {
-                        database.counterDao().insertAll(testCounters.map { it.toEntity() })
-                    }
-                }
-            }).build()
+            ).build()
         }
 
         counterDao = database.counterDao()
