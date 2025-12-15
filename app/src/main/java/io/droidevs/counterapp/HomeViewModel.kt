@@ -16,8 +16,6 @@ import java.time.Instant
 class HomeViewModel(val counterRepository: CounterRepository) : ViewModel() {
 
 
-    private val _countersNumber = MutableStateFlow(0)
-
     val countersSnapshots = counterRepository.getAllCounters()
         .onStart { emit(emptyList()) }
         .map { counters ->
@@ -26,16 +24,8 @@ class HomeViewModel(val counterRepository: CounterRepository) : ViewModel() {
             }
         }
 
-    val countersNumber = _countersNumber
-        .asStateFlow()
+    val countersNumber = counterRepository.getTotalCounters()
+        .onStart { emit(0) }
 
-    init {
-        loadCountersNumber()
-    }
-
-    private fun loadCountersNumber() {
-        // temporary fix todo: read real number from database
-        _countersNumber.value = 0
-    }
 
 }

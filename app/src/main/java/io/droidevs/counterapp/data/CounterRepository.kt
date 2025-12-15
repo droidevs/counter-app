@@ -14,4 +14,8 @@ class CounterRepository(var dao: CounterDao) {
         }
     }
 
+    fun getTotalCounters() : Flow<Int> {
+        return dao.getTotalCounters()
+    }
+
 }
