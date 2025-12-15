@@ -42,14 +42,13 @@ class HomeFragment : Fragment() {
         recycler = binding?.recyclerLastCounters
         totalCountersText = binding?.txtTotalCounters as TextView
 
-        setUpRecyclerView()
-        setUpButtons()
-
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpRecyclerView()
+        setUpButtons()
 
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
@@ -63,6 +62,7 @@ class HomeFragment : Fragment() {
 
     private fun setUpRecyclerView() {
         recycler?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        recycler?.adapter = CounterAdapter(mutableListOf())
     }
 
     private fun setUpButtons() {
