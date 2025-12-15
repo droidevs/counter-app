@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp") version "2.0.21-1.0.28"
 }
 
 android {
@@ -59,4 +60,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 }

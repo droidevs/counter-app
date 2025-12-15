@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.Instant
 
-class HomeViewModel() : ViewModel() {
+class HomeViewModel(val counterRepository: CounterRepository) : ViewModel() {
 
-    val counterRepository: CounterRepository = CounterRepository()
 
     private val _countersSnapshots = MutableStateFlow<List<Counter>>(emptyList())
     private val _countersNumber = MutableStateFlow(0)

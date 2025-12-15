@@ -5,11 +5,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [],
+    entities = [CounterEntity::class],
     version = 1,
     exportSchema = false
 )
-@TypeConverters()
+@TypeConverters(InstantConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun counterDao(): CounterDao

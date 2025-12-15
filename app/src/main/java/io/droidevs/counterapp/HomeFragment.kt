@@ -20,7 +20,12 @@ import java.time.Instant
 class HomeFragment : Fragment() {
 
 
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by viewModels {
+        HomeViewModelFactory(
+            (requireActivity().application as CounterApp)
+                .counterRepository
+        )
+    }
 
     var binding : FragmentHomeBinding? = null
     var recycler : RecyclerView? = null
