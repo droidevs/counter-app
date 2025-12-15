@@ -13,10 +13,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.Instant
 
-class HomeViewModel(
-    val counterRepository: CounterRepository
-) : ViewModel() {
+class HomeViewModel() : ViewModel() {
 
+    val counterRepository: CounterRepository = CounterRepository()
 
     private val _countersSnapshots = MutableStateFlow<List<Counter>>(emptyList())
     private val _countersNumber = MutableStateFlow(0)
@@ -44,7 +43,7 @@ class HomeViewModel(
 
     private fun loadCounters() {
         viewModelScope.launch {
-            var counters = counterRepository.getAllCounters().take(6)
+            var counters = counterRepository.getAllCounters().take(5)
             // for now it wont execute todo : populate db with dummy data
             if (counters.isNotEmpty())
                 _countersSnapshots.value = counters
