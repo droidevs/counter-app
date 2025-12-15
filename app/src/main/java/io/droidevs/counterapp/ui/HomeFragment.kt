@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,14 +9,19 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.HomeViewModel
 import io.droidevs.counterapp.HomeViewModelFactory
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 class HomeFragment : Fragment() {
 
@@ -27,7 +33,8 @@ class HomeFragment : Fragment() {
         )
     }
 
-    var binding : FragmentHomeBinding? = null
+    lateinit var binding : FragmentHomeBinding
+
     var recycler : RecyclerView? = null
     var totalCountersText : TextView? = null
 
@@ -41,13 +48,14 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        //Log.d("NAV", "Current destination = ${findNavController().currentDestination?.id}")
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater)
 
-        recycler = binding?.recyclerLastCounters
-        totalCountersText = binding?.txtTotalCounters as TextView
+        recycler = binding.recyclerLastCounters
+        totalCountersText = binding.txtTotalCounters
 
-        return binding?.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,15 +80,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun setUpButtons() {
-        var btnViewAll = binding?.btnViewAll
-        var btnCreate = binding?.btnNewCounter
+        var btnViewAll = binding.btnViewAll
+        var btnCreate = binding.btnNewCounter
 
-        btnViewAll?.setOnClickListener { v -> {
-            TODO("Open full List fragment")
+        Log.i("View All Counters","Clicked")
+
+        btnViewAll.setOnClickListener { v -> {
+            Log.i("View All Counters","Clicked")
+            findNavController().navigate(
+                R.id.action_home_to_counterList
+            )
         } }
 
-        btnCreate?.setOnClickListener { v -> {
-            TODO("open create counter screen")
+        btnCreate.setOnClickListener { v -> {
+            Log.i("Create Counter", "Clicked")
         } }
     }
 

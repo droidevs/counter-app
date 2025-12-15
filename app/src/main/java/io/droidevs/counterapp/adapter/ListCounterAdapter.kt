@@ -7,9 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
+import io.droidevs.counterapp.ui.CounterSnapshot
 
 class ListCounterAdapter(
-    private val counters: List<String> // dummy data for now
+    private var counters: List<CounterSnapshot> = emptyList<CounterSnapshot>()
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -29,10 +30,16 @@ class ListCounterAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tvName.text = counters[position]
-        // todo : use real data
-        holder.tvCount.text = (0..10).random().toString() // random dummy count
+        val counter = counters[position]
+        holder.tvName.text = counter.name
+        holder.tvCount.text = counter.currentCount.toString()
     }
 
     override fun getItemCount(): Int = counters.size
+    fun updateCounters(counters: List<CounterSnapshot>) {
+        var l = this.counters as ArrayList<CounterSnapshot>
+        l.clear()
+        l.addAll(counters)
+        notifyDataSetChanged()
+    }
 }

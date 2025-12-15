@@ -16,7 +16,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import io.droidevs.counterapp.databinding.ActivityMainBinding
-import io.droidevs.counterapp.databinding.ItemCounterBinding
 
 class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
     var binding : ActivityMainBinding? = null

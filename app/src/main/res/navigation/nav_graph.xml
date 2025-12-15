@@ -7,7 +7,18 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="io.droidevs.counterapp.ui.HomeFragment"
-        android:label="Dashboard" />
+        android:label="Home">
+
+        <action
+            android:id="@+id/action_home_to_counterList"
+            app:destination="@id/counterListFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/counterListFragment"
+        android:name="io.droidevs.counterapp.ui.CounterListFragment"
+        android:label="Counters"/>
 
 
 </navigation>

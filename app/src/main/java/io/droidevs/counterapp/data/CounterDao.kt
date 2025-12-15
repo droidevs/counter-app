@@ -17,7 +17,7 @@ interface CounterDao {
     """)
     fun getLastEdited(limit : Int) : Flow<List<CounterEntity>>
 
-    @Query("SELECT COUNT(id) FROM counters")
+    @Query("SELECT count(*) FROM counters")
     fun getTotalCounters(): Flow<Int>
 
 

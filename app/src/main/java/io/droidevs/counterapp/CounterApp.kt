@@ -128,7 +128,6 @@ class CounterApp : Application() {
                         CoroutineScope(Dispatchers.IO).launch {
                             database.counterDao().insertAll(testCounters.map { it.toEntity() })
                         }
-
                     }
                 })
                 .build()

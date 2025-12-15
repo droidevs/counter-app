@@ -6,24 +6,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
+import io.droidevs.counterapp.ui.vm.CountersListViewModel
+import io.droidevs.counterapp.ui.vm.CountersListViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class CounterListFragment : Fragment() {
 
     lateinit var binding: FragmentCounterListBinding
 
+    private val viewModel : CountersListViewModel by viewModels {
+        CountersListViewModelFactory(
+            (requireActivity().application as CounterApp).counterRepository
+        )
+    }
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAdd: FloatingActionButton
 
-    private val dummyCounters = listOf(
-        "Counter 1", "Counter 2", "Counter 3",
-        "Counter 4", "Counter 5", "Counter 6"
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +47,15 @@ class CounterListFragment : Fragment() {
         recyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-
-        val adapter = ListCounterAdapter(dummyCounters)
+        val adapter = ListCounterAdapter()
         recyclerView.adapter = adapter
+
+        lifecycleScope.launch {
+            viewModel.counters.collect { counters->
+                var adapter = recyclerView.adapter as ListCounterAdapter
+                adapter.updateCounters(counters)
+            }
+        }
 
         fabAdd.setOnClickListener {
             Toast.makeText(requireContext(), "Add Counter clicked", Toast.LENGTH_SHORT).show()
