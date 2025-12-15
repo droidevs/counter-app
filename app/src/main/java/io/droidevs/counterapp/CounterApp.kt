@@ -11,13 +11,13 @@ import io.droidevs.counterapp.data.toEntity
 import io.droidevs.counterapp.model.Counter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
 
 class CounterApp : Application() {
 
-    private val isTest = true
+    private val isTest = false
 
     val testCounters = listOf(
         Counter(
@@ -125,9 +125,10 @@ class CounterApp : Application() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            database.counterDao().insert(testCounters.map { it.toEntity() })
+                        runBlocking {
+                            database.counterDao().insertAll(testCounters.map { it.toEntity() })
                         }
+
                     }
                 })
                 .build()
@@ -136,7 +137,14 @@ class CounterApp : Application() {
                 applicationContext,
                 AppDatabase::class.java,
                 "counter_db"
-            ).build()
+            ).addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        database.counterDao().insertAll(testCounters.map { it.toEntity() })
+                    }
+                }
+            }).build()
         }
 
         counterDao = database.counterDao()

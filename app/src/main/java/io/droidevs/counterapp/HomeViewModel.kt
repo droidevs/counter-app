@@ -16,11 +16,10 @@ import java.time.Instant
 class HomeViewModel(val counterRepository: CounterRepository) : ViewModel() {
 
 
-    private val _countersSnapshots = MutableStateFlow<List<Counter>>(emptyList())
     private val _countersNumber = MutableStateFlow(0)
 
-    val countersSnapshots = _countersSnapshots
-        .asStateFlow()
+    val countersSnapshots = counterRepository.getAllCounters()
+        .onStart { emit(emptyList()) }
         .map { counters ->
             counters.map {
                 it.toSnapshot()
@@ -31,21 +30,12 @@ class HomeViewModel(val counterRepository: CounterRepository) : ViewModel() {
         .asStateFlow()
 
     init {
-        loadCounters()
         loadCountersNumber()
     }
 
     private fun loadCountersNumber() {
         // temporary fix todo: read real number from database
-        _countersNumber.value = _countersSnapshots.value.size
+        _countersNumber.value = 0
     }
 
-    private fun loadCounters() {
-        viewModelScope.launch {
-            var counters = counterRepository.getAllCounters().take(5)
-            // for now it wont execute todo : populate db with dummy data
-            if (counters.isNotEmpty())
-                _countersSnapshots.value = counters
-        }
-    }
 }
