@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.adapter.CounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
-import io.droidevs.counterapp.model.CounterSnapshot
+import io.droidevs.counterapp.ui.CounterSnapshot
 import kotlinx.coroutines.launch
 import java.time.Instant
 

@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemCounterBinding
-import io.droidevs.counterapp.model.CounterSnapshot
+import io.droidevs.counterapp.ui.CounterSnapshot
 
 
 internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>) :
@@ -29,7 +29,6 @@ internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>
         var counter = counters[position]
         holder.name.text = counter.name
         holder.count.text = counter.currentCount.toString()
-        holder.maxCount.text = counter.maxCount?.toString()
         holder.createdAt.text = counter.createdAt.toString()
         holder.updatedAt.text = counter.lastUpdatedAt.toString()
     }
@@ -41,7 +40,6 @@ internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>
     internal class ViewHolder(binding: ItemCounterBinding) : RecyclerView.ViewHolder(binding.root) {
         var name: TextView = binding.tvCounterName
         var count = binding.tvCurrentCount
-        var maxCount = binding.tvMaxCount
         var createdAt = binding.tvCreatedDate
         var updatedAt = binding.tvLastEditedDate
     }
