@@ -1,21 +1,21 @@
-package io.droidevs.counterapp
+package io.droidevs.counterapp.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.adapter.CounterAdapter
+import io.droidevs.counterapp.CounterApp
+import io.droidevs.counterapp.HomeViewModel
+import io.droidevs.counterapp.HomeViewModelFactory
+import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
-import io.droidevs.counterapp.ui.CounterSnapshot
 import kotlinx.coroutines.launch
-import java.time.Instant
-
 
 class HomeFragment : Fragment() {
 
@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
 
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
-                (recycler?.adapter as CounterAdapter).updateCounters(counters)
+                (recycler?.adapter as HomeCounterAdapter).updateCounters(counters)
             }
             viewModel.countersNumber.collect { size ->
                 totalCountersText?.text = "Total Counters: ${size}"
@@ -66,8 +66,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun setUpRecyclerView() {
-        recycler?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recycler?.adapter = CounterAdapter(mutableListOf())
+        recycler?.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        recycler?.adapter = HomeCounterAdapter(mutableListOf())
     }
 
     private fun setUpButtons() {

@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="io.droidevs.counterapp.HomeFragment"
+        android:name="io.droidevs.counterapp.ui.HomeFragment"
         android:label="Dashboard" />
 
 

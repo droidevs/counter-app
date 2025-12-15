@@ -1,23 +1,21 @@
 package io.droidevs.counterapp.adapter
 
-import android.text.Layout
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.databinding.ItemCounterBinding
+import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
 import io.droidevs.counterapp.ui.CounterSnapshot
 
 
-internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>) :
-    RecyclerView.Adapter<CounterAdapter.ViewHolder>() {
+internal class HomeCounterAdapter(private val counters: MutableList<CounterSnapshot>) :
+    RecyclerView.Adapter<HomeCounterAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int): ViewHolder {
-        var binding = ItemCounterBinding.inflate(
+        var binding = ItemHomeCounterBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -37,7 +35,7 @@ internal class CounterAdapter(private val counters: MutableList<CounterSnapshot>
         return counters.size
     }
 
-    internal class ViewHolder(binding: ItemCounterBinding) : RecyclerView.ViewHolder(binding.root) {
+    internal class ViewHolder(binding: ItemHomeCounterBinding) : RecyclerView.ViewHolder(binding.root) {
         var name: TextView = binding.tvCounterName
         var count = binding.tvCurrentCount
         var createdAt = binding.tvCreatedDate

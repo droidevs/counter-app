@@ -12,5 +12,6 @@
     <string name="view_all_counters">View All counters</string>
     <string name="total_counters_0">Total counters: 0</string>
     <string name="create_new_counter">Create new counter</string>
+    <string name="add_counter">Add Counter</string>
 
 </resources>
