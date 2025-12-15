@@ -1,6 +1,8 @@
 package io.droidevs.counterapp
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import io.droidevs.counterapp.data.CounterRepository
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.model.Counter
 import io.droidevs.counterapp.ui.CounterSnapshot
@@ -8,9 +10,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import java.time.Instant
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    val counterRepository: CounterRepository
+) : ViewModel() {
 
 
     private val _countersSnapshots = MutableStateFlow<List<Counter>>(emptyList())
@@ -38,43 +43,11 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadCounters() {
-        val dummyCounters = listOf(
-            Counter(
-                id = "1",
-                name = "Water Intake",
-                currentCount = 3,
-                createdAt = Instant.now().minusSeconds(3600),
-                lastUpdatedAt = Instant.now().minusSeconds(1800)
-            ),
-            Counter(
-                id = "2",
-                name = "Push-ups",
-                currentCount = 15,
-                createdAt = Instant.now().minusSeconds(7200),
-                lastUpdatedAt = Instant.now().minusSeconds(600)
-            ),
-            Counter(
-                id = "3",
-                name = "Meditation",
-                currentCount = 1,
-                createdAt = Instant.now().minusSeconds(10800),
-                lastUpdatedAt = Instant.now().minusSeconds(100)
-            ),
-            Counter(
-                id = "4",
-                name = "Steps",
-                currentCount = 5000,
-                createdAt = Instant.now().minusSeconds(14400),
-                lastUpdatedAt = Instant.now().minusSeconds(300)
-            ),
-            Counter(
-                id = "5",
-                name = "Reading",
-                currentCount = 20,
-                createdAt = Instant.now().minusSeconds(20000),
-                lastUpdatedAt = Instant.now().minusSeconds(200)
-            )
-        )
-        _countersSnapshots.value = dummyCounters
+        viewModelScope.launch {
+            var counters = counterRepository.getAllCounters().take(6)
+            // for now it wont execute todo : populate db with dummy data
+            if (counters.isNotEmpty())
+                _countersSnapshots.value = counters
+        }
     }
 }
