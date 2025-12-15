@@ -53,9 +53,9 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
                 (recycler?.adapter as CounterAdapter).updateCounters(counters)
-                // TODO(add anew state for viewmodel to reference the number of the counters in the database)
-                // temporary fix
-                totalCountersText?.text = "Total Counters: ${counters.size}"
+            }
+            viewModel.countersNumber.collect { size ->
+                totalCountersText?.text = "Total Counters: ${size}"
             }
         }
     }

@@ -11,12 +11,21 @@ class HomeViewModel : ViewModel() {
 
 
     private val _countersSnapshots = MutableStateFlow<List<CounterSnapshot>>(emptyList())
+    private val _countersNumber = MutableStateFlow(0)
 
-    public val countersSnapshots = _countersSnapshots
+    val countersSnapshots = _countersSnapshots
+        .asStateFlow()
+    val countersNumber = _countersNumber
         .asStateFlow()
 
     init {
         loadCounters()
+        loadCountersNumber()
+    }
+
+    private fun loadCountersNumber() {
+        // temporary fix todo: read real number from database
+        _countersNumber.value = _countersSnapshots.value.size
     }
 
     private fun loadCounters() {
@@ -60,15 +69,15 @@ class HomeViewModel : ViewModel() {
                 maxCount = null, // unlimited
                 createdAt = Instant.now().minusSeconds(20000),
                 lastUpdatedAt = Instant.now().minusSeconds(200)
-            ),
-            CounterSnapshot(
-                id = "6",
-                name = "Coffee Cups",
-                currentCount = 2,
-                maxCount = 5,
-                createdAt = Instant.now().minusSeconds(25000),
-                lastUpdatedAt = Instant.now().minusSeconds(150)
             )
+//            CounterSnapshot(
+//                id = "6",
+//                name = "Coffee Cups",
+//                currentCount = 2,
+//                maxCount = 5,
+//                createdAt = Instant.now().minusSeconds(25000),
+//                lastUpdatedAt = Instant.now().minusSeconds(150)
+//            )
         )
         _countersSnapshots.value = dummyCounters
     }
