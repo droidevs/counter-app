@@ -5,10 +5,101 @@
     android:layout_height="match_parent"
     tools:context=".ui.CounterViewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:padding="16dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <!-- Counter Name -->
+            <TextView
+                android:id="@+id/tvCounterName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Counter Name"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:paddingBottom="16dp"/>
+
+            <!-- Current Count -->
+            <TextView
+                android:id="@+id/tvCurrentCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:paddingBottom="16dp"/>
+
+            <!-- Increase / Decrease Buttons -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="16dp">
+
+                <Button
+                    android:id="@+id/btnDecrease"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="-" />
+
+                <Space
+                    android:layout_width="32dp"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/btnIncrease"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="+" />
+            </LinearLayout>
+
+            <!-- Created At -->
+            <TextView
+                android:id="@+id/tvCreatedAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Created at: --"
+                android:paddingBottom="8dp"/>
+
+            <!-- Last Updated At -->
+            <TextView
+                android:id="@+id/tvLastUpdatedAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last updated: --"
+                android:paddingBottom="8dp"/>
+
+            <!-- Can Increase / Decrease -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvCanDecrease"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Can decrease: true"
+                    android:paddingEnd="16dp"/>
+
+                <TextView
+                    android:id="@+id/tvCanIncrease"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Can increase: true"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
 
 </FrameLayout>
