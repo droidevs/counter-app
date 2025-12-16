@@ -61,20 +61,14 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.counter_menu, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.menu_edit -> {
+            R.id.menuSettings -> {
                 TODO("edit counter")
-            }
-            R.id.menu_delete -> {
-                TODO("delete counter")
-            }
-            R.id.menu_reset -> {
-                TODO("reset counter")
             }
         }
         return true
