@@ -35,7 +35,8 @@ class CounterViewFragment : Fragment() {
         viewModel = ViewModelProvider(
             this,
             CounterViewModelFactory(
-                counter = counter
+                counter = counter,
+                repository = (requireActivity().application as CounterApp).counterRepository
             )
         )[CounterViewViewModel::class.java]
 

@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 
 class CounterViewViewModel(
-    initialCounter : CounterSnapshot
+    initialCounter : CounterSnapshot,
+    val repository: CounterRepository
 ) : ViewModel() {
 
     // modern approch better than live data
@@ -40,6 +42,7 @@ class CounterViewViewModel(
             createdAt = c.createdAt,
             lastUpdatedAt = c.lastUpdatedAt
         )
+        save()
     }
 
     fun decrement() {
@@ -54,6 +57,7 @@ class CounterViewViewModel(
             createdAt = c.createdAt,
             lastUpdatedAt = c.lastUpdatedAt
         )
+        save()
     }
 
     fun reset() {
@@ -68,5 +72,12 @@ class CounterViewViewModel(
             createdAt = c.createdAt,
             lastUpdatedAt = c.lastUpdatedAt
         )
+        save()
+    }
+
+    fun save() {
+        viewModelScope.launch {
+            _counter.value?.let { repository.saveCounter(it) }
+        }
     }
 }
