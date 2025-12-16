@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -17,6 +18,7 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.vm.CounterViewModelFactory
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class CounterViewFragment : Fragment() {
@@ -61,6 +63,7 @@ class CounterViewFragment : Fragment() {
 
         lifecycleScope.launch {
             viewModel.counter.collect { counter ->
+                Log.i("CounterViewFragment", "Counter: $counter")
                 counter?.name?.let { name ->
                     (activity as? AppCompatActivity)?.supportActionBar?.title = name
                 }
