@@ -10,6 +10,10 @@
         android:label="Home">
 
         <action
+            android:id="@+id/action_home_to_settings"
+            app:destination="@id/settingsFragment"/>
+
+        <action
             android:id="@+id/action_home_to_counterList"
             app:destination="@id/counterListFragment"/>
 
@@ -20,5 +24,9 @@
         android:name="io.droidevs.counterapp.ui.CounterListFragment"
         android:label="Counters"/>
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="io.droidevs.counterapp.ui.SettingsFragment"
+        android:label="Settings"/>
 
 </navigation>

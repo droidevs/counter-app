@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menuSettings -> {
-                TODO("edit counter")
+                navController.navigate(R.id.action_home_to_settings)
             }
         }
         return true
