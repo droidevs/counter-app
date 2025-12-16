@@ -13,8 +13,11 @@ import android.net.Uri
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.View
 import android.widget.Toast
 import androidx.preference.ListPreference
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.data.Themes
 
 class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceChangeListener{
@@ -26,9 +29,38 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val rv = view.findViewById<RecyclerView>(
+            androidx.preference.R.id.recycler_view
+        )
+
+        rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lm = rv.layoutManager as LinearLayoutManager
+                when(lm.findFirstVisibleItemPosition()) {
+                    in 0..3 ->setTitle("Controls")
+                    in 4..7 ->setTitle("Display")
+                    else -> setTitle("Other")
+                }
+            }
+        })
+    }
+
+    private fun setTitle(title: String) {
+        requireActivity().title = title
+    }
+
     override fun onResume() {
         super.onResume()
         setHasOptionsMenu(true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().invalidateOptionsMenu()
     }
 
     @Deprecated("Deprecated in Java")
