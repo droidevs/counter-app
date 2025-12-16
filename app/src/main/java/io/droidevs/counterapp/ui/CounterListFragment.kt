@@ -65,8 +65,10 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         }
 
         fabAdd.setOnClickListener {
-            Toast.makeText(requireContext(), "Add Counter clicked", Toast.LENGTH_SHORT).show()
-            // TODO: open create counter screen
+            //Toast.makeText(requireContext(), "Add Counter clicked", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(
+                R.id.action_list_to_counterCreate
+            )
         }
     }
 
