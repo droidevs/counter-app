@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 
 class CounterViewFragment : Fragment() {
@@ -31,6 +32,10 @@ class CounterViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        counter?.name?.let { name ->
+            (activity as? AppCompatActivity)?.supportActionBar?.title = name
+        }
 
         val tvName = binding.tvCounterName
         val tvCount = binding.tvCurrentCount
