@@ -77,7 +77,9 @@ class HomeFragment : Fragment() {
     private fun setUpRecyclerView() {
         recycler?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recycler?.adapter = HomeCounterAdapter(mutableListOf())
+        recycler?.adapter = HomeCounterAdapter(
+            counters = mutableListOf()
+        )
     }
 
     private fun setUpButtons() {
@@ -91,7 +93,7 @@ class HomeFragment : Fragment() {
         }
 
         btnCreate.setOnClickListener { v ->
-            Toast.makeText(context, "Create Counter clicked", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_home_to_counterCreate)
         }
     }
 

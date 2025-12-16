@@ -19,6 +19,10 @@
             android:id="@+id/action_home_to_counterList"
             app:destination="@id/counterListFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_counterCreate"
+            app:destination="@id/counterCreateFragment"/>
+
     </fragment>
 
     <fragment
