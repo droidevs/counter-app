@@ -25,12 +25,15 @@ class CounterEditViewModel(
         .map { counter ->
             counter.toSnapshot()
         }
+    val _editedCounter = MutableStateFlow<Counter>(initialCounter.toDomain())
+    val editedCounter = _editedCounter
+        .asStateFlow()
 
 
     // Update name
     fun updateName(name: String) {
         val c = _counter.value
-        _counter.value = Counter(
+        _editedCounter.value = Counter(
             id = c.id,
             name = name,
             currentCount = c.currentCount,
@@ -44,7 +47,7 @@ class CounterEditViewModel(
     // Update current count
     fun updateCurrentCount(count: Int) {
         val c = _counter.value
-        _counter.value = Counter(
+        _editedCounter.value = Counter(
             id = c.id,
             name = c.name,
             currentCount = count,
@@ -58,7 +61,7 @@ class CounterEditViewModel(
     // Update flags
     fun setCanIncrease(canIncrease: Boolean) {
         val c = _counter.value
-        _counter.value = Counter(
+        _editedCounter.value = Counter(
             id = c.id,
             name = c.name,
             currentCount = c.currentCount,
@@ -71,7 +74,7 @@ class CounterEditViewModel(
 
     fun setCanDecrease(canDecrease: Boolean) {
         val c = _counter.value
-        _counter.value = Counter(
+        _editedCounter.value = Counter(
             id = c.id,
             name = c.name,
             currentCount = c.currentCount,

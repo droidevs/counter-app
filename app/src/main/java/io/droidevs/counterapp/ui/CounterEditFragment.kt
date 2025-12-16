@@ -19,6 +19,7 @@ import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.model.Counter
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.CounterEditViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class CounterEditFragment : Fragment() {
@@ -57,7 +58,7 @@ class CounterEditFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            viewModel.counter.collect { counter ->
+            viewModel.counter.collectLatest { counter ->
                 with(binding) {
                     etName.setText(counter.name)
                     etCurrentCount.setText(counter.currentCount.toString())
