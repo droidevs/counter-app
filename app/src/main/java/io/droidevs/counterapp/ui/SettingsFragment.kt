@@ -7,37 +7,21 @@ import androidx.preference.PreferenceManager
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.data.PrefKeys
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import io.droidevs.counterapp.CounterApp
-import io.droidevs.counterapp.data.Themes.Companion.getCurrent
-import java.io.IOException
+import androidx.preference.ListPreference
+import io.droidevs.counterapp.data.Themes
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceChangeListener{
+
+    private lateinit var sharedPrefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        try {
-
-            val sharedPrefs =
-                PreferenceManager.getDefaultSharedPreferences(this.requireActivity())
-            findPreference<Preference>(PrefKeys.THEME.key)
-                ?.setSummary(
-                    resources.getString(getCurrent(sharedPrefs).labelId)
-                )
-
-            findPreference<Preference>(KEY_VERSION)?.summary = appVersion
-
-
-        } catch (e: NullPointerException) {
-            Log.e(TAG, "Unable to retrieve one of the preferences", e)
-        }
     }
 
     private val appVersion : String
@@ -52,11 +36,100 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+        try {
+
+            setupThemePreference()
+            setupVersionPreference()
+            setupActions()
+
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "Unable to retrieve one of the preferences", e)
+        }
+
+    }
+
+    /* -------------------- Theme -------------------- */
+
+    private fun setupThemePreference() {
+        val themePref = findPreference<ListPreference>(PrefKeys.THEME.key)
+
+        themePref?.summary =
+            getString(Themes.getCurrent(sharedPrefs).labelId)
+
+        themePref?.onPreferenceChangeListener = this
+    }
+
+    /* -------------------- Version -------------------- */
+
+    private fun setupVersionPreference() {
+        findPreference<Preference>(KEY_VERSION)?.summary = appVersion
+    }
+
+    /* -------------------- Action Preferences -------------------- */
+
+    private fun setupActions() {
+
+        findPreference<Preference>(KEY_REMOVE_COUNTERS)
+            ?.setOnPreferenceClickListener {
+                showWipeDialog()
+                true
+            }
+
+        findPreference<Preference>(KEY_EXPORT_COUNTERS)
+            ?.setOnPreferenceClickListener {
+                export()
+                true
+            }
+
+        findPreference<Preference>(KEY_HOMEPAGE)
+            ?.setOnPreferenceClickListener {
+                openUrl("https://counter.roman.zone")
+                true
+            }
+
+        findPreference<Preference>(KEY_TIP)
+            ?.setOnPreferenceClickListener {
+                openUrl("https://counter.roman.zone/tip")
+                true
+            }
+    }
+
+    /* -------------------- Preference Change -------------------- */
+
+    override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
+        if (preference.key == PrefKeys.THEME.key) {
+            Themes.initCurrentTheme(sharedPrefs = sharedPrefs)
+            preference.summary =
+                getString(Themes.getCurrent(sharedPrefs).labelId)
+        }
+        return true
+    }
+
+    /* -------------------- Helpers -------------------- */
+
+
+    private fun openUrl(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
+
+    private fun showWipeDialog() {
+        TODO("implement a confirmation dialog")
+    }
+
+    private fun export() {
+        TODO("implement export logic")
     }
 
     companion object {
         private val TAG: String = SettingsFragment::class.java.simpleName
 
+        const val KEY_REMOVE_COUNTERS = "removeCounters"
+        const val KEY_EXPORT_COUNTERS = "exportCounters"
+        const val KEY_HOMEPAGE = "homepage"
+        const val KEY_TIP = "tip"
         const val KEY_VERSION = "version"
     }
 }
