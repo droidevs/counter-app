@@ -1,10 +1,12 @@
 package io.droidevs.counterapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -17,7 +19,7 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
+class MainActivity : AppCompatActivity() {
     var binding : ActivityMainBinding? = null
 
 
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
         toolbar?.setNavigationOnClickListener { v: View? ->
             TODO("open a drawer")
         }
-        toolbar?.setOnMenuItemClickListener(this)
+        //toolbar?.setOnMenuItemClickListener(this)
         setSupportActionBar(toolbar)
 
         var navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -65,14 +67,17 @@ class MainActivity : AppCompatActivity() , Toolbar.OnMenuItemClickListener{
         return true
     }
 
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.menuSettings -> {
                 navController.navigate(R.id.action_home_to_settings)
+                true
             }
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return NavigationUI.navigateUp(

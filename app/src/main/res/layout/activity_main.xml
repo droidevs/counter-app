@@ -18,8 +18,8 @@
             android:id="@+id/mainToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Counters"
-            app:menu="@menu/counter_menu"
+            app:title="Home"
+            app:menu="@menu/main_menu"
             app:navigationIcon="@drawable/ic_menu" />
 
     </com.google.android.material.appbar.AppBarLayout>
