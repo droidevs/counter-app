@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -83,18 +84,15 @@ class HomeFragment : Fragment() {
         var btnViewAll = binding.btnViewAll
         var btnCreate = binding.btnNewCounter
 
-        Log.i("View All Counters","Clicked")
-
-        btnViewAll.setOnClickListener { v -> {
-            Log.i("View All Counters","Clicked")
+        btnViewAll.setOnClickListener { v ->
             findNavController().navigate(
                 R.id.action_home_to_counterList
             )
-        } }
+        }
 
-        btnCreate.setOnClickListener { v -> {
-            Log.i("Create Counter", "Clicked")
-        } }
+        btnCreate.setOnClickListener { v ->
+            Toast.makeText(context, "Create Counter clicked", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
