@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.ListPreference
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +27,6 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,22 +40,27 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val lm = rv.layoutManager as LinearLayoutManager
+                //Log.i(TAG, "First visible item position: ${lm.findFirstVisibleItemPosition()}")
                 when(lm.findFirstVisibleItemPosition()) {
-                    in 0..3 ->setTitle("Controls")
+                    in 1..3 ->setTitle("Controls")
                     in 4..7 ->setTitle("Display")
                     else -> setTitle("Other")
                 }
+
             }
         })
     }
 
+
     private fun setTitle(title: String) {
-        requireActivity().title = title
+        Log.i(TAG, "Setting title to $title")
+        (requireActivity() as AppCompatActivity).supportActionBar
+            ?.title = title
     }
 
     override fun onResume() {
         super.onResume()
-        setHasOptionsMenu(true)
+        setHasOptionsMenu(true) // deprecated
     }
 
     override fun onPause() {
@@ -102,7 +107,9 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
         val themePref = findPreference<ListPreference>(PrefKeys.THEME.key)
 
         themePref?.summary =
-            getString(Themes.getCurrent(sharedPrefs).labelId)
+            getString(Themes.getCurrent(
+                sharedPrefs = sharedPrefs
+            ).labelId)
 
         themePref?.onPreferenceChangeListener = this
     }
@@ -137,7 +144,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
         findPreference<Preference>(KEY_TIP)
             ?.setOnPreferenceClickListener {
-                openUrl("https://counter.roman.zone/tip")
+                openUrl("https://ko-fi.com/mouadoumous3")
                 true
             }
     }
@@ -146,9 +153,14 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         if (preference.key == PrefKeys.THEME.key) {
-            Themes.initCurrentTheme(sharedPrefs = sharedPrefs)
+            Themes.initCurrentTheme(
+                identifier = newValue.toString(),
+                sharedPrefs = sharedPrefs)
             preference.summary =
-                getString(Themes.getCurrent(sharedPrefs).labelId)
+                getString(Themes.getCurrent(
+                    id = newValue.toString(),
+                    sharedPrefs = sharedPrefs
+                ).labelId)
         }
         return true
     }
