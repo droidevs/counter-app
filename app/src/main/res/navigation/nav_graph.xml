@@ -27,7 +27,7 @@
         android:label="Counters">
 
         <action
-            android:id="@+id/action_home_to_counterView"
+            android:id="@+id/action_list_to_counterView"
             app:destination="@id/counterViewFragment"/>
 
     </fragment>

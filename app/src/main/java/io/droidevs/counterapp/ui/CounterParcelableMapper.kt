@@ -14,7 +14,7 @@ fun CounterSnapshot.toParcelable(): CounterSnapshotParcelable = CounterSnapshotP
 )
 
 // Map Parcelable -> CounterSnapshot
-fun CounterSnapshotParcelable.toDomain(): CounterSnapshot = CounterSnapshot(
+fun CounterSnapshotParcelable.toUiModel(): CounterSnapshot = CounterSnapshot(
     id = id,
     name = name,
     currentCount = currentCount,

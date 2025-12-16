@@ -81,7 +81,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         }
 
         findNavController().navigate(
-            R.id.action_home_to_counterView,
+            R.id.action_list_to_counterView,
             bundle
         )
     }

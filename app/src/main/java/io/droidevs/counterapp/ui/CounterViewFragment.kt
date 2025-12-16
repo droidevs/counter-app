@@ -5,9 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 
 class CounterViewFragment : Fragment() {
@@ -18,7 +16,8 @@ class CounterViewFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        counter = arguments?.getParcelable(ARG_COUNTER)
+        counter = (arguments?.getParcelable<CounterSnapshotParcelable>(ARG_COUNTER) as CounterSnapshotParcelable)
+            .toUiModel()
     }
 
     override fun onCreateView(
