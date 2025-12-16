@@ -16,8 +16,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
-import io.droidevs.counterapp.HomeViewModel
-import io.droidevs.counterapp.HomeViewModelFactory
+import io.droidevs.counterapp.ui.vm.HomeViewModel
+import io.droidevs.counterapp.ui.vm.HomeViewModelFactory
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding

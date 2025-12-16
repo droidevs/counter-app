@@ -1,4 +1,4 @@
-package io.droidevs.counterapp
+package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
