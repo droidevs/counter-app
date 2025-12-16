@@ -69,7 +69,7 @@ class CounterViewFragment : Fragment() {
 
     companion object {
 
-        private const val ARG_COUNTER = "counter"
+        internal const val ARG_COUNTER = "counter"
 
         @JvmStatic
         fun newInstance(counter: CounterSnapshot) : CounterViewFragment {

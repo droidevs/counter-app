@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
@@ -18,12 +19,22 @@
             android:id="@+id/action_home_to_counterList"
             app:destination="@id/counterListFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_counterView"
+            app:destination="@id/counterViewFragment"/>
+
     </fragment>
 
     <fragment
         android:id="@+id/counterListFragment"
         android:name="io.droidevs.counterapp.ui.CounterListFragment"
         android:label="Counters"/>
+
+    <fragment
+        android:id="@+id/counterViewFragment"
+        android:name="io.droidevs.counterapp.ui.CounterViewFragment"
+        android:label="Counter View"
+        tools:layout="@layout/fragment_counter_view"/>
 
     <fragment
         android:id="@+id/settingsFragment"

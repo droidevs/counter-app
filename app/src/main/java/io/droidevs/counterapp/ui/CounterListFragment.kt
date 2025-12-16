@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -73,8 +74,16 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
     }
 
     override fun onCounterClick(counter: CounterSnapshot) {
-        // todo : navigate to the counter view page
-        Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+
+        val bundle = Bundle().apply {
+            putParcelable(CounterViewFragment.ARG_COUNTER, counter.toParcelable())
+        }
+
+        findNavController().navigate(
+            R.id.action_home_to_counterView,
+            bundle
+        )
     }
 
     companion object {
