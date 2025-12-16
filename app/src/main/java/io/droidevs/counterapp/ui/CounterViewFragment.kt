@@ -30,7 +30,7 @@ class CounterViewFragment : Fragment() {
             .toUiModel()
         viewModel = ViewModelProvider(
             this,
-            CounterViewModelFactory(counter = counter!!)
+            CounterViewModelFactory(counter = counter)
         )[CounterViewViewModel::class.java]
 
         setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way
@@ -80,13 +80,13 @@ class CounterViewFragment : Fragment() {
         }
 
         btnIncrease.setOnClickListener {
-            //todo : handle increment
-            Toast.makeText(requireContext(), "Increment", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "Increment", Toast.LENGTH_SHORT).show()
+            viewModel.increment()
         }
 
         btnDecrease.setOnClickListener {
-            //todo : handle decrement
-            Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
+            viewModel.decrement()
         }
     }
 
@@ -104,7 +104,8 @@ class CounterViewFragment : Fragment() {
                 true
             }
             R.id.menu_reset -> {
-                Toast.makeText(requireContext(), "Reset", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), "Reset", Toast.LENGTH_SHORT).show()
+                viewModel.reset()
                 true
             }
             R.id.menu_delete -> {
