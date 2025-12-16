@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -18,12 +19,12 @@ class CounterEditViewModel(
 ) : ViewModel() {
 
     // Backing state
-    private val _counter = MutableStateFlow(initialCounter.toDomain())
-    val counter: StateFlow<CounterSnapshot> = _counter
+    private val _counter = MutableStateFlow<Counter>(initialCounter.toDomain())
+    val counter = _counter
         .asStateFlow()
-        .map {
-            it.toSnapshot()
-        } as StateFlow<CounterSnapshot>
+        .map { counter ->
+            counter.toSnapshot()
+        }
 
 
     // Update name
