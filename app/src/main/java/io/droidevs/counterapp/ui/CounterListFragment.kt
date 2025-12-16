@@ -3,6 +3,8 @@ package io.droidevs.counterapp.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -39,6 +41,10 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         super.onCreate(savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+        setHasOptionsMenu(true)
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -71,6 +77,11 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         // Inflate the layout for this fragment
         binding = FragmentCounterListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.findItem(R.id.menuSettings)?.isVisible = false // hack fix todo : implement a custom menu for the list page
     }
 
     override fun onCounterClick(counter: CounterSnapshot) {
