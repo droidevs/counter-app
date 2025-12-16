@@ -94,6 +94,7 @@ class CounterEditFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.findItem(R.id.menuSettings).isVisible = false
         inflater.inflate(R.menu.edit_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
