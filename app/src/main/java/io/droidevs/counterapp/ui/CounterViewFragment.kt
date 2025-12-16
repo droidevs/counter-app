@@ -10,20 +10,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
+import io.droidevs.counterapp.ui.vm.CounterViewModelFactory
+import io.droidevs.counterapp.ui.vm.CounterViewViewModel
+import kotlinx.coroutines.launch
 
 class CounterViewFragment : Fragment() {
 
     lateinit var binding : FragmentCounterViewBinding
-
-    private var counter: CounterSnapshot? = null
+    private lateinit var viewModel: CounterViewViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        counter = (arguments?.getParcelable<CounterSnapshotParcelable>(ARG_COUNTER) as CounterSnapshotParcelable)
+        val counter = (arguments?.getParcelable<CounterSnapshotParcelable>(ARG_COUNTER) as CounterSnapshotParcelable)
             .toUiModel()
+        viewModel = ViewModelProvider(
+            this,
+            CounterViewModelFactory(counter = counter!!)
+        )[CounterViewViewModel::class.java]
+
         setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way
+
     }
 
     override fun onCreateView(
@@ -38,10 +49,6 @@ class CounterViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        counter?.name?.let { name ->
-            (activity as? AppCompatActivity)?.supportActionBar?.title = name
-        }
-
         val tvName = binding.tvCounterName
         val tvCount = binding.tvCurrentCount
         val tvCreatedAt = binding.tvCreatedAt
@@ -52,28 +59,35 @@ class CounterViewFragment : Fragment() {
         val btnIncrease = binding.btnIncrease
         val btnDecrease = binding.btnDecrease
 
-        counter?.let { c ->
-            tvName.text = c.name
-            tvCount.text = c.currentCount.toString()
-            tvCreatedAt.text = "Created at: ${c.createdAt}"
-            tvLastUpdatedAt.text = "Last updated: ${c.lastUpdatedAt}"
-            tvCanIncrease.text = "Can increase: ${c.canIncrease}"
-            tvCanDecrease.text = "Can decrease: ${c.canDecrease}"
+        lifecycleScope.launch {
+            viewModel.counter.collect { counter ->
+                counter?.name?.let { name ->
+                    (activity as? AppCompatActivity)?.supportActionBar?.title = name
+                }
 
-            btnIncrease.isEnabled = c.canIncrease
-            btnDecrease.isEnabled = c.canDecrease
+                counter?.let { c ->
+                    tvName.text = c.name
+                    tvCount.text = c.currentCount.toString()
+                    tvCreatedAt.text = "Created at: ${c.createdAt}"
+                    tvLastUpdatedAt.text = "Last updated: ${c.lastUpdatedAt}"
+                    tvCanIncrease.text = "Can increase: ${c.canIncrease}"
+                    tvCanDecrease.text = "Can decrease: ${c.canDecrease}"
 
-            btnIncrease.setOnClickListener {
-                //todo : handle increment
-                Toast.makeText(requireContext(), "Increment", Toast.LENGTH_SHORT).show()
-            }
-
-            btnDecrease.setOnClickListener {
-                //todo : handle decrement
-                Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
+                    btnIncrease.isEnabled = c.canIncrease
+                    btnDecrease.isEnabled = c.canDecrease
+                }
             }
         }
 
+        btnIncrease.setOnClickListener {
+            //todo : handle increment
+            Toast.makeText(requireContext(), "Increment", Toast.LENGTH_SHORT).show()
+        }
+
+        btnDecrease.setOnClickListener {
+            //todo : handle decrement
+            Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
+        }
     }
 
     @Deprecated("Deprecated in Java")
