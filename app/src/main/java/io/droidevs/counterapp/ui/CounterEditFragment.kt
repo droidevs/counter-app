@@ -4,8 +4,12 @@ import android.os.Bundle
 import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
@@ -23,6 +27,7 @@ class CounterEditFragment : Fragment() {
         counter = requireArguments()
             .getParcelable<CounterSnapshotParcelable>(ARG_COUNTER)!!
             .toUiModel()
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -31,6 +36,12 @@ class CounterEditFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentCounterEditBinding.inflate(inflater, container, false)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
             etName.setText(counter.name)
@@ -41,7 +52,26 @@ class CounterEditFragment : Fragment() {
             tvCreatedAt.text = "Created at: ${counter.createdAt}"
             tvLastUpdatedAt.text = "Last updated: ${counter.lastUpdatedAt}"
         }
-        return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.edit_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.action_save -> {
+                save()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun save() {
+        TODO("implement the save logic")
+        Toast.makeText(requireContext(), "Saved!", Toast.LENGTH_SHORT).show()
     }
 
     companion object {
