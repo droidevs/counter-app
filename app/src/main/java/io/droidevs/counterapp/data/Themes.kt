@@ -11,8 +11,13 @@ enum class Themes(private val identifier: String, val labelId: Int) {
     SYSTEM("system", R.string.settings_theme_system);
 
     companion object {
-        fun getCurrent(sharedPrefs: SharedPreferences): Themes {
-            val identifier = sharedPrefs.getString(PrefKeys.THEME.key, SYSTEM.name)!!
+        fun getCurrent(id: String? = null, sharedPrefs: SharedPreferences): Themes {
+            var identifier : String? = null
+            if (id!= null) {
+                identifier = id
+            } else {
+                identifier = sharedPrefs.getString(PrefKeys.THEME.key, SYSTEM.name)!!
+            }
             for (t in entries) {
                 if (t.identifier == identifier) {
                     return t
@@ -26,8 +31,8 @@ enum class Themes(private val identifier: String, val labelId: Int) {
          *
          * @param sharedPrefs [SharedPreferences] that contain the theme preference.
          */
-        fun initCurrentTheme(sharedPrefs: SharedPreferences) {
-            val currentTheme = getCurrent(sharedPrefs)
+        fun initCurrentTheme(identifier: String? = null, sharedPrefs: SharedPreferences) {
+            val currentTheme = getCurrent(identifier,sharedPrefs)
 
             when (currentTheme) {
                 LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
