@@ -3,10 +3,14 @@ package io.droidevs.counterapp.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 
 class CounterViewFragment : Fragment() {
@@ -19,6 +23,7 @@ class CounterViewFragment : Fragment() {
         super.onCreate(savedInstanceState)
         counter = (arguments?.getParcelable<CounterSnapshotParcelable>(ARG_COUNTER) as CounterSnapshotParcelable)
             .toUiModel()
+        setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way
     }
 
     override fun onCreateView(
@@ -69,6 +74,31 @@ class CounterViewFragment : Fragment() {
             }
         }
 
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        inflater.inflate(R.menu.counter_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.menu_edit -> {
+                Toast.makeText(requireContext(), "Edit", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.menu_reset -> {
+                Toast.makeText(requireContext(), "Reset", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.menu_delete -> {
+                Toast.makeText(requireContext(), "Delete", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     companion object {
