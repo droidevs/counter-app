@@ -7,9 +7,13 @@ import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
 import io.droidevs.counterapp.ui.CounterSnapshot
+import io.droidevs.counterapp.ui.OnCounterClickListener
 
 
-internal class HomeCounterAdapter(private val counters: MutableList<CounterSnapshot>) :
+internal class HomeCounterAdapter(
+    private val counters: MutableList<CounterSnapshot>,
+    private val listener: OnCounterClickListener? = null
+) :
     RecyclerView.Adapter<HomeCounterAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -25,10 +29,10 @@ internal class HomeCounterAdapter(private val counters: MutableList<CounterSnaps
 
     override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
         var counter = counters[position]
-        holder.name.text = counter.name
-        holder.count.text = counter.currentCount.toString()
-        holder.createdAt.text = counter.createdAt.toString()
-        holder.updatedAt.text = counter.lastUpdatedAt.toString()
+        holder.bind(counter)
+        holder.itemView.setOnClickListener {
+            listener?.onCounterClick(counter)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -40,6 +44,13 @@ internal class HomeCounterAdapter(private val counters: MutableList<CounterSnaps
         var count = binding.tvCurrentCount
         var createdAt = binding.tvCreatedDate
         var updatedAt = binding.tvLastEditedDate
+
+        fun bind(counter: CounterSnapshot) {
+            name.text = counter.name
+            count.text = counter.currentCount.toString()
+            createdAt.text = counter.createdAt.toString()
+            updatedAt.text = counter.lastUpdatedAt.toString()
+        }
     }
 
     public fun updateCounters(counters: List<CounterSnapshot>) {

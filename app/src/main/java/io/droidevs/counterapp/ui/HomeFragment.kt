@@ -78,7 +78,13 @@ class HomeFragment : Fragment() {
         recycler?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recycler?.adapter = HomeCounterAdapter(
-            counters = mutableListOf()
+            counters = mutableListOf(),
+            listener = object : OnCounterClickListener {
+                override fun onCounterClick(counter: CounterSnapshot) {
+                    // TODO : implement navigation to the counter view page
+                    Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+                }
+            }
         )
     }
 
