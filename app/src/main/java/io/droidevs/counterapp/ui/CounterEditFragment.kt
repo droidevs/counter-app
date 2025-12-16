@@ -11,22 +11,35 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.ui.vm.CounterEditViewModel
+import io.droidevs.counterapp.ui.vm.CounterEditViewModelFactory
+import kotlinx.coroutines.launch
 
 class CounterEditFragment : Fragment() {
 
     lateinit var binding : FragmentCounterEditBinding
 
-    private lateinit var counter : CounterSnapshot
+    private lateinit var viewModel : CounterEditViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        counter = requireArguments()
+        val counter = requireArguments()
             .getParcelable<CounterSnapshotParcelable>(ARG_COUNTER)!!
             .toUiModel()
+
+        viewModel = ViewModelProvider(
+            this,
+            CounterEditViewModelFactory(counter)
+        )[CounterEditViewModel::class.java]
+
         setHasOptionsMenu(true)
     }
 
@@ -43,14 +56,35 @@ class CounterEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(binding) {
-            etName.setText(counter.name)
-            etCurrentCount.setText(counter.currentCount.toString())
-            switchCanIncrease.isChecked = counter.canIncrease
-            switchCanDecrease.isChecked = counter.canDecrease
+        lifecycleScope.launch {
+            viewModel.counter.collect { counter ->
+                with(binding) {
+                    etName.setText(counter.name)
+                    etCurrentCount.setText(counter.currentCount.toString())
+                    switchCanIncrease.isChecked = counter.canIncrease
+                    switchCanDecrease.isChecked = counter.canDecrease
 
-            tvCreatedAt.text = "Created at: ${counter.createdAt}"
-            tvLastUpdatedAt.text = "Last updated: ${counter.lastUpdatedAt}"
+                    tvCreatedAt.text = "Created at: ${counter.createdAt}"
+                    tvLastUpdatedAt.text = "Last updated: ${counter.lastUpdatedAt}"
+                }
+            }
+        }
+        with(binding){
+            etName.doAfterTextChanged {
+                viewModel.updateName(it.toString())
+            }
+
+            etCurrentCount.doAfterTextChanged {
+                it.toString().toIntOrNull()?.let { count -> viewModel.updateCurrentCount(count) }
+            }
+
+            switchCanIncrease.setOnCheckedChangeListener { _,checked ->
+                viewModel.setCanIncrease(checked)
+            }
+
+            switchCanDecrease.setOnCheckedChangeListener { _,checked ->
+                viewModel.setCanDecrease(checked)
+            }
         }
     }
 
@@ -70,8 +104,9 @@ class CounterEditFragment : Fragment() {
     }
 
     fun save() {
-        TODO("implement the save logic")
-        Toast.makeText(requireContext(), "Saved!", Toast.LENGTH_SHORT).show()
+        viewModel.save {
+            Toast.makeText(requireContext(), "Saved!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
