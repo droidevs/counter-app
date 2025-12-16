@@ -10,7 +10,7 @@ import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.ui.CounterSnapshot
 
 class ListCounterAdapter(
-    private var counters: List<CounterSnapshot> = emptyList<CounterSnapshot>()
+    private var counters: List<CounterSnapshot> = ArrayList<CounterSnapshot>()
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     inner class ViewHolder(
