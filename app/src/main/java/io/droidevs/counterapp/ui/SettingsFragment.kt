@@ -11,6 +11,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
 import android.widget.Toast
 import androidx.preference.ListPreference
 import io.droidevs.counterapp.data.Themes
@@ -22,6 +24,17 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setHasOptionsMenu(true)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.findItem(R.id.menuSettings)?.isVisible = false
     }
 
     private val appVersion : String
