@@ -20,7 +20,7 @@ import io.droidevs.counterapp.ui.vm.CountersListViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class CounterListFragment : Fragment() {
+class CounterListFragment : Fragment() , OnCounterClickListener {
 
     lateinit var binding: FragmentCounterListBinding
 
@@ -47,7 +47,7 @@ class CounterListFragment : Fragment() {
         recyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        val adapter = ListCounterAdapter()
+        val adapter = ListCounterAdapter(listener = this)
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
@@ -70,6 +70,11 @@ class CounterListFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentCounterListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onCounterClick(counter: CounterSnapshot) {
+        // todo : navigate to the counter view page
+        Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
     }
 
     companion object {

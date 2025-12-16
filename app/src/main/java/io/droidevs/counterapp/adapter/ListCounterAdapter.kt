@@ -8,16 +8,26 @@ import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.ui.CounterSnapshot
+import io.droidevs.counterapp.ui.OnCounterClickListener
 
 class ListCounterAdapter(
-    private var counters: List<CounterSnapshot> = ArrayList<CounterSnapshot>()
+    private var counters: List<CounterSnapshot> = ArrayList<CounterSnapshot>(),
+    private val listener : OnCounterClickListener
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     inner class ViewHolder(
-        binding: ItemListCounterBinding
+        val binding: ItemListCounterBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         val tvName: TextView = binding.tvCounterName
         val tvCount: TextView = binding.tvCounterCount
+
+        fun bind(counter: CounterSnapshot) {
+            tvName.text = counter.name
+            tvCount.text = counter.currentCount.toString()
+            binding.root.setOnClickListener {
+                listener.onCounterClick(counter)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,8 +41,7 @@ class ListCounterAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val counter = counters[position]
-        holder.tvName.text = counter.name
-        holder.tvCount.text = counter.currentCount.toString()
+        holder.bind(counter)
     }
 
     override fun getItemCount(): Int = counters.size
