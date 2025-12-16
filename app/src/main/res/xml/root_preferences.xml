@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fitsSystemWindows="true">
+
+    <ListPreference
+        android:defaultValue="system"
+        android:entries="@array/themeSelectionEntries"
+        android:entryValues="@array/themeSelectionValues"
+        android:icon="@drawable/ic_palette"
+        android:key="theme"
+        android:title="@string/settings_theme" />
+
+
+</PreferenceScreen>

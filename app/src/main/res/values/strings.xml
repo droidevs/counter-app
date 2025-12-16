@@ -14,4 +14,18 @@
     <string name="create_new_counter">Create new counter</string>
     <string name="add_counter">Add Counter</string>
 
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_display">Display</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_auto_battery">Set by Battery Saver</string>
+    <string name="settings_theme_system">Use system default</string>
+
+
+    <string name="default_counter_name">First counter</string>
+    <string name="unknown_version" translatable="false">Unknown</string>
+
 </resources>
