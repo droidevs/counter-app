@@ -24,6 +24,7 @@
     <string name="settings_theme_auto_battery">Set by Battery Saver</string>
     <string name="settings_theme_system">Use system default</string>
 
+    <string name="settings_version_title">Version</string>
 
     <string name="default_counter_name">First counter</string>
     <string name="unknown_version" translatable="false">Unknown</string>

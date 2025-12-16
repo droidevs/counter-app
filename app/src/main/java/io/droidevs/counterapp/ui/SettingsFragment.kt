@@ -32,11 +32,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     resources.getString(getCurrent(sharedPrefs).labelId)
                 )
 
+            findPreference<Preference>(KEY_VERSION)?.summary = appVersion
+
 
         } catch (e: NullPointerException) {
             Log.e(TAG, "Unable to retrieve one of the preferences", e)
         }
     }
+
+    private val appVersion : String
+        get() = try {
+            requireContext().packageManager
+                .getPackageInfo(requireContext().packageName, 0)
+                .versionName ?:getString(R.string.unknown_version)
+        } catch (e: Exception) {
+            getString(R.string.unknown_version)
+        }
 
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -46,5 +57,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     companion object {
         private val TAG: String = SettingsFragment::class.java.simpleName
 
+        const val KEY_VERSION = "version"
     }
 }
