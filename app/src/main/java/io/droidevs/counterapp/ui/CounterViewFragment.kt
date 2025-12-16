@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.vm.CounterViewModelFactory
@@ -103,7 +104,13 @@ class CounterViewFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.menu_edit -> {
-                Toast.makeText(requireContext(), "Edit", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), "Edit", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(
+                    R.id.action_counterView_to_counterEdit,
+                    Bundle().apply {
+                        putParcelable(CounterEditFragment.ARG_COUNTER, viewModel.getCounter()!!.toParcelable())
+                    }
+                )
                 true
             }
             R.id.menu_reset -> {

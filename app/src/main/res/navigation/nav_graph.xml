@@ -24,7 +24,8 @@
     <fragment
         android:id="@+id/counterListFragment"
         android:name="io.droidevs.counterapp.ui.CounterListFragment"
-        android:label="Counters">
+        android:label="Counters"
+        tools:layout="@layout/fragment_counter_list">
 
         <action
             android:id="@+id/action_list_to_counterView"
@@ -36,7 +37,19 @@
         android:id="@+id/counterViewFragment"
         android:name="io.droidevs.counterapp.ui.CounterViewFragment"
         android:label="Counter View"
-        tools:layout="@layout/fragment_counter_view"/>
+        tools:layout="@layout/fragment_counter_view">
+
+        <action
+            android:id="@+id/action_counterView_to_counterEdit"
+            app:destination="@id/editCounterFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editCounterFragment"
+        android:name="io.droidevs.counterapp.ui.CounterEditFragment"
+        android:label="Edit Counter"
+        tools:layout="@layout/fragment_counter_edit"/>
 
     <fragment
         android:id="@+id/settingsFragment"

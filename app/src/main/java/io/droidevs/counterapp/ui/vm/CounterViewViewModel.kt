@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
+
 
 class CounterViewViewModel(
     initialCounter : CounterSnapshot
@@ -25,6 +24,8 @@ class CounterViewViewModel(
         .map { counter ->
             counter?.toSnapshot()
         }
+
+    fun getCounter() = _counter.value?.toSnapshot()
 
     fun increment() {
         val c = _counter.value ?: return
