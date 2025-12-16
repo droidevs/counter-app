@@ -19,16 +19,18 @@
             android:id="@+id/action_home_to_counterList"
             app:destination="@id/counterListFragment"/>
 
-        <action
-            android:id="@+id/action_home_to_counterView"
-            app:destination="@id/counterViewFragment"/>
-
     </fragment>
 
     <fragment
         android:id="@+id/counterListFragment"
         android:name="io.droidevs.counterapp.ui.CounterListFragment"
-        android:label="Counters"/>
+        android:label="Counters">
+
+        <action
+            android:id="@+id/action_home_to_counterView"
+            app:destination="@id/counterViewFragment"/>
+
+    </fragment>
 
     <fragment
         android:id="@+id/counterViewFragment"
