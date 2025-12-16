@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.vm.CounterViewModelFactory
@@ -33,7 +34,9 @@ class CounterViewFragment : Fragment() {
             .toUiModel()
         viewModel = ViewModelProvider(
             this,
-            CounterViewModelFactory(counter = counter)
+            CounterViewModelFactory(
+                counter = counter
+            )
         )[CounterViewViewModel::class.java]
 
         setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way

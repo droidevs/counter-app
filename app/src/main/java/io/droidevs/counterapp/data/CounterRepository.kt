@@ -1,12 +1,15 @@
 package io.droidevs.counterapp.data
 
+import android.util.Log
 import io.droidevs.counterapp.model.Counter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 import java.time.Instant
 
-class CounterRepository(var dao: CounterDao) {
+class CounterRepository(
+    private var dao: CounterDao
+) {
 
     fun getAllCounters(): Flow<List<Counter>> {
         return dao.getLastEdited(5).map { counters ->
@@ -16,6 +19,11 @@ class CounterRepository(var dao: CounterDao) {
 
     fun getTotalCounters() : Flow<Int> {
         return dao.getTotalCounters()
+    }
+
+    suspend fun saveCounter(counter : Counter) {
+        val n = dao.update(counter.toEntity())
+        Log.i("CounterRepository", "Updated $n counters")
     }
 
 }

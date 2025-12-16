@@ -14,6 +14,7 @@ import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.model.Counter
@@ -38,7 +39,10 @@ class CounterEditFragment : Fragment() {
 
         viewModel = ViewModelProvider(
             this,
-            CounterEditViewModelFactory(counter)
+            CounterEditViewModelFactory(
+                initialCounter = counter,
+                repository = (requireActivity().application as CounterApp).counterRepository
+            )
         )[CounterEditViewModel::class.java]
 
         setHasOptionsMenu(true)

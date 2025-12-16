@@ -2,6 +2,7 @@ package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.droidevs.counterapp.data.CounterRepository
 import io.droidevs.counterapp.model.Counter
 import io.droidevs.counterapp.ui.CounterSnapshot
 import io.droidevs.counterapp.ui.toDomain
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 class CounterEditViewModel(
-    initialCounter: CounterSnapshot
+    initialCounter: CounterSnapshot,
+    val repository: CounterRepository
 ) : ViewModel() {
 
     // Backing state
@@ -40,7 +42,7 @@ class CounterEditViewModel(
             canIncrease = c.canIncrease,
             canDecrease = c.canDecrease,
             createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
+            lastUpdatedAt = Instant.now()
         )
     }
 
@@ -54,7 +56,7 @@ class CounterEditViewModel(
             canIncrease = c.canIncrease,
             canDecrease = c.canDecrease,
             createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
+            lastUpdatedAt = Instant.now()
         )
     }
 
@@ -68,7 +70,7 @@ class CounterEditViewModel(
             canIncrease = canIncrease,
             canDecrease = c.canDecrease,
             createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
+            lastUpdatedAt = Instant.now()
         )
     }
 
@@ -81,14 +83,14 @@ class CounterEditViewModel(
             canIncrease = c.canIncrease,
             canDecrease = canDecrease,
             createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
+            lastUpdatedAt = Instant.now()
         )
     }
 
     // Save logic (to repository or database)
     fun save(onSaved: (() -> Unit)? = null) {
         viewModelScope.launch {
-            // TODO: persist _counter.value to your repository
+            repository.saveCounter(_editedCounter.value)
             onSaved?.invoke()
         }
     }

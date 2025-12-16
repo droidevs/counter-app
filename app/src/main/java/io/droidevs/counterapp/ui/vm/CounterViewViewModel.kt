@@ -2,6 +2,7 @@ package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.droidevs.counterapp.data.CounterRepository
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.model.Counter
 import io.droidevs.counterapp.ui.CounterSnapshot
