@@ -35,6 +35,10 @@
             android:id="@+id/action_home_to_categoryView"
             app:destination="@id/categoryViewFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_categoryCreate"
+            app:destination="@id/createCategoryFragment"/>
+
     </fragment>
 
     <fragment
@@ -42,6 +46,12 @@
         android:name="io.droidevs.counterapp.ui.fragments.ViewCategoryFragment"
         android:label="Category View"
         tools:layout="@layout/fragment_view_category"/>
+
+    <fragment
+        android:id="@+id/createCategoryFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CreateCategoryFragment"
+        android:label="Create Category"
+        tools:layout="@layout/fragment_create_category"/>
 
     <fragment
         android:id="@+id/counterListFragment"

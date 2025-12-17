@@ -131,6 +131,7 @@ class HomeFragment : Fragment() {
         var btnViewAll = binding.btnViewAllCounters
         var btnCreate = binding.btnNewCounter
         var btnViewCategories = binding.btnViewAllCategories
+        var btnCreateCategory = binding.btnCreateCategory
 
         btnViewAll.setOnClickListener { v ->
             findNavController().navigate(
@@ -144,6 +145,9 @@ class HomeFragment : Fragment() {
 
         btnViewCategories.setOnClickListener { v ->
             findNavController().navigate(R.id.action_home_to_categoryList)
+        }
+        btnCreateCategory.setOnClickListener { v ->
+            findNavController().navigate(R.id.action_home_to_categoryCreate)
         }
 
     }
