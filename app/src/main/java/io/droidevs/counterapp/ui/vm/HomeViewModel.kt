@@ -25,6 +25,9 @@ class HomeViewModel(
     val countersNumber = counterRepository.getTotalCounters()
         .onStart { emit(0) }
 
+    val categoriesCount = categoryRepository.getTotalCategoriesCount()
+        .onStart { emit(0) }
+
 
     val categories = categoryRepository.topCategories(3)
         .onStart { emit(emptyList()) }

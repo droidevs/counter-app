@@ -8,6 +8,7 @@ import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
+import kotlinx.coroutines.flow.flow
 
 class FakeCategoryRepository : CategoryRepository {
 
@@ -33,6 +34,12 @@ class FakeCategoryRepository : CategoryRepository {
         return categoriesFlow.map { list ->
             list.sortedByDescending { it.countersCount }
                 .take(limit)
+        }
+    }
+
+    override fun getTotalCategoriesCount(): Flow<Int> {
+        return categoriesFlow.map {
+            it.size
         }
     }
 

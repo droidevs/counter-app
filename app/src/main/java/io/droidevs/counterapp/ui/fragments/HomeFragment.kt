@@ -45,8 +45,6 @@ class HomeFragment : Fragment() {
     var recycler : RecyclerView? = null
     var categoryRecycler : RecyclerView? = null
 
-    var totalCountersText : TextView? = null
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +61,6 @@ class HomeFragment : Fragment() {
 
         recycler = binding.recyclerLastCounters
         categoryRecycler = binding.recyclerTopCategories
-        totalCountersText = binding.txtTotalCounters
 
         return binding.root
     }
@@ -73,6 +70,8 @@ class HomeFragment : Fragment() {
         setUpRecyclerView()
         setUpButtons()
 
+        var totalCountersText = binding.txtTotalCounters
+        var totalCategoriesText = binding.txtTotalCategories
 
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
@@ -83,13 +82,18 @@ class HomeFragment : Fragment() {
 
         lifecycleScope.launch {
             viewModel.countersNumber.collect { size ->
-                totalCountersText?.text = "Total Counters: ${size}"
+                totalCountersText.text = "Total Counters: ${size}"
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.categories.collectLatest { categories ->
                 (categoryRecycler?.adapter as HomeCategoryAdapter).submitList(categories)
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.categoriesCount.collectLatest { count ->
+                totalCategoriesText.text = "Total Categories: ${count}"
             }
         }
 

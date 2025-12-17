@@ -16,6 +16,10 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
         }
     }
 
+    override fun getTotalCategoriesCount(): Flow<Int> {
+        return categoryDao.getTotalCategoriesCount()
+    }
+
     // Get all categories
     override fun allCategories(): Flow<List<Category>> {
         return categoryDao.getAllCategories().map { list ->
