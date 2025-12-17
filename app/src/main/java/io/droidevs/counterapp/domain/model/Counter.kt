@@ -12,6 +12,9 @@ class Counter(
     var currentCount: Int = 0,
     var canIncrease: Boolean = true,
     var canDecrease: Boolean = false,
+
+    var categoryId: String? = null,
+
     val createdAt: Instant = Instant.now(),
     var lastUpdatedAt: Instant = createdAt
 ) {

@@ -123,7 +123,10 @@ class HomeFragment : Fragment() {
                 override fun onCategoryClick(category: CategoryUiModel) {
                     //Toast.makeText(requireContext(), "Category clicked: ${category.name}", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(
-                        R.id.action_home_to_categoryView
+                        R.id.action_home_to_categoryView,
+                        Bundle().apply {
+                            putString(ViewCategoryFragment.ARG_CATEGORY_ID, category.id)
+                        }
                     )
                 }
             }

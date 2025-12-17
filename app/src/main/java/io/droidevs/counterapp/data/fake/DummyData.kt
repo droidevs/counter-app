@@ -25,15 +25,20 @@ object DummyData {
         "Finance", "Leisure", "Social", "Spiritual"
     )
 
+    // Generate category IDs first
+    private val categoryIds = List(categoryNames.size) { UUID.randomUUID().toString() }
+
     fun getCounters(): List<CounterEntity> {
         val now = Instant.now()
-        return List(35) { index ->
+        return counterNames.mapIndexed { index, name ->
+            val randomCategoryId = categoryIds.random()
             CounterEntity(
                 id = UUID.randomUUID().toString(),
-                name = counterNames.getOrElse(index) { "Counter $index" },
+                name = name,
                 currentCount = (0..50).random(),
                 canIncrement = true,
                 canDecrement = (0..1).random() == 1,
+                categoryId = randomCategoryId,
                 createdAt = now.minusSeconds((index * 3600).toLong()),
                 lastUpdatedAt = now.minusSeconds((index * 1800).toLong())
             )
@@ -41,9 +46,9 @@ object DummyData {
     }
 
     fun getCategories(): List<CategoryEntity> {
-        return List(8) { index ->
+        return List(categoryIds.size) { index ->
             CategoryEntity(
-                id = UUID.randomUUID().toString(),
+                id = categoryIds[index],
                 name = categoryNames.getOrElse(index) { "Category $index" },
                 countersCount = (1..10).random()
             )

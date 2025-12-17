@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.data
 
 import io.droidevs.counterapp.domain.model.Category
+import io.droidevs.counterapp.domain.model.CategoryWithCounters
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
@@ -18,6 +19,11 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
 
     override fun getTotalCategoriesCount(): Flow<Int> {
         return categoryDao.getTotalCategoriesCount()
+    }
+
+    override fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters> {
+        return categoryDao.getCategoryWithCounters(categoryId = categoryId)
+            .map { it.toDomain() }
     }
 
     // Get all categories

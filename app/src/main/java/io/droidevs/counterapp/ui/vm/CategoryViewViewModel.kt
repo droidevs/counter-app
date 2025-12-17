@@ -1,35 +1,22 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
-import io.droidevs.counterapp.data.fake.DummyData
-import io.droidevs.counterapp.data.toDomain
+import io.droidevs.counterapp.domain.repository.CategoryRepository
+import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.ui.models.CategoryWithCountersUiModel
-import io.droidevs.counterapp.ui.toSnapshot
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
-class CategoryViewViewModel : ViewModel() {
+class CategoryViewViewModel(
+    val categoryId: String,
+    val repository: CategoryRepository
+) : ViewModel() {
 
-    private val _category =
-        MutableStateFlow<CategoryWithCountersUiModel?>(null)
+    val category = repository.categoryWithCounters(categoryId = categoryId)
+        .map { category ->
+            category.toUiModel()
+        }
 
-    val category = _category.asStateFlow()
 
-    init {
-        loadCategory()
-    }
-
-    private fun loadCategory() {
-        val model = CategoryWithCountersUiModel(
-            categoryId = "1",
-            categoryName = "Category 1",
-            counters = DummyData.getCounters()
-                .map { counter ->
-                    counter.toDomain().toSnapshot()
-                }
-        )
-
-        _category.value = model
-    }
 }
 
