@@ -11,16 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.vm.HomeViewModelFactory
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.adapter.HomeCategoryAdapter
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
 import kotlinx.coroutines.flow.first
@@ -40,6 +39,8 @@ class HomeFragment : Fragment() {
     lateinit var binding : FragmentHomeBinding
 
     var recycler : RecyclerView? = null
+    var categoryRecycler : RecyclerView? = null
+
     var totalCountersText : TextView? = null
 
 
@@ -57,6 +58,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater)
 
         recycler = binding.recyclerLastCounters
+        categoryRecycler = binding.recyclerTopCategories
         totalCountersText = binding.txtTotalCounters
 
         return binding.root
@@ -99,12 +101,24 @@ class HomeFragment : Fragment() {
                 }
             }
         )
+        categoryRecycler?.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        categoryRecycler?.adapter = HomeCategoryAdapter() // todo : implement click listener
+
+        val categories = listOf(
+            CounterCategoryUiModel("1", "Fitness", 8),
+            CounterCategoryUiModel("2", "Habits", 5),
+            CounterCategoryUiModel("3", "Work", 3)
+        )
+
+        (categoryRecycler?.adapter as HomeCategoryAdapter).submitList(categories)
+
     }
 
     private fun setUpButtons() {
-        var btnViewAll = binding.btnViewAll
+        var btnViewAll = binding.btnViewAllCounters
         var btnCreate = binding.btnNewCounter
-        var btnViewCategories = binding.btnViewCategories
+        var btnViewCategories = binding.btnViewAllCategories
 
         btnViewAll.setOnClickListener { v ->
             findNavController().navigate(
@@ -119,6 +133,7 @@ class HomeFragment : Fragment() {
         btnViewCategories.setOnClickListener { v ->
             findNavController().navigate(R.id.action_home_to_categoryList)
         }
+
     }
 
     companion object {

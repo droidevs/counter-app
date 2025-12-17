@@ -6,56 +6,94 @@
     android:orientation="vertical"
     tools:context=".ui.HomeFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerLastCounters"
+    <!-- ================= TOP HALF : COUNTERS ================= -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="horizontal"/>
-
-    <Button
-        android:id="@+id/btnViewAll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/view_all_counters"
-        android:layout_marginTop="8dp"
-        android:clickable="true"
-        android:focusable="true"/>
-
-    <Space
-        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- Total counters -->
-    <TextView
-        android:id="@+id/txtTotalCounters"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/total_counters_0"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"/>
+        <!-- Horizontal counters list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerLastCounters"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:orientation="horizontal" />
 
-    <!--Create new counter -->
-    <Button
-        android:id="@+id/btnNewCounter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/create_new_counter"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
+        <!-- Buttons row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
 
-    <Button
-        android:id="@+id/btnViewCategories"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/view_categories"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
+            <Button
+                android:id="@+id/btnViewAllCounters"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/view_all_counters" />
 
-    <Space
-        android:layout_width="0dp"
+            <Button
+                android:id="@+id/btnNewCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_new_counter"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Total counters -->
+        <TextView
+            android:id="@+id/txtTotalCounters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/total_counters_0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+    <!-- ================= BOTTOM HALF : CATEGORIES ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Horizontal categories list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerTopCategories"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:orientation="horizontal" />
+
+        <!-- Buttons row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnViewAllCategories"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/view_categories" />
+
+            <Button
+                android:id="@+id/btnCreateCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_category"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

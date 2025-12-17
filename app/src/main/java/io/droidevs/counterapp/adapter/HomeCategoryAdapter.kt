@@ -1,0 +1,46 @@
+package io.droidevs.counterapp.adapter
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.databinding.ItemCategoryBinding
+import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
+import io.droidevs.counterapp.ui.CounterCategoryUiModel
+
+class HomeCategoryAdapter() : ListAdapter<CounterCategoryUiModel, HomeCategoryAdapter.CategoryViewHolder>(
+    DiffCallback
+) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ItemHomeCategoryBinding.inflate(inflater, parent, false)
+        return CategoryViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    inner class CategoryViewHolder(binding: ItemHomeCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        private val name = binding.txtCategoryName
+
+        fun bind(item: CounterCategoryUiModel) {
+            name.text = item.name
+        }
+    }
+
+    private object DiffCallback : DiffUtil.ItemCallback<CounterCategoryUiModel>() {
+        override fun areItemsTheSame(
+            oldItem: CounterCategoryUiModel,
+            newItem: CounterCategoryUiModel
+        ): Boolean = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(
+            oldItem: CounterCategoryUiModel,
+            newItem: CounterCategoryUiModel
+        ): Boolean = oldItem == newItem
+    }
+}
