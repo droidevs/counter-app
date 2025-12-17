@@ -1,8 +1,7 @@
-package io.droidevs.counterapp.data.fake
+package io.droidevs.counterapp.data.repository.fake
 
 import io.droidevs.counterapp.data.toDomain
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Category
@@ -11,7 +10,6 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 
 class FakeCategoryRepository(
     val dummyData: DummyData

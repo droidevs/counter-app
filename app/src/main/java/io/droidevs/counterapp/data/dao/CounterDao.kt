@@ -1,6 +1,10 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
+import io.droidevs.counterapp.data.entities.CounterEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

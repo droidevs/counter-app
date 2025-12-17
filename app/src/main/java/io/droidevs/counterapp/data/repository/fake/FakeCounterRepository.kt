@@ -1,9 +1,8 @@
-package io.droidevs.counterapp.data.fake
+package io.droidevs.counterapp.data.repository.fake
 
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository

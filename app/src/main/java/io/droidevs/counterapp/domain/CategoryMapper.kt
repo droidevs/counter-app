@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.domain
 
-import io.droidevs.counterapp.data.CategoryEntity
+import io.droidevs.counterapp.data.entities.CategoryEntity
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 

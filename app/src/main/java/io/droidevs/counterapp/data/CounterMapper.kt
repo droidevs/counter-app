@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.data
 
+import io.droidevs.counterapp.data.entities.CounterEntity
 import io.droidevs.counterapp.domain.model.Counter
 
 

@@ -1,5 +1,6 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.repository
 
+import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
 import io.droidevs.counterapp.domain.repository.CategoryRepository
@@ -8,7 +9,7 @@ import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRepository{
+class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRepository {
 
     // Get top 3 categories (ordered by countersCount)
     override fun topCategories(limit: Int) : Flow<List<Category>> {

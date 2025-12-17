@@ -1,7 +1,7 @@
-package io.droidevs.counterapp.data.fake
+package io.droidevs.counterapp.data.repository.fake
 
-import io.droidevs.counterapp.data.CategoryEntity
-import io.droidevs.counterapp.data.CounterEntity
+import io.droidevs.counterapp.data.entities.CategoryEntity
+import io.droidevs.counterapp.data.entities.CounterEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
 import java.util.UUID

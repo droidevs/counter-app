@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

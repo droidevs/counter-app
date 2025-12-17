@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.converters
 
 import androidx.room.TypeConverter
 import java.time.Instant

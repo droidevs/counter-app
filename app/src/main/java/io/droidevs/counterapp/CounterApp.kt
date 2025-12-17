@@ -5,19 +5,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import io.droidevs.counterapp.data.AppDatabase
-import io.droidevs.counterapp.data.CategoryDao
-import io.droidevs.counterapp.data.CategoryRepositoryImpl
-import io.droidevs.counterapp.data.CounterDao
-import io.droidevs.counterapp.data.CounterRepositoryImpl
-import io.droidevs.counterapp.data.fake.DummyData
-import io.droidevs.counterapp.data.fake.FakeCategoryRepository
-import io.droidevs.counterapp.data.fake.FakeCounterRepository
+import io.droidevs.counterapp.data.dao.CategoryDao
+import io.droidevs.counterapp.data.repository.CategoryRepositoryImpl
+import io.droidevs.counterapp.data.dao.CounterDao
+import io.droidevs.counterapp.data.repository.CounterRepositoryImpl
+import io.droidevs.counterapp.data.repository.fake.DummyData
+import io.droidevs.counterapp.data.repository.fake.FakeCategoryRepository
+import io.droidevs.counterapp.data.repository.fake.FakeCounterRepository
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.time.Instant
 
 class CounterApp : Application() {
 

@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -14,7 +14,7 @@ import java.time.Instant
             entity = CategoryEntity::class,
             parentColumns = ["id"],
             childColumns = ["category_id"],
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.Companion.SET_NULL
         )
     ],
     indices = [Index("category_id")]

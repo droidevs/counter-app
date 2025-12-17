@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.data
+package io.droidevs.counterapp.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -6,7 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import io.droidevs.counterapp.domain.model.Category
+import io.droidevs.counterapp.data.entities.CategoryEntity
+import io.droidevs.counterapp.data.entities.CategoryWithCountersEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,7 +22,7 @@ interface CategoryDao {
     @Query("SELECT * FROM categories")
     fun getAllCategories(): Flow<List<CategoryEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
     @Insert
     suspend fun insert(category: CategoryEntity)
@@ -34,7 +35,7 @@ interface CategoryDao {
     ) : Flow<CategoryWithCountersEntity>
 
     @Update
-    fun updateCategory(category :  CategoryEntity)
+    fun updateCategory(category : CategoryEntity)
 
     @Query("SELECT * FROM categories WHERE id = :categoryId")
     fun getCategory(categoryId : String) : Flow<CategoryEntity>
