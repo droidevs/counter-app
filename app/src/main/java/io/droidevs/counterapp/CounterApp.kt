@@ -8,11 +8,10 @@ import io.droidevs.counterapp.data.AppDatabase
 import io.droidevs.counterapp.data.CounterDao
 import io.droidevs.counterapp.data.CounterRepository
 import io.droidevs.counterapp.data.toEntity
-import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.domain.model.Counter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.Instant
 
 class CounterApp : Application() {

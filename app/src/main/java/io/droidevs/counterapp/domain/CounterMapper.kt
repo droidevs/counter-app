@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.domain
 
-import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.ui.CounterSnapshot
 
 

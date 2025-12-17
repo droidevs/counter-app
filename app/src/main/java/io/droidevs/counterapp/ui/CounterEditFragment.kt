@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.ui
 
 import android.os.Bundle
-import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -17,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
-import io.droidevs.counterapp.model.Counter
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.CounterEditViewModelFactory
 import kotlinx.coroutines.flow.collectLatest

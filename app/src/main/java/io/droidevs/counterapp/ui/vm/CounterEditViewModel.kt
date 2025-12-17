@@ -3,15 +3,13 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.data.CounterRepository
-import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.ui.CounterSnapshot
 import io.droidevs.counterapp.ui.toDomain
 import io.droidevs.counterapp.ui.toSnapshot
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.Instant
 

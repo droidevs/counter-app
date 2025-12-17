@@ -1,12 +1,9 @@
 package io.droidevs.counterapp.data
 
 import android.util.Log
-import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.domain.model.Counter
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-
-import java.time.Instant
 
 class CounterRepository(
     private var dao: CounterDao

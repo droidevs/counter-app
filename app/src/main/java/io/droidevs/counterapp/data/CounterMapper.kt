@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.data
 
-import io.droidevs.counterapp.model.Counter
+import io.droidevs.counterapp.domain.model.Counter
 
 fun CounterEntity.toDomain(): Counter {
     return Counter(

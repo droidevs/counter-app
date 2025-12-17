@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.model
+package io.droidevs.counterapp.domain.model
 import java.time.Instant
 import java.util.UUID
 

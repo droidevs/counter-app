@@ -53,5 +53,6 @@
     <string name="default_counter_name">First counter</string>
     <string name="unknown_version" translatable="false">Unknown</string>
     <string name="save">Save</string>
+    <string name="view_categories">View Categories</string>
 
 </resources>
