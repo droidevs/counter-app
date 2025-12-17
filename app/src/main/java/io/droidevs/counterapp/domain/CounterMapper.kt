@@ -1,7 +1,7 @@
 package io.droidevs.counterapp.domain
 
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.ui.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterSnapshot
 
 
 fun Counter.toSnapshot(): CounterSnapshot {

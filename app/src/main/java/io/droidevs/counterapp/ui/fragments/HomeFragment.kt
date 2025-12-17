@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.ui
+package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -6,26 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
-import io.droidevs.counterapp.ui.vm.HomeViewModel
-import io.droidevs.counterapp.ui.vm.HomeViewModelFactory
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCategoryAdapter
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.toParcelable
+import io.droidevs.counterapp.ui.vm.HomeViewModel
+import io.droidevs.counterapp.ui.vm.factories.HomeViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 class HomeFragment : Fragment() {
 

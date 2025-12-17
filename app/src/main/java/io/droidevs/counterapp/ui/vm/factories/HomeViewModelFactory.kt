@@ -1,9 +1,10 @@
-package io.droidevs.counterapp.ui.vm
+package io.droidevs.counterapp.ui.vm.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.data.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.ui.vm.HomeViewModel
 
 class HomeViewModelFactory(
     private val repository: CounterRepository,
@@ -15,7 +16,7 @@ class HomeViewModelFactory(
             return HomeViewModel(
                 counterRepository = repository,
                 categoryRepository = categoryRepository
-                ) as T
+            ) as T
         }
          throw IllegalArgumentException("Unknown ViewModel class")
     }

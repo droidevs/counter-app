@@ -1,9 +1,10 @@
-package io.droidevs.counterapp.ui.vm
+package io.droidevs.counterapp.ui.vm.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
-import io.droidevs.counterapp.ui.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.vm.CounterViewViewModel
 
 class CounterViewModelFactory(
     val counter : CounterSnapshot,

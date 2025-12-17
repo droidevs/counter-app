@@ -6,8 +6,8 @@ import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
-import io.droidevs.counterapp.ui.CounterSnapshot
-import io.droidevs.counterapp.ui.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 
 
 internal class HomeCounterAdapter(

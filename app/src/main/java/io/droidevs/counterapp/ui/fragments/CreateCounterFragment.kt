@@ -1,21 +1,19 @@
-package io.droidevs.counterapp.ui
+package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import io.droidevs.counterapp.CounterApp
-import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
+import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
-import io.droidevs.counterapp.ui.vm.CreateCounterViewModelFactory
+import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
 import java.time.Instant
 import java.util.UUID
-
 
 class CreateCounterFragment : Fragment() {
 

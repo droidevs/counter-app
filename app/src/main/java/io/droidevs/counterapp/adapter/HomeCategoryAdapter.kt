@@ -5,9 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.databinding.ItemCategoryBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
-import io.droidevs.counterapp.ui.CounterCategoryUiModel
+import io.droidevs.counterapp.ui.models.CounterCategoryUiModel
 
 class HomeCategoryAdapter() : ListAdapter<CounterCategoryUiModel, HomeCategoryAdapter.CategoryViewHolder>(
     DiffCallback

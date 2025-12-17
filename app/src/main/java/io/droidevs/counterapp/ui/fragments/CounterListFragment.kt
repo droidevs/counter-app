@@ -1,13 +1,12 @@
-package io.droidevs.counterapp.ui
+package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -18,9 +17,12 @@ import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.fragments.CounterViewFragment
+import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
-import io.droidevs.counterapp.ui.vm.CountersListViewModelFactory
-import kotlinx.coroutines.flow.collectLatest
+import io.droidevs.counterapp.ui.vm.factories.CountersListViewModelFactory
 import kotlinx.coroutines.launch
 
 class CounterListFragment : Fragment() , OnCounterClickListener {
@@ -90,7 +92,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         // Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
 
         val bundle = Bundle().apply {
-            putParcelable(CounterViewFragment.ARG_COUNTER, counter.toParcelable())
+            putParcelable(CounterViewFragment.Companion.ARG_COUNTER, counter.toParcelable())
         }
 
         findNavController().navigate(

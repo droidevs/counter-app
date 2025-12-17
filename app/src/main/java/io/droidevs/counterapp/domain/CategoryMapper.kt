@@ -2,7 +2,7 @@ package io.droidevs.counterapp.domain
 
 import io.droidevs.counterapp.data.CategoryEntity
 import io.droidevs.counterapp.domain.model.Category
-import io.droidevs.counterapp.ui.CounterCategoryUiModel
+import io.droidevs.counterapp.ui.models.CounterCategoryUiModel
 
 // Entity → Domain
 fun CategoryEntity.toDomain(): Category {

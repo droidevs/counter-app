@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.ui
 
+import io.droidevs.counterapp.ui.models.CounterSnapshot
 import java.time.Instant
 
 // Map CounterSnapshot -> Parcelable

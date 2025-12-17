@@ -7,8 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
-import io.droidevs.counterapp.ui.CounterSnapshot
-import io.droidevs.counterapp.ui.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 
 class ListCounterAdapter(
     private var counters: List<CounterSnapshot> = ArrayList<CounterSnapshot>(),

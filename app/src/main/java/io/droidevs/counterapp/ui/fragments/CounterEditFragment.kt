@@ -1,7 +1,6 @@
-package io.droidevs.counterapp.ui
+package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -11,13 +10,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
+import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.CounterSnapshotParcelable
+import io.droidevs.counterapp.ui.toParcelable
+import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
-import io.droidevs.counterapp.ui.vm.CounterEditViewModelFactory
+import io.droidevs.counterapp.ui.vm.factories.CounterEditViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

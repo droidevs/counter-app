@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemCategoryBinding
-import io.droidevs.counterapp.ui.CounterCategoryUiModel
+import io.droidevs.counterapp.ui.models.CounterCategoryUiModel
 
 class CategoryListAdapter() :
     ListAdapter<CounterCategoryUiModel, CategoryListAdapter.CategoryVH>(Diff()) {

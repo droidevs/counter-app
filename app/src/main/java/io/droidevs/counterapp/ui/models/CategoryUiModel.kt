@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.ui
+package io.droidevs.counterapp.ui.models
 
 data class CounterCategoryUiModel(
     val id: String,

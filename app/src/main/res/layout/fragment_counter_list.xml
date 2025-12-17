@@ -6,7 +6,7 @@
     android:id="@+id/counterListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.CounterListFragment">
+    tools:context=".ui.fragments.CounterListFragment">
 
     <!-- RecyclerView for counters -->
     <androidx.recyclerview.widget.RecyclerView

@@ -1,9 +1,9 @@
-package io.droidevs.counterapp.ui.vm
+package io.droidevs.counterapp.ui.vm.factories
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.ui.vm.CountersListViewModel
 
 class CountersListViewModelFactory(
     var repository: CounterRepository
