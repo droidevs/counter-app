@@ -23,6 +23,10 @@
             android:id="@+id/action_home_to_counterCreate"
             app:destination="@id/counterCreateFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_counterView"
+            app:destination="@id/counterViewFragment"/>
+
     </fragment>
 
     <fragment

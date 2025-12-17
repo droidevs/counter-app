@@ -9,7 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -21,6 +23,7 @@ import io.droidevs.counterapp.ui.vm.HomeViewModelFactory
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.log
 
@@ -64,14 +67,18 @@ class HomeFragment : Fragment() {
         setUpRecyclerView()
         setUpButtons()
 
+
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
+                Log.e("HOME 2", "Total counters: ${counters.size}")
                 (recycler?.adapter as HomeCounterAdapter).updateCounters(counters)
             }
+
             viewModel.countersNumber.collect { size ->
                 totalCountersText?.text = "Total Counters: ${size}"
             }
         }
+
     }
 
     private fun setUpRecyclerView() {
@@ -81,8 +88,13 @@ class HomeFragment : Fragment() {
             counters = mutableListOf(),
             listener = object : OnCounterClickListener {
                 override fun onCounterClick(counter: CounterSnapshot) {
-                    // TODO : implement navigation to the counter view page
-                    Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(
+                        R.id.action_home_to_counterView,
+                        Bundle().apply {
+                            putParcelable(CounterViewFragment.ARG_COUNTER, counter.toParcelable())
+                        }
+                    )
                 }
             }
         )
