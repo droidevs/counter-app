@@ -1,7 +1,7 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
-import io.droidevs.counterapp.data.CategoryRepository
+import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.domain.toUiModel

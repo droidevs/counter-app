@@ -6,16 +6,14 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import io.droidevs.counterapp.data.AppDatabase
 import io.droidevs.counterapp.data.CategoryDao
-import io.droidevs.counterapp.data.CategoryRepository
+import io.droidevs.counterapp.data.CategoryRepositoryImpl
 import io.droidevs.counterapp.data.CounterDao
 import io.droidevs.counterapp.data.CounterRepositoryImpl
 import io.droidevs.counterapp.data.fake.DummyData
+import io.droidevs.counterapp.data.fake.FakeCategoryRepository
 import io.droidevs.counterapp.data.fake.FakeCounterRepository
-import io.droidevs.counterapp.data.toEntity
-import io.droidevs.counterapp.domain.model.Category
-import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
-import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,10 +56,10 @@ class CounterApp : Application() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            //database.counterDao().insertAll(testCounters)
-                            database.categoryDao().insertAll(testCategories)
-                        }
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            database.counterDao().insertAll(testCounters)
+//                            database.categoryDao().insertAll(testCategories)
+//                        }
                     }
                 })
                 .build()
@@ -78,10 +76,10 @@ class CounterApp : Application() {
 
         if (isTest) {
             counterRepository = FakeCounterRepository()
+            categoryRepository = FakeCategoryRepository()
         } else {
             counterRepository = CounterRepositoryImpl(counterDao)
+            categoryRepository = CategoryRepositoryImpl(categoryDao)
         }
-        categoryRepository = CategoryRepository(categoryDao)
-
     }
 }

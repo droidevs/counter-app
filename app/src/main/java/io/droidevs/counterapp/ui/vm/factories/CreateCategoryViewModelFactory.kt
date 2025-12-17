@@ -2,7 +2,7 @@ package io.droidevs.counterapp.ui.vm.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.droidevs.counterapp.data.CategoryRepository
+import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 
 class CreateCategoryViewModelFactory(
