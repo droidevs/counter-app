@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
 import io.droidevs.counterapp.domain.model.Category
@@ -22,7 +23,9 @@ class CreateCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCategoryBinding
     private val viewModel: CreateCategoryViewModel by viewModels {
-        CreateCategoryViewModelFactory()
+        CreateCategoryViewModelFactory(
+            repository = (requireActivity().application as CounterApp).categoryRepository
+        )
     }
 
     override fun onCreateView(

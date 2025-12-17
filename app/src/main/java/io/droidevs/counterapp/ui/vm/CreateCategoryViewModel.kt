@@ -1,9 +1,15 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import io.droidevs.counterapp.data.CategoryRepository
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.models.CategoryUiModel
+import kotlinx.coroutines.launch
 
-class CreateCategoryViewModel : ViewModel() {
+class CreateCategoryViewModel(
+    private val repository: CategoryRepository
+) : ViewModel() {
 
 
     fun saveCategory(
@@ -11,7 +17,10 @@ class CreateCategoryViewModel : ViewModel() {
         onSuccess: (() -> Unit)? = null,
     ) {
 
-        // Dummy save (no repository yet)
+        viewModelScope.launch {
+            repository.createCategory(category.toDomain())
+        }
+
         onSuccess?.invoke()
     }
 }
