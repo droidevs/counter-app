@@ -1,10 +1,10 @@
 package io.droidevs.counterapp.domain
 
-import io.droidevs.counterapp.domain.model.CounterCategory
+import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.ui.CounterCategoryUiModel
 
 // Domain → UI
-fun CounterCategory.toUiModel(): CounterCategoryUiModel {
+fun Category.toUiModel(): CounterCategoryUiModel {
     return CounterCategoryUiModel(
         id = id,
         name = name,
@@ -13,8 +13,8 @@ fun CounterCategory.toUiModel(): CounterCategoryUiModel {
 }
 
 // UI → Domain (useful for create/edit later)
-fun CounterCategoryUiModel.toDomain(): CounterCategory {
-    return CounterCategory(
+fun CounterCategoryUiModel.toDomain(): Category {
+    return Category(
         id = id,
         name = name,
         countersCount = countersCount
