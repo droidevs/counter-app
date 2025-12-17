@@ -11,6 +11,12 @@ class CounterRepositoryImpl(
 ) : CounterRepository {
 
     override fun getAllCounters(): Flow<List<Counter>> {
+        return dao.getAll().map { counters ->
+            counters.map { it.toDomain() }
+        }
+    }
+
+    override fun getLastEdited(limit: Int): Flow<List<Counter>> {
         return dao.getLastEdited(5).map { counters ->
             counters.map { it.toDomain() }
         }

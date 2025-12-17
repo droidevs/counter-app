@@ -19,7 +19,7 @@ class FakeCounterRepository : CounterRepository {
 
     // ------------------- Counter Operations -------------------
 
-    fun getLastEdited(limit: Int): Flow<List<Counter>> {
+    override fun getLastEdited(limit: Int): Flow<List<Counter>> {
         return _countersFlow.map { list ->
             list.sortedByDescending { it.lastUpdatedAt }
                 .take(limit)

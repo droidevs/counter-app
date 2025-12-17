@@ -7,6 +7,8 @@ interface CounterRepository {
 
     fun getAllCounters(): Flow<List<Counter>>
 
+    fun getLastEdited(limit: Int) : Flow<List<Counter>>
+
     fun getTotalCounters() : Flow<Int>
 
     suspend fun saveCounter(counter : Counter)

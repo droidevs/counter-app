@@ -14,7 +14,7 @@ class HomeViewModel(
 ) : ViewModel() {
 
 
-    val countersSnapshots = counterRepository.getAllCounters()
+    val countersSnapshots = counterRepository.getLastEdited(6)
         .onStart { emit(emptyList()) }
         .map { counters ->
             counters.map {

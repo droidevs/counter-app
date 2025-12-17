@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CounterDao {
 
+
+    @Query("SELECT * FROM counters")
+    fun getAll() : Flow<List<CounterEntity>>
     @Insert
     suspend fun insertAll(counters: List<CounterEntity>)
 
