@@ -73,12 +73,13 @@ class HomeFragment : Fragment() {
                 Log.e("HOME 2", "Total counters: ${counters.size}")
                 (recycler?.adapter as HomeCounterAdapter).updateCounters(counters)
             }
+        }
 
+        lifecycleScope.launch {
             viewModel.countersNumber.collect { size ->
                 totalCountersText?.text = "Total Counters: ${size}"
             }
         }
-
     }
 
     private fun setUpRecyclerView() {
