@@ -1,97 +1,52 @@
 package io.droidevs.counterapp.data.fake
 
-import io.droidevs.counterapp.domain.model.Category
-import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.data.CategoryEntity
+import io.droidevs.counterapp.data.CounterEntity
 import java.time.Instant
+import java.util.UUID
 
+// --- Dummy data provider ---
 object DummyData {
 
-    fun getCounters(): List<Counter> = listOf(
-        Counter(
-            name = "Morning Routine",
-            currentCount = 3,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(3600),
-            lastUpdatedAt = Instant.now().minusSeconds(1800)
-        ),
-        Counter(
-            name = "Water Intake",
-            currentCount = 5,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(7200),
-            lastUpdatedAt = Instant.now().minusSeconds(600)
-        ),
-        Counter(
-            name = "Exercise Reps",
-            currentCount = 12,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(10800),
-            lastUpdatedAt = Instant.now().minusSeconds(3600)
-        ),
-        Counter(
-            name = "Reading Pages",
-            currentCount = 20,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(14400),
-            lastUpdatedAt = Instant.now().minusSeconds(7200)
-        ),
-        Counter(
-            name = "Meditation Minutes",
-            currentCount = 15,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(18000),
-            lastUpdatedAt = Instant.now().minusSeconds(9000)
-        ),
-        Counter(
-            name = "Steps Walked",
-            currentCount = 8000,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(21600),
-            lastUpdatedAt = Instant.now().minusSeconds(1800)
-        ),
-        Counter(
-            name = "Sleep Hours",
-            currentCount = 6,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(25000),
-            lastUpdatedAt = Instant.now().minusSeconds(12000)
-        ),
-        Counter(
-            name = "Push-ups",
-            currentCount = 30,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(27000),
-            lastUpdatedAt = Instant.now().minusSeconds(15000)
-        ),
-        Counter(
-            name = "Books Completed",
-            currentCount = 2,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(30000),
-            lastUpdatedAt = Instant.now().minusSeconds(5000)
-        ),
-        Counter(
-            name = "Meals Tracked",
-            currentCount = 7,
-            canIncrease = true,
-            canDecrease = true,
-            createdAt = Instant.now().minusSeconds(33000),
-            lastUpdatedAt = Instant.now().minusSeconds(1000)
-        )
+    private val counterNames = listOf(
+        "Morning Routine", "Water Intake", "Exercise Reps", "Reading Pages",
+        "Meditation Minutes", "Steps Walked", "Sleep Hours", "Push-ups",
+        "Books Completed", "Meals Tracked", "Daily Journaling", "Stretching",
+        "Work Tasks", "Emails Sent", "Calls Made", "Project Updates",
+        "Groceries Bought", "Cooking Meals", "Learning Hours", "Meditation Sessions",
+        "Yoga Minutes", "Cycling Distance", "Running Distance", "Savings Added",
+        "Pages Read", "Videos Watched", "Steps Run", "Push-ups Completed",
+        "Sit-ups Completed", "Calories Burned", "Drinks Logged", "Tasks Done",
+        "Notes Written", "Appointments Scheduled", "Meditation Goals"
     )
 
-    fun getCategories(): List<Category> = listOf(
-        Category(id = "1", name = "Fitness", countersCount = 3),
-        Category(id = "2", name = "Work", countersCount = 5),
-        Category(id = "3", name = "Hobbies", countersCount = 2)
+    private val categoryNames = listOf(
+        "Fitness", "Work", "Hobbies", "Health", "Education", "Daily Routine",
+        "Finance", "Leisure", "Social", "Spiritual"
     )
+
+    fun getCounters(): List<CounterEntity> {
+        val now = Instant.now()
+        return List(35) { index ->
+            CounterEntity(
+                id = UUID.randomUUID().toString(),
+                name = counterNames.getOrElse(index) { "Counter $index" },
+                currentCount = (0..50).random(),
+                canIncrement = true,
+                canDecrement = (0..1).random() == 1,
+                createdAt = now.minusSeconds((index * 3600).toLong()),
+                lastUpdatedAt = now.minusSeconds((index * 1800).toLong())
+            )
+        }
+    }
+
+    fun getCategories(): List<CategoryEntity> {
+        return List(8) { index ->
+            CategoryEntity(
+                id = UUID.randomUUID().toString(),
+                name = categoryNames.getOrElse(index) { "Category $index" },
+                countersCount = (1..10).random()
+            )
+        }
+    }
 }

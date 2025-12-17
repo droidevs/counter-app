@@ -57,8 +57,8 @@ class CounterApp : Application() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
                         CoroutineScope(Dispatchers.IO).launch {
-                            database.counterDao().insertAll(testCounters.map { it.toEntity() })
-                            database.categoryDao().insertAll(testCategories.map { it.toEntity() })
+                            database.counterDao().insertAll(testCounters)
+                            database.categoryDao().insertAll(testCategories)
                         }
                     }
                 })

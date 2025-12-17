@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CounterDao {
 
-
     @Insert
     suspend fun insertAll(counters: List<CounterEntity>)
 
