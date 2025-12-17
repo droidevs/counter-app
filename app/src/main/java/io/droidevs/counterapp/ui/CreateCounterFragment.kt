@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
@@ -21,7 +22,9 @@ class CreateCounterFragment : Fragment() {
     private lateinit var binding: FragmentCreateCounterBinding
 
     private val viewModel : CreateCounterViewModel by viewModels {
-        CreateCounterViewModelFactory()
+        CreateCounterViewModelFactory(
+            repository = (requireActivity().application as CounterApp).counterRepository
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
