@@ -5,7 +5,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [CounterEntity::class],
+    entities = [CounterEntity::class,
+                CategoryEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -13,5 +14,7 @@ import androidx.room.TypeConverters
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun counterDao(): CounterDao
+
+    abstract fun categoryDao(): CategoryDao
 
 }
