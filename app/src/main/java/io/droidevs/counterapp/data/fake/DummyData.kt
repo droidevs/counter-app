@@ -2,6 +2,7 @@ package io.droidevs.counterapp.data.fake
 
 import io.droidevs.counterapp.data.CategoryEntity
 import io.droidevs.counterapp.data.CounterEntity
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
 import java.util.UUID
 
@@ -29,7 +30,14 @@ object DummyData {
 
     val counters: MutableList<CounterEntity> by lazy { generateCounters() }
 
+    val countersFlow = MutableStateFlow(counters.toList())
+
+
     val categories: MutableList<CategoryEntity> by lazy { generateCategories() }
+
+    val categoriesFlow =
+        MutableStateFlow(categories.toList())
+
 
     private fun generateCounters(): MutableList<CounterEntity> {
         val now = Instant.now()

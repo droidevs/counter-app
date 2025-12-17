@@ -75,8 +75,9 @@ class CounterApp : Application() {
         categoryDao = database.categoryDao()
 
         if (isTest) {
-            counterRepository = FakeCounterRepository()
-            categoryRepository = FakeCategoryRepository()
+            val dummyData = DummyData
+            counterRepository = FakeCounterRepository(dummyData = dummyData)
+            categoryRepository = FakeCategoryRepository(dummyData = dummyData)
         } else {
             counterRepository = CounterRepositoryImpl(counterDao)
             categoryRepository = CategoryRepositoryImpl(categoryDao)

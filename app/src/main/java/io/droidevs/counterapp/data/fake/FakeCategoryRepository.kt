@@ -13,20 +13,13 @@ import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 
-class FakeCategoryRepository : CategoryRepository {
+class FakeCategoryRepository(
+    val dummyData: DummyData
+) : CategoryRepository {
 
-    // In-memory "database"
-    private val categoriesData = DummyData.categories
-
-    // Reactive stream (Room-like behavior)
-    private val _categoriesFlow =
-        MutableStateFlow(categoriesData.toList())
-
-    private val _countersFlow =
-        MutableStateFlow(DummyData.counters)
 
     private val categoriesFlow: Flow<List<Category>> =
-        _categoriesFlow.asStateFlow()
+        dummyData.categoriesFlow.asStateFlow()
             .map { categories ->
                 categories.map {
                     it.toDomain()
@@ -49,7 +42,7 @@ class FakeCategoryRepository : CategoryRepository {
     }
 
     override fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters> {
-        return combine(_categoriesFlow, _countersFlow) { categories, counters ->
+        return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
 
             val category = categories.first {
                 it.id == categoryId
@@ -71,13 +64,13 @@ class FakeCategoryRepository : CategoryRepository {
     }
 
     override suspend fun createCategory(category: Category) {
-        categoriesData.add(category.toEntity())
+        dummyData.categories.add(category.toEntity())
         emitUpdate()
     }
 
     // ---------------- Helpers ----------------
 
     private fun emitUpdate() {
-        _categoriesFlow.value = categoriesData.toList()
+        dummyData.categoriesFlow.value = dummyData.categories.toList()
     }
 }

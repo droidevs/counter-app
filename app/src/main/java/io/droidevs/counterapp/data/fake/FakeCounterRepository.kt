@@ -4,23 +4,18 @@ import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository
 
-class FakeCounterRepository : CounterRepository {
-
-    // Internal mutable list simulating the database
-    private val countersData = DummyData.counters
-
-    // MutableStateFlow to simulate reactive updates
-    private val _countersFlow = MutableStateFlow(countersData.toList())
+class FakeCounterRepository(
+    val dummyData: DummyData
+) : CounterRepository {
 
     // ------------------- Counter Operations -------------------
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
-        return _countersFlow.map { list ->
+        return DummyData.countersFlow.map { list ->
             list.sortedByDescending { it.lastUpdatedAt }
                 .take(limit)
                 .map { it.toDomain() }
@@ -28,34 +23,28 @@ class FakeCounterRepository : CounterRepository {
     }
 
     override fun getTotalCounters(): Flow<Int> {
-        return _countersFlow.map { it.size }
-    }
-
-
-    suspend fun insertAll(newCounters: List<Counter>) {
-        countersData.addAll(newCounters.map { it.toEntity() })
-        emitUpdate()
+        return DummyData.countersFlow.map { it.size }
     }
 
     override suspend fun saveCounter(counter: Counter) {
-        val index = countersData.indexOfFirst { it.id == counter.id }
+        val index = DummyData.counters.indexOfFirst { it.id == counter.id }
         if (index != -1) {
-            countersData[index] = counter.toEntity()
+            DummyData.counters[index] = counter.toEntity()
             emitUpdate()
         }
     }
 
     override suspend fun createCounter(counter: Counter) {
-        countersData.add(counter.toEntity())
+        DummyData.counters.add(counter.toEntity())
         emitUpdate()
     }
 
     override fun getAllCounters(): Flow<List<Counter>> =
-        _countersFlow.map { counters ->
+        DummyData.countersFlow.map { counters ->
             counters.map { it.toDomain() }
         }
 
     fun emitUpdate() {
-        _countersFlow.value = countersData.toList()
+        DummyData.countersFlow.value = DummyData.counters.toList()
     }
 }
