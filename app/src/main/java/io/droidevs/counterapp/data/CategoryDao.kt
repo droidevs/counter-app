@@ -19,5 +19,5 @@ interface CategoryDao {
     suspend fun insertAll(categories: List<CategoryEntity>)
 
     @Insert
-    suspend fun insert(category: CategoryEntity) : Int
+    suspend fun insert(category: CategoryEntity)
 }
