@@ -117,7 +117,10 @@ class HomeFragment : Fragment() {
         categoryRecycler?.adapter = HomeCategoryAdapter(
             listener = object : OnCategoryClickListener {
                 override fun onCategoryClick(category: CategoryUiModel) {
-                    Toast.makeText(requireContext(), "Category clicked: ${category.name}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "Category clicked: ${category.name}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(
+                        R.id.action_home_to_categoryView
+                    )
                 }
             }
         )

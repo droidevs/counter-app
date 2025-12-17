@@ -31,7 +31,17 @@
             android:id="@+id/action_home_to_categoryList"
             app:destination="@id/categoryListFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_categoryView"
+            app:destination="@id/categoryViewFragment"/>
+
     </fragment>
+
+    <fragment
+        android:id="@+id/categoryViewFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.ViewCategoryFragment"
+        android:label="Category View"
+        tools:layout="@layout/fragment_view_category"/>
 
     <fragment
         android:id="@+id/counterListFragment"
