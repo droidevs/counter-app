@@ -27,6 +27,10 @@
             android:id="@+id/action_home_to_counterView"
             app:destination="@id/counterViewFragment"/>
 
+        <action
+            android:id="@+id/action_home_to_categoryList"
+            app:destination="@id/categoryListFragment"/>
+
     </fragment>
 
     <fragment
@@ -68,6 +72,12 @@
         android:name="io.droidevs.counterapp.ui.CreateCounterFragment"
         android:label="Create Counter"
         tools:layout="@layout/fragment_create_counter"/>
+
+    <fragment
+        android:id="@+id/categoryListFragment"
+        android:name="io.droidevs.counterapp.ui.CategoryListFragment"
+        android:label="Categories"
+        tools:layout="@layout/fragment_category_list"/>
 
     <fragment
         android:id="@+id/settingsFragment"
