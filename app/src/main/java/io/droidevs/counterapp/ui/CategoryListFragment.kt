@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
@@ -22,7 +23,9 @@ class CategoryListFragment : Fragment() {
     private lateinit var adapter: CategoryListAdapter
 
     private val viewModel : CategoryListViewModel by viewModels {
-        CategoryListViewModelFactory()
+        CategoryListViewModelFactory(
+            repository = (requireActivity().application as CounterApp).categoryRepository
+        )
     }
 
     override fun onCreateView(
