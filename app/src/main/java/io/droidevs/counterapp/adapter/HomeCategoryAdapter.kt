@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
-import io.droidevs.counterapp.ui.models.CounterCategoryUiModel
+import io.droidevs.counterapp.ui.models.CategoryUiModel
 
-class HomeCategoryAdapter() : ListAdapter<CounterCategoryUiModel, HomeCategoryAdapter.CategoryViewHolder>(
+class HomeCategoryAdapter() : ListAdapter<CategoryUiModel, HomeCategoryAdapter.CategoryViewHolder>(
     DiffCallback
 ) {
 
@@ -26,20 +26,20 @@ class HomeCategoryAdapter() : ListAdapter<CounterCategoryUiModel, HomeCategoryAd
 
         private val name = binding.txtCategoryName
 
-        fun bind(item: CounterCategoryUiModel) {
+        fun bind(item: CategoryUiModel) {
             name.text = item.name
         }
     }
 
-    private object DiffCallback : DiffUtil.ItemCallback<CounterCategoryUiModel>() {
+    private object DiffCallback : DiffUtil.ItemCallback<CategoryUiModel>() {
         override fun areItemsTheSame(
-            oldItem: CounterCategoryUiModel,
-            newItem: CounterCategoryUiModel
+            oldItem: CategoryUiModel,
+            newItem: CategoryUiModel
         ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldItem: CounterCategoryUiModel,
-            newItem: CounterCategoryUiModel
+            oldItem: CategoryUiModel,
+            newItem: CategoryUiModel
         ): Boolean = oldItem == newItem
     }
 }

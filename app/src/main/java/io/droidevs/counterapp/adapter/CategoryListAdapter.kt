@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemCategoryBinding
-import io.droidevs.counterapp.ui.models.CounterCategoryUiModel
+import io.droidevs.counterapp.ui.models.CategoryUiModel
 
 class CategoryListAdapter() :
-    ListAdapter<CounterCategoryUiModel, CategoryListAdapter.CategoryVH>(Diff()) {
+    ListAdapter<CategoryUiModel, CategoryListAdapter.CategoryVH>(Diff()) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -30,18 +30,18 @@ class CategoryListAdapter() :
         private val name = binding.tvCategoryName
         private val countersCount = binding.tvCountersCount
 
-        fun bind(item : CounterCategoryUiModel) {
+        fun bind(item : CategoryUiModel) {
             name.text = item.name
             countersCount.text = "${item.countersCount} counters"
 
         }
     }
 
-    class Diff : DiffUtil.ItemCallback<CounterCategoryUiModel>() {
-        override fun areItemsTheSame(old: CounterCategoryUiModel, new: CounterCategoryUiModel) =
+    class Diff : DiffUtil.ItemCallback<CategoryUiModel>() {
+        override fun areItemsTheSame(old: CategoryUiModel, new: CategoryUiModel) =
             old.id == new.id
 
-        override fun areContentsTheSame(old: CounterCategoryUiModel, new: CounterCategoryUiModel) =
+        override fun areContentsTheSame(old: CategoryUiModel, new: CategoryUiModel) =
             old == new
     }
 }
