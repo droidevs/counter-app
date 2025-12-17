@@ -7,8 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.viewModels
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
+import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
+import io.droidevs.counterapp.ui.vm.CreateCounterViewModelFactory
 import java.time.Instant
 import java.util.UUID
 
@@ -16,6 +19,10 @@ import java.util.UUID
 class CreateCounterFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCounterBinding
+
+    private val viewModel : CreateCounterViewModel by viewModels {
+        CreateCounterViewModelFactory()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +65,12 @@ class CreateCounterFragment : Fragment() {
             lastUpdatedAt = Instant.now()
         )
 
-        // todo: save counter to database
-
-        Toast.makeText(requireContext(), "Counter saved", Toast.LENGTH_SHORT).show()
-
+        viewModel.saveCounter(
+            counter = counter,
+            onCounterSaved = {
+                Toast.makeText(requireContext(), "Counter saved", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     companion object {
