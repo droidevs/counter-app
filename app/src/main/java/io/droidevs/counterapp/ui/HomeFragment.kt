@@ -22,6 +22,7 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCategoryAdapter
 import io.droidevs.counterapp.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.log
@@ -82,6 +83,13 @@ class HomeFragment : Fragment() {
                 totalCountersText?.text = "Total Counters: ${size}"
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.categories.collectLatest { categories ->
+                (categoryRecycler?.adapter as HomeCategoryAdapter).submitList(categories)
+            }
+        }
+
     }
 
     private fun setUpRecyclerView() {
@@ -105,13 +113,6 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         categoryRecycler?.adapter = HomeCategoryAdapter() // todo : implement click listener
 
-        val categories = listOf(
-            CounterCategoryUiModel("1", "Fitness", 8),
-            CounterCategoryUiModel("2", "Habits", 5),
-            CounterCategoryUiModel("3", "Work", 3)
-        )
-
-        (categoryRecycler?.adapter as HomeCategoryAdapter).submitList(categories)
 
     }
 

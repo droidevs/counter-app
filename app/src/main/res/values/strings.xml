@@ -54,5 +54,6 @@
     <string name="unknown_version" translatable="false">Unknown</string>
     <string name="save">Save</string>
     <string name="view_categories">View Categories</string>
+    <string name="create_category">Create Category</string>
 
 </resources>
