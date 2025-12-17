@@ -25,33 +25,38 @@ object DummyData {
         "Finance", "Leisure", "Social", "Spiritual"
     )
 
-    // Generate category IDs first
     private val categoryIds = List(categoryNames.size) { UUID.randomUUID().toString() }
 
-    fun getCounters(): List<CounterEntity> {
+    val counters: List<CounterEntity> by lazy { generateCounters() }
+
+    val categories: List<CategoryEntity> by lazy { generateCategories() }
+
+    private fun generateCounters(): List<CounterEntity> {
         val now = Instant.now()
         return counterNames.mapIndexed { index, name ->
-            val randomCategoryId = categoryIds.random()
+            val categoryId = categoryIds.random() // round-robin
             CounterEntity(
                 id = UUID.randomUUID().toString(),
                 name = name,
                 currentCount = (0..50).random(),
                 canIncrement = true,
                 canDecrement = (0..1).random() == 1,
-                categoryId = randomCategoryId,
+                categoryId = categoryId,
                 createdAt = now.minusSeconds((index * 3600).toLong()),
                 lastUpdatedAt = now.minusSeconds((index * 1800).toLong())
             )
         }
     }
 
-    fun getCategories(): List<CategoryEntity> {
-        return List(categoryIds.size) { index ->
+    private fun generateCategories(): List<CategoryEntity> {
+        val categoryCounterMap = counters.groupingBy { it.categoryId }.eachCount()
+        return categoryIds.mapIndexed { index, id ->
             CategoryEntity(
-                id = categoryIds[index],
+                id = id,
                 name = categoryNames.getOrElse(index) { "Category $index" },
-                countersCount = (1..10).random()
+                countersCount = categoryCounterMap[id] ?: 0
             )
         }
     }
+
 }

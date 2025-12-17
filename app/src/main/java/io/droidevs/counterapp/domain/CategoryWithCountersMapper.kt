@@ -13,8 +13,7 @@ fun CategoryWithCountersEntity.toDomain() =
 
 fun CategoryWithCounters.toUiModel() : CategoryWithCountersUiModel {
     return CategoryWithCountersUiModel(
-        categoryId = category.id,
-        categoryName = category.name,
+        category = category.toUiModel(),
         counters = counters.map { it.toSnapshot() }
     )
 }

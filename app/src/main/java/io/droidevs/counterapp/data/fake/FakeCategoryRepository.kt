@@ -17,14 +17,14 @@ class FakeCategoryRepository : CategoryRepository {
 
     // In-memory "database"
     private val categoriesData =
-        DummyData.getCategories().toMutableList()
+        DummyData.categories.toMutableList()
 
     // Reactive stream (Room-like behavior)
     private val _categoriesFlow =
         MutableStateFlow(categoriesData.toList())
 
     private val _countersFlow =
-        MutableStateFlow(DummyData.getCounters().toList())
+        MutableStateFlow(DummyData.counters.toList())
 
     private val categoriesFlow: Flow<List<Category>> =
         _categoriesFlow.asStateFlow()

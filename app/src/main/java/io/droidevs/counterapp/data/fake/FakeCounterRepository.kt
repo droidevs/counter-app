@@ -12,7 +12,7 @@ import io.droidevs.counterapp.domain.repository.CounterRepository
 class FakeCounterRepository : CounterRepository {
 
     // Internal mutable list simulating the database
-    private val countersData = DummyData.getCounters().toMutableList()
+    private val countersData = DummyData.counters.toMutableList()
 
     // MutableStateFlow to simulate reactive updates
     private val _countersFlow = MutableStateFlow(countersData.toList())

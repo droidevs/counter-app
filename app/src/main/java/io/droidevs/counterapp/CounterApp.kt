@@ -23,9 +23,9 @@ class CounterApp : Application() {
 
     private val isTest = true
 
-    val testCounters = DummyData.getCounters()
-
-    val testCategories = DummyData.getCategories()
+//    val testCounters = DummyData.counters
+//
+//    val testCategories = DummyData.categories
 
 
     lateinit var database: AppDatabase

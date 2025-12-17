@@ -55,10 +55,10 @@ class ViewCategoryFragment : Fragment() {
 
 
         lifecycleScope.launch {
-            viewModel.category.collect { category ->
-                binding.tvCategoryName.text = category.categoryName
-                binding.tvCountersCount.text = "Counters: ${category.countersCount}"
-                adapter.submitList(category.counters)
+            viewModel.category.collect { data ->
+                binding.tvCategoryName.text = data.category.name
+                binding.tvCountersCount.text = "Counters: ${data.category.countersCount}"
+                adapter.submitList(data.counters)
             }
         }
     }
