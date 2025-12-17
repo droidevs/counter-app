@@ -13,4 +13,6 @@ interface CounterRepository {
 
     suspend fun saveCounter(counter : Counter)
 
+    suspend fun createCounter(counter : Counter)
+
 }

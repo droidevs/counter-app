@@ -34,19 +34,28 @@ class FakeCounterRepository : CounterRepository {
 
     suspend fun insertAll(newCounters: List<Counter>) {
         countersData.addAll(newCounters.map { it.toEntity() })
-        _countersFlow.value = countersData.toList()
+        emitUpdate()
     }
 
     override suspend fun saveCounter(counter: Counter) {
         val index = countersData.indexOfFirst { it.id == counter.id }
         if (index != -1) {
             countersData[index] = counter.toEntity()
-            _countersFlow.value = countersData.toList()
+            emitUpdate()
         }
+    }
+
+    override suspend fun createCounter(counter: Counter) {
+        countersData.add(counter.toEntity())
+        emitUpdate()
     }
 
     override fun getAllCounters(): Flow<List<Counter>> =
         _countersFlow.map { counters ->
             counters.map { it.toDomain() }
         }
+
+    fun emitUpdate() {
+        _countersFlow.value = countersData.toList()
+    }
 }

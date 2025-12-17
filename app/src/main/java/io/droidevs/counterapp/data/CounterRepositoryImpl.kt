@@ -32,4 +32,7 @@ class CounterRepositoryImpl(
         Log.i("CounterRepository", "Updated $n counters")
     }
 
+    override suspend fun createCounter(counter: Counter) {
+        dao.insert(counter.toEntity())
+    }
 }

@@ -15,6 +15,9 @@ interface CounterDao {
     @Update
     suspend fun update(counter: CounterEntity) : Int
 
+    @Insert
+    suspend fun insert(counter: CounterEntity)
+
     @Query("""
         SELECT * FROM counters
         ORDER BY last_updated_at DESC

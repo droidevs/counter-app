@@ -18,7 +18,7 @@ class CreateCounterViewModel(
         onCounterSaved: () -> Unit
     ) {
         viewModelScope.launch {
-            repository.saveCounter(counter.toDomain())
+            repository.createCounter(counter.toDomain())
         }
         onCounterSaved()
     }
