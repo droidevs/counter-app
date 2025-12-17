@@ -5,30 +5,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.CategoryCountersAdapter
-import io.droidevs.counterapp.data.fake.DummyData
-import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
-import io.droidevs.counterapp.ui.models.CategoryUiModel
-import io.droidevs.counterapp.ui.models.CategoryWithCountersUiModel
-import io.droidevs.counterapp.ui.models.CounterSnapshot
-import io.droidevs.counterapp.ui.toSnapshot
+import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
+import io.droidevs.counterapp.ui.vm.factories.CategoryViewViewModelFactory
+import kotlinx.coroutines.launch
 
 class ViewCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentViewCategoryBinding
     private lateinit var adapter: CategoryCountersAdapter
 
-    private val model : CategoryWithCountersUiModel = CategoryWithCountersUiModel(
-        categoryId = "1",
-        categoryName = "Category 1",
-        counters = DummyData.getCounters()
-            .map { counters ->
-                counters.toDomain().toSnapshot()
-            }
-    )
+    private val viewModel : CategoryViewViewModel by viewModels {
+        CategoryViewViewModelFactory()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,8 +40,12 @@ class ViewCategoryFragment : Fragment() {
         binding.rvCounters.adapter = adapter
 
 
-        binding.tvCategoryName.text = model.categoryName
-        binding.tvCountersCount.text = "Counters: ${model.countersCount}"
-        adapter.submitList(model.counters)
+        lifecycleScope.launch {
+            viewModel.category.collect { category ->
+                binding.tvCategoryName.text = category?.categoryName
+                binding.tvCountersCount.text = "Counters: ${category?.countersCount}"
+                adapter.submitList(category?.counters)
+            }
+        }
     }
 }
