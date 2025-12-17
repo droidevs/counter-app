@@ -26,7 +26,7 @@ class HomeViewModel(
         .onStart { emit(0) }
 
 
-    val categories = categoryRepository.topCategories()
+    val categories = categoryRepository.topCategories(3)
         .onStart { emit(emptyList()) }
         .map { categories ->
             categories.map {

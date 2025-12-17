@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.map
 class CategoryRepository(private val categoryDao: CategoryDao) {
 
     // Get top 3 categories (ordered by countersCount)
-    fun topCategories() : Flow<List<Category>> {
-        return categoryDao.getTopCategories().map {
+    fun topCategories(limit: Int) : Flow<List<Category>> {
+        return categoryDao.getTopCategories(limit).map {
             list -> list.map { it.toDomain() }
         }
     }
