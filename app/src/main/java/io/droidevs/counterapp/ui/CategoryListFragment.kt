@@ -5,15 +5,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
+import io.droidevs.counterapp.ui.vm.CategoryListViewModel
+import io.droidevs.counterapp.ui.vm.CategoryListViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class CategoryListFragment : Fragment() {
 
     private lateinit var binding: FragmentCategoryListBinding
     private lateinit var adapter: CategoryListAdapter
+
+    private val viewModel : CategoryListViewModel by viewModels {
+        CategoryListViewModelFactory()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,13 +49,10 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun loadCategories() {
-        // Temporary fake data
-        val categories = listOf(
-            CounterCategoryUiModel("1", "Daily Habits", 5),
-            CounterCategoryUiModel("2", "Fitness", 3),
-            CounterCategoryUiModel("3", "Work", 8)
-        )
-
-        adapter.submitList(categories)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.categories.collectLatest {
+                adapter.submitList(it)
+            }
+        }
     }
 }
