@@ -2,10 +2,23 @@ package io.droidevs.counterapp.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.Instant
 
-@Entity(tableName = "counters")
+@Entity(
+    tableName = "counters",
+    foreignKeys = [
+        ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["category_id"],
+            onDelete = ForeignKey.SET_NULL
+        )
+    ],
+    indices = [Index("category_id")]
+)
 data class CounterEntity(
     @PrimaryKey
     val id: String,
@@ -17,6 +30,10 @@ data class CounterEntity(
     val canIncrement: Boolean,
     @ColumnInfo(name = "can_decrement")
     val canDecrement: Boolean,
+
+    @ColumnInfo(name = "category_id")
+    val categoryId: String? = null,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Instant,
     @ColumnInfo(name = "last_updated_at")
