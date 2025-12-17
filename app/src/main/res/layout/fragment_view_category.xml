@@ -35,7 +35,12 @@
             android:layout_marginVertical="12dp"
             android:background="#DDDDDD"/>
 
-        <!--todo : Counters list -->
+        <!-- Counters list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCounters"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 
