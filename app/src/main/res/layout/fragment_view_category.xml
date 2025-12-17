@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragments.ViewCategoryFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Category name -->
+        <TextView
+            android:id="@+id/tvCategoryName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Category Name"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Counter count -->
+        <TextView
+            android:id="@+id/tvCountersCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Counters: 0"
+            android:layout_marginTop="4dp"
+            android:textSize="16sp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#DDDDDD"/>
+
+        <!--todo : Counters list -->
+
+    </LinearLayout>
+
+
+</FrameLayout>
