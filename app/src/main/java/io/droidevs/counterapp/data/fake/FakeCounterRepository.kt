@@ -30,13 +30,20 @@ class FakeCounterRepository(
         val index = DummyData.counters.indexOfFirst { it.id == counter.id }
         if (index != -1) {
             DummyData.counters[index] = counter.toEntity()
-            emitUpdate()
+            dummyData.emitCounterUpdate()
         }
     }
 
     override suspend fun createCounter(counter: Counter) {
         DummyData.counters.add(counter.toEntity())
-        emitUpdate()
+        val indexCategory = DummyData.categories.indexOfFirst { it.id == counter.categoryId }
+        val category = DummyData.categories[indexCategory]
+        val newCategory = category.copy(
+            countersCount = category.countersCount + 1
+        )
+        DummyData.categories[indexCategory] = newCategory
+        dummyData.emitCounterUpdate()
+        dummyData.emitCategoryUpdate()
     }
 
     override fun getAllCounters(): Flow<List<Counter>> =
@@ -44,7 +51,4 @@ class FakeCounterRepository(
             counters.map { it.toDomain() }
         }
 
-    fun emitUpdate() {
-        DummyData.countersFlow.value = DummyData.counters.toList()
-    }
 }

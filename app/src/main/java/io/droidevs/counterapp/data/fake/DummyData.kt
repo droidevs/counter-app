@@ -67,4 +67,12 @@ object DummyData {
         }.toMutableList()
     }
 
+    fun emitCounterUpdate() {
+        countersFlow.value = counters.toList()
+    }
+
+    fun emitCategoryUpdate() {
+        categoriesFlow.value = categories.toList()
+    }
+
 }

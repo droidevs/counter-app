@@ -79,7 +79,10 @@ class CounterApp : Application() {
             counterRepository = FakeCounterRepository(dummyData = dummyData)
             categoryRepository = FakeCategoryRepository(dummyData = dummyData)
         } else {
-            counterRepository = CounterRepositoryImpl(counterDao)
+            counterRepository = CounterRepositoryImpl(
+                dao = counterDao,
+                categoryDao = categoryDao
+            )
             categoryRepository = CategoryRepositoryImpl(categoryDao)
         }
     }

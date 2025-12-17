@@ -4,10 +4,12 @@ import android.util.Log
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class CounterRepositoryImpl(
-    private var dao: CounterDao
+    private var dao: CounterDao,
+    private var categoryDao: CategoryDao
 ) : CounterRepository {
 
     override fun getAllCounters(): Flow<List<Counter>> {
@@ -34,5 +36,10 @@ class CounterRepositoryImpl(
 
     override suspend fun createCounter(counter: Counter) {
         dao.insert(counter.toEntity())
+        val category = categoryDao.getCategory(counter.categoryId.toString()).first()
+        category.copy(
+            countersCount = category.countersCount + 1
+        )
+        categoryDao.updateCategory(category)
     }
 }

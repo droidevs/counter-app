@@ -65,12 +65,7 @@ class FakeCategoryRepository(
 
     override suspend fun createCategory(category: Category) {
         dummyData.categories.add(category.toEntity())
-        emitUpdate()
+        dummyData.emitCategoryUpdate()
     }
 
-    // ---------------- Helpers ----------------
-
-    private fun emitUpdate() {
-        dummyData.categoriesFlow.value = dummyData.categories.toList()
-    }
 }

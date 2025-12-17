@@ -5,6 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
+import io.droidevs.counterapp.domain.model.Category
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -30,5 +32,11 @@ interface CategoryDao {
     fun getCategoryWithCounters(
         categoryId: String
     ) : Flow<CategoryWithCountersEntity>
+
+    @Update
+    fun updateCategory(category :  CategoryEntity)
+
+    @Query("SELECT * FROM categories WHERE id = :categoryId")
+    fun getCategory(categoryId : String) : Flow<CategoryEntity>
 
 }
