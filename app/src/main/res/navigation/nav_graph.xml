@@ -45,7 +45,13 @@
         android:id="@+id/categoryViewFragment"
         android:name="io.droidevs.counterapp.ui.fragments.ViewCategoryFragment"
         android:label="Category View"
-        tools:layout="@layout/fragment_view_category"/>
+        tools:layout="@layout/fragment_view_category">
+
+        <action
+            android:id="@+id/action_categoryView_to_counterCreate"
+            app:destination="@id/counterCreateFragment"/>
+
+    </fragment>
 
     <fragment
         android:id="@+id/createCategoryFragment"

@@ -9,6 +9,7 @@ fun Counter.toSnapshot(): CounterSnapshot {
         id = id,
         name = name,
         currentCount = currentCount,
+        categoryId = categoryId,
         createdAt = createdAt,
         lastUpdatedAt = lastUpdatedAt,
         canIncrease = canIncrease,
@@ -23,6 +24,7 @@ fun CounterSnapshot.toDomain(): Counter {
         currentCount = currentCount,
         canIncrease = canIncrease,
         canDecrease = canDecrease,
+        categoryId = categoryId,
         createdAt = createdAt,
         lastUpdatedAt = lastUpdatedAt
     )

@@ -27,11 +27,11 @@ object DummyData {
 
     private val categoryIds = List(categoryNames.size) { UUID.randomUUID().toString() }
 
-    val counters: List<CounterEntity> by lazy { generateCounters() }
+    val counters: MutableList<CounterEntity> by lazy { generateCounters() }
 
-    val categories: List<CategoryEntity> by lazy { generateCategories() }
+    val categories: MutableList<CategoryEntity> by lazy { generateCategories() }
 
-    private fun generateCounters(): List<CounterEntity> {
+    private fun generateCounters(): MutableList<CounterEntity> {
         val now = Instant.now()
         return counterNames.mapIndexed { index, name ->
             val categoryId = categoryIds.random() // round-robin
@@ -45,10 +45,10 @@ object DummyData {
                 createdAt = now.minusSeconds((index * 3600).toLong()),
                 lastUpdatedAt = now.minusSeconds((index * 1800).toLong())
             )
-        }
+        }.toMutableList()
     }
 
-    private fun generateCategories(): List<CategoryEntity> {
+    private fun generateCategories(): MutableList<CategoryEntity> {
         val categoryCounterMap = counters.groupingBy { it.categoryId }.eachCount()
         return categoryIds.mapIndexed { index, id ->
             CategoryEntity(
@@ -56,7 +56,7 @@ object DummyData {
                 name = categoryNames.getOrElse(index) { "Category $index" },
                 countersCount = categoryCounterMap[id] ?: 0
             )
-        }
+        }.toMutableList()
     }
 
 }

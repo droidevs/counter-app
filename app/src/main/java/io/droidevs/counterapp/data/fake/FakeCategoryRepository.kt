@@ -16,15 +16,14 @@ import kotlinx.coroutines.flow.flow
 class FakeCategoryRepository : CategoryRepository {
 
     // In-memory "database"
-    private val categoriesData =
-        DummyData.categories.toMutableList()
+    private val categoriesData = DummyData.categories
 
     // Reactive stream (Room-like behavior)
     private val _categoriesFlow =
         MutableStateFlow(categoriesData.toList())
 
     private val _countersFlow =
-        MutableStateFlow(DummyData.counters.toList())
+        MutableStateFlow(DummyData.counters)
 
     private val categoriesFlow: Flow<List<Category>> =
         _categoriesFlow.asStateFlow()

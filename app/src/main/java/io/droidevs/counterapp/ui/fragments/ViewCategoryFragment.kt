@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.CounterApp
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
@@ -60,6 +62,14 @@ class ViewCategoryFragment : Fragment() {
                 binding.tvCountersCount.text = "Counters: ${data.category.countersCount}"
                 adapter.submitList(data.counters)
             }
+        }
+        binding.fabAddCounter.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_categoryView_to_counterCreate,
+                Bundle().apply {
+                    putString(ARG_CATEGORY_ID, viewModel.categoryId)
+                }
+            )
         }
     }
 

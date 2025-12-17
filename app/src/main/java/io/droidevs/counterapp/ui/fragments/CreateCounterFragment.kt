@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
+import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
 import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
@@ -25,8 +26,13 @@ class CreateCounterFragment : Fragment() {
         )
     }
 
+    // todo : categoryId variable from the arguments
+    private lateinit var categoryId : String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        categoryId = arguments?.getString(ARG_CATEGORY_ID) ?: ""
     }
 
     override fun onCreateView(
@@ -60,6 +66,7 @@ class CreateCounterFragment : Fragment() {
             id = UUID.randomUUID().toString(),
             name = name,
             currentCount = 0,
+            categoryId = categoryId,
             canIncrease = canIncrease,
             canDecrease = canDecrease,
             createdAt = Instant.now(),

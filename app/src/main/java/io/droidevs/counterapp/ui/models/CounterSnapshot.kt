@@ -6,6 +6,7 @@ data class CounterSnapshot(
     val id: String,
     val name: String,
     val currentCount: Int,
+    val categoryId: String? = null,
     val createdAt: Instant,
     val lastUpdatedAt: Instant,
 
