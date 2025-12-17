@@ -2,25 +2,26 @@ package io.droidevs.counterapp.data
 
 import android.util.Log
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.repository.CounterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class CounterRepository(
+class CounterRepositoryImpl(
     private var dao: CounterDao
-) {
+) : CounterRepository {
 
-    fun getAllCounters(): Flow<List<Counter>> {
+    override fun getAllCounters(): Flow<List<Counter>> {
         return dao.getLastEdited(5).map { counters ->
             counters.map { it.toDomain() }
         }
     }
 
-    fun getTotalCounters() : Flow<Int> {
+    override fun getTotalCounters() : Flow<Int> {
         Log.i("CounterRepository", "Getting total counters")
         return dao.getTotalCounters()
     }
 
-    suspend fun saveCounter(counter : Counter) {
+    override suspend fun saveCounter(counter : Counter) {
         val n = dao.update(counter.toEntity())
         Log.i("CounterRepository", "Updated $n counters")
     }

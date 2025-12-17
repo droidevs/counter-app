@@ -3,7 +3,7 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.data.CategoryRepository
-import io.droidevs.counterapp.data.CounterRepository
+import io.droidevs.counterapp.domain.repository.CounterRepository
 
 class HomeViewModelFactory(
     private val repository: CounterRepository,

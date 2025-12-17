@@ -3,8 +3,7 @@ package io.droidevs.counterapp.ui.vm
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.droidevs.counterapp.CounterApp
-import io.droidevs.counterapp.data.CounterRepository
+import io.droidevs.counterapp.domain.repository.CounterRepository
 
 class CountersListViewModelFactory(
     var repository: CounterRepository

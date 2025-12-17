@@ -1,7 +1,7 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
-import io.droidevs.counterapp.data.CounterRepository
+import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.ui.CounterSnapshot
 import kotlinx.coroutines.flow.Flow

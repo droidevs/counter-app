@@ -21,6 +21,4 @@ interface CounterDao {
 
     @Query("SELECT COUNT(*) FROM counters")
     fun getTotalCounters(): Flow<Int>
-
-
 }

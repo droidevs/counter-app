@@ -8,11 +8,13 @@ import io.droidevs.counterapp.data.AppDatabase
 import io.droidevs.counterapp.data.CategoryDao
 import io.droidevs.counterapp.data.CategoryRepository
 import io.droidevs.counterapp.data.CounterDao
-import io.droidevs.counterapp.data.CounterRepository
+import io.droidevs.counterapp.data.CounterRepositoryImpl
 import io.droidevs.counterapp.data.fake.DummyData
+import io.droidevs.counterapp.data.fake.FakeCounterRepository
 import io.droidevs.counterapp.data.toEntity
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +59,7 @@ class CounterApp : Application() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
                         CoroutineScope(Dispatchers.IO).launch {
-                            database.counterDao().insertAll(testCounters)
+                            //database.counterDao().insertAll(testCounters)
                             database.categoryDao().insertAll(testCategories)
                         }
                     }
@@ -74,7 +76,11 @@ class CounterApp : Application() {
         counterDao = database.counterDao()
         categoryDao = database.categoryDao()
 
-        counterRepository = CounterRepository(counterDao)
+        if (isTest) {
+            counterRepository = FakeCounterRepository()
+        } else {
+            counterRepository = CounterRepositoryImpl(counterDao)
+        }
         categoryRepository = CategoryRepository(categoryDao)
 
     }
