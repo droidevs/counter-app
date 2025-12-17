@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.ui.models.CategoryUiModel
+import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
+import io.droidevs.counterapp.ui.vm.factories.CreateCategoryViewModelFactory
+import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
 import java.time.Instant
 import java.util.UUID
 
@@ -17,6 +21,9 @@ import java.util.UUID
 class CreateCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCategoryBinding
+    private val viewModel: CreateCategoryViewModel by viewModels {
+        CreateCategoryViewModelFactory()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,11 +57,16 @@ class CreateCategoryFragment : Fragment() {
             countersCount = 0
         )
 
-        Toast.makeText(
-            requireContext(),
-            "Category \"${category.name}\" created",
-            Toast.LENGTH_SHORT
-        ).show()
+        viewModel.saveCategory(
+            category = category,
+            onSuccess = {
+                Toast.makeText(
+                    requireContext(),
+                    "Category \"${category.name}\" created",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
 
     }
 
