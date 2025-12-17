@@ -4,15 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
+import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
 
@@ -22,17 +29,20 @@ class CreateCounterFragment : Fragment() {
 
     private val viewModel : CreateCounterViewModel by viewModels {
         CreateCounterViewModelFactory(
-            repository = (requireActivity().application as CounterApp).counterRepository
+            repository = (requireActivity().application as CounterApp).counterRepository,
+            categoryRepository = (requireActivity().application as CounterApp).categoryRepository
         )
     }
 
-    // todo : categoryId variable from the arguments
-    private lateinit var categoryId : String
+    private var categoryId : String? = null
+    private var categories: List<CategoryUiModel> = emptyList()
+
+    private var adapter: ArrayAdapter<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        categoryId = arguments?.getString(ARG_CATEGORY_ID) ?: ""
+        categoryId = arguments?.getString(ARG_CATEGORY_ID)
     }
 
     override fun onCreateView(
@@ -46,8 +56,51 @@ class CreateCounterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (categoryId == null) {
+            setupCategorySpinner()
+            // Dummy categories
+            lifecycleScope.launch {
+                viewModel.categories.collectLatest { categories ->
+                    this@CreateCounterFragment.categories = categories
+                    adapter?.clear()
+                    adapter?.addAll(categories.map { it.name })
+                    adapter?.notifyDataSetChanged()
+                }
+            }
+        }
+        else
+            binding.spinnerCategory.isVisible = false
+
         binding.btnSave.setOnClickListener { v->
             saveCounter()
+        }
+
+    }
+
+    fun setupCategorySpinner() {
+
+        adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            mutableListOf()
+        )
+
+        adapter?.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        binding.spinnerCategory.adapter = adapter
+
+        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                categoryId = categories.find { it.name == binding.spinnerCategory.adapter.getItem(position) as String }?.id
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                categoryId = null
+            }
         }
     }
 
