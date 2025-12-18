@@ -45,6 +45,18 @@ class FakeCounterRepository(
         dummyData.emitCategoryUpdate()
     }
 
+    override suspend fun deleteCounter(counter: Counter) {
+        DummyData.counters.removeIf { it.id == counter.id }
+        val indexCategory = DummyData.categories.indexOfFirst { it.id == counter.categoryId }
+        val category = DummyData.categories[indexCategory]
+        val newCategory = category.copy(
+            countersCount = category.countersCount - 1
+        )
+        DummyData.categories[indexCategory] = newCategory
+        dummyData.emitCounterUpdate()
+        dummyData.emitCategoryUpdate()
+    }
+
     override fun getAllCounters(): Flow<List<Counter>> =
         DummyData.countersFlow.map { counters ->
             counters.map { it.toDomain() }

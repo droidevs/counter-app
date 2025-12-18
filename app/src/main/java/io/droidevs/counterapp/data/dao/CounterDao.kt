@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -31,4 +32,7 @@ interface CounterDao {
 
     @Query("SELECT COUNT(*) FROM counters")
     fun getTotalCounters(): Flow<Int>
+
+    @Delete
+    suspend fun delete(counter: CounterEntity)
 }

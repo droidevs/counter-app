@@ -125,7 +125,9 @@ class CounterViewFragment : Fragment() {
                 true
             }
             R.id.menu_delete -> {
-                Toast.makeText(requireContext(), "Delete", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), "Delete", Toast.LENGTH_SHORT).show()
+                viewModel.delete()
+                findNavController().popBackStack()
                 true
             }
             else -> super.onOptionsItemSelected(item)

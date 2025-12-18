@@ -79,4 +79,10 @@ class CounterViewViewModel(
             _counter.value?.let { repository.saveCounter(it) }
         }
     }
+
+    fun delete() {
+        viewModelScope.launch {
+            _counter.value?.let { repository.deleteCounter(it) }
+        }
+    }
 }

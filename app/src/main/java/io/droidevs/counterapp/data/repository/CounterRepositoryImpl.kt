@@ -46,4 +46,8 @@ class CounterRepositoryImpl(
         )
         categoryDao.updateCategory(category)
     }
+
+    override suspend fun deleteCounter(counter: Counter) {
+        dao.delete(counter.toEntity())
+    }
 }

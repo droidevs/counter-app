@@ -15,4 +15,6 @@ interface CounterRepository {
 
     suspend fun createCounter(counter : Counter)
 
+    suspend fun deleteCounter(counter : Counter)
+
 }
