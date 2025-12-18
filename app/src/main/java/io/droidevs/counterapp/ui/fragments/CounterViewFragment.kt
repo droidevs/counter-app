@@ -62,11 +62,9 @@ class CounterViewFragment : Fragment() {
         val tvCount = binding.tvCurrentCount
         val tvCreatedAt = binding.tvCreatedAt
         val tvLastUpdatedAt = binding.tvLastUpdatedAt
-        val tvCanIncrease = binding.tvCanIncrease
-        val tvCanDecrease = binding.tvCanDecrease
 
-        val btnIncrease = binding.btnIncrease
-        val btnDecrease = binding.btnDecrease
+        val btnIncrease = binding.ivIncrement
+        val btnDecrease = binding.ivDecrement
 
         lifecycleScope.launch {
             viewModel.counter.collect { counter ->
@@ -80,8 +78,6 @@ class CounterViewFragment : Fragment() {
                     tvCount.text = c.currentCount.toString()
                     tvCreatedAt.text = "Created at: ${c.createdAt}"
                     tvLastUpdatedAt.text = "Last updated: ${c.lastUpdatedAt}"
-                    tvCanIncrease.text = "Can increase: ${c.canIncrease}"
-                    tvCanDecrease.text = "Can decrease: ${c.canDecrease}"
 
                     btnIncrease.isEnabled = c.canIncrease
                     btnDecrease.isEnabled = c.canDecrease

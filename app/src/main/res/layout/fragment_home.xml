@@ -1,110 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".ui.fragments.HomeFragment">
 
-    <!-- ================= TOP HALF : COUNTERS ================= -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <!-- Vertical 50% Guideline -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical_50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
 
-        <!-- Horizontal counters list -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerLastCounters"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="horizontal" />
+    <!-- ================= TOP HALF: COUNTERS ================= -->
 
-        <!-- Buttons row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+    <!-- Last Counters RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerLastCounters"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
-            <Button
-                android:id="@+id/btnViewAllCounters"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/view_all_counters" />
+    <!-- View All Counters Button -->
+    <Button
+        android:id="@+id/btnViewAllCounters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/view_all_counters"
+        app:layout_constraintTop_toBottomOf="@id/recyclerLastCounters"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnNewCounter"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp" />
 
-            <Button
-                android:id="@+id/btnNewCounter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/create_new_counter"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
+    <!-- New Counter Button -->
+    <Button
+        android:id="@+id/btnNewCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_new_counter"
+        app:layout_constraintTop_toTopOf="@id/btnViewAllCounters"
+        app:layout_constraintBottom_toBottomOf="@id/btnViewAllCounters"
+        app:layout_constraintStart_toEndOf="@id/btnViewAllCounters"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Total counters -->
-        <TextView
-            android:id="@+id/txtTotalCounters"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/total_counters_0"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp" />
-    </LinearLayout>
+    <!-- Total Counters Text -->
+    <TextView
+        android:id="@+id/txtTotalCounters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/total_counters_0"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/btnViewAllCounters"
+        app:layout_constraintBottom_toTopOf="@id/guideline_vertical_50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        android:layout_marginTop="12dp" />
 
-    <!-- ================= BOTTOM HALF : CATEGORIES ================= -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <!-- ================= BOTTOM HALF: CATEGORIES ================= -->
 
-        <!-- Horizontal categories list -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerTopCategories"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:orientation="horizontal" />
+    <!-- Top Categories RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerTopCategories"
+        android:layout_width="0dp"
+        android:layout_height="160dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toTopOf="@id/guideline_vertical_50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
-        <!-- Buttons row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+    <!-- View All Categories Button -->
+    <Button
+        android:id="@+id/btnViewAllCategories"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/view_categories"
+        app:layout_constraintTop_toBottomOf="@id/recyclerTopCategories"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnCreateCategory"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp" />
 
-            <Button
-                android:id="@+id/btnViewAllCategories"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/view_categories" />
+    <!-- Create Category Button -->
+    <Button
+        android:id="@+id/btnCreateCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_category"
+        app:layout_constraintTop_toTopOf="@id/btnViewAllCategories"
+        app:layout_constraintBottom_toBottomOf="@id/btnViewAllCategories"
+        app:layout_constraintStart_toEndOf="@id/btnViewAllCategories"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-            <Button
-                android:id="@+id/btnCreateCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/create_category"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
+    <!-- Total Categories Text -->
+    <TextView
+        android:id="@+id/txtTotalCategories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/total_categories_0"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/btnViewAllCategories"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+         />
 
-        <!-- Total categories -->
-        <TextView
-            android:id="@+id/txtTotalCategories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/total_counters_0"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

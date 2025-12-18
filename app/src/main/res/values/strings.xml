@@ -55,5 +55,6 @@
     <string name="save">Save</string>
     <string name="view_categories">View Categories</string>
     <string name="create_category">Create Category</string>
+    <string name="total_categories_0">TotalCategories: 0</string>
 
 </resources>
