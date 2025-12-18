@@ -74,12 +74,15 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerTopCategories"
         android:layout_width="0dp"
-        android:layout_height="160dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toTopOf="@id/guideline_vertical_50"
+        app:layout_constraintBottom_toTopOf="@id/btnViewAllCategories"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:flow_verticalAlign="center"
+        android:padding="20dp"
         />
 
     <!-- View All Categories Button -->
@@ -92,6 +95,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnCreateCategory"
         app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintBottom_toTopOf="@id/txtTotalCategories"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp" />
 
