@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.CounterApp.DetailValue" parent="TextAppearance.Material3.DisplaySmall">
+        <!-- 36sp → boost to 48sp for dramatic impact -->
+        <item name="android:textSize">48sp</item>
+        <item name="android:fontWeight">500</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.CounterApp.CounterValue" parent="TextAppearance.Material3.HeadlineMedium">
+        <!-- 24sp, Medium – makes the count stand out -->
+        <item name="android:fontWeight">500</item>
+        <item name="android:textColor">?attr/colorPrimary
+        </item> <!-- Optional: use primary color for emphasis -->
+    </style>
+
+    <style name="TextAppearance.CounterApp.CounterName" parent="TextAppearance.Material3.TitleMedium">
+        <!-- 16sp, Medium weight – prominent but not overwhelming -->
+        <item name="android:fontWeight">500</item>
+    </style>
+</resources>

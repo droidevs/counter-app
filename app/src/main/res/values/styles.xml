@@ -1,6 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- COUNTER APP CUSTOM TYPOGRAPHY -->
+
+    <!-- Large Screen Titles (e.g., "My Counters" at the top of Counter List screen) -->
+    <style name="TextAppearance.CounterApp.ScreenTitle" parent="TextAppearance.Material3.HeadlineLarge">
+        <!-- 32sp, Medium weight – perfect for top-level screen titles -->
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Counter Name in List Item (main text in RecyclerView rows) -->
+    <style name="TextAppearance.CounterApp.CounterName" parent="TextAppearance.Material3.TitleMedium">
+        <!-- 16sp, Medium weight – prominent but not overwhelming -->
+
+    </style>
+
+    <!-- Current Count Number in List Item (the big number) -->
+    <style name="TextAppearance.CounterApp.CounterValue" parent="TextAppearance.Material3.HeadlineMedium">
+        <!-- 24sp, Medium – makes the count stand out -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- Optional: use primary color for emphasis -->
+    </style>
+
+    <!-- Subtitle / Description in List Item (e.g., category, last updated) -->
+    <style name="TextAppearance.CounterApp.CounterSubtitle" parent="TextAppearance.Material3.BodyMedium">
+        <!-- 14sp, Regular -->
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Counter Detail Screen: Counter Name (large at top) -->
+    <style name="TextAppearance.CounterApp.DetailTitle" parent="TextAppearance.Material3.HeadlineLarge">
+        <!-- 32sp – big and bold for the main counter name in view screen -->
+    </style>
+
+    <!-- Counter Detail Screen: Current Count (the HUGE number) -->
+    <style name="TextAppearance.CounterApp.DetailValue" parent="TextAppearance.Material3.DisplaySmall">
+        <!-- 36sp → boost to 48sp for dramatic impact -->
+        <item name="android:textSize">48sp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- Labels in Forms (e.g., "Name", "Initial Value", "Category") -->
+    <style name="TextAppearance.CounterApp.FormLabel" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Hint text in TextInputLayout -->
+    <style name="TextAppearance.CounterApp.FormHint" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Buttons (Create, Save, Increment, etc.) -->
+    <style name="TextAppearance.CounterApp.Button" parent="TextAppearance.Material3.LabelLarge">
+        <!-- 14sp, Medium – default for MaterialButton -->
+        <item name="android:textAllCaps">false</item> <!-- Modern look: no all caps -->
+    </style>
+
+    <!-- Small metadata (e.g., "Created on: Dec 18, 2025") -->
+    <style name="TextAppearance.CounterApp.Metadata" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Empty state message (e.g., "No counters yet") -->
+    <style name="TextAppearance.CounterApp.EmptyState" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <style name="TextViewStyle" parent="Widget.AppCompat.TextView">
         <item name="fontFamily">san-serif</item>
     </style>
