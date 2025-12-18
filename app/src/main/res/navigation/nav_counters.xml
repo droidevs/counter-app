@@ -12,14 +12,17 @@
 
         <action
             android:id="@+id/action_counterList_to_counterView"
-            app:destination="@id/counterViewFragment" />
+            app:destination="@id/counterViewFragment"
+            app:popUpToSaveState="true"/>
 
         <action
             android:id="@+id/action_counterList_to_counterCreate"
-            app:destination="@id/counterCreateFragment" />
+            app:destination="@id/counterCreateFragment"
+            app:popUpToSaveState="true"/>
         <action
             android:id="@+id/action_counterList_to_counterEdit"
-            app:destination="@id/editCounterFragment" />
+            app:destination="@id/editCounterFragment"
+            app:popUpToSaveState="true"/>
 
     </fragment>
 
@@ -30,7 +33,8 @@
 
         <action
             android:id="@+id/action_counterView_to_counterEdit"
-            app:destination="@id/editCounterFragment" />
+            app:destination="@id/editCounterFragment"
+            app:popUpToSaveState="true"/>
     </fragment>
 
     <fragment
