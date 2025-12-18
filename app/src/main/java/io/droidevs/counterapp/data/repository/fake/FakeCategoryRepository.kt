@@ -42,18 +42,23 @@ class FakeCategoryRepository(
     override fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters> {
         return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
 
-            val category = categories.first {
-                it.id == categoryId
-            }
+            try {
+                val category = categories.first {
+                    it.id == categoryId
+                }
 
-            val relatedCounters = counters.filter {
-                it.categoryId == categoryId
-            }
+                val relatedCounters = counters.filter {
+                    it.categoryId == categoryId
+                }
 
-            CategoryWithCounters(
-                category = category.toDomain(),
-                counters = relatedCounters.map { it.toDomain() }
-            )
+                CategoryWithCounters(
+                    category = category.toDomain(),
+                    counters = relatedCounters.map { it.toDomain() }
+                )
+            } catch (e : NoSuchElementException) {
+
+                CategoryWithCounters.default()
+            }
         }
     }
 
@@ -63,6 +68,21 @@ class FakeCategoryRepository(
 
     override suspend fun createCategory(category: Category) {
         dummyData.categories.add(category.toEntity())
+        dummyData.emitCategoryUpdate()
+    }
+
+    override fun deleteCategory(categoryId: String) {
+        dummyData.categories.removeIf { it.id == categoryId }
+        // delete all counters related with that category or set category id to null
+        dummyData.counters.forEach {
+            if (it.categoryId == categoryId) {
+                val newCounter = it.copy(
+                    categoryId = null
+                )
+                dummyData.counters[dummyData.counters.indexOf(it)] = newCounter
+            }
+            dummyData.emitCounterUpdate()
+        }
         dummyData.emitCategoryUpdate()
     }
 

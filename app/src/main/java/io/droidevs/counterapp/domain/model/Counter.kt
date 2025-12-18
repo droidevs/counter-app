@@ -40,5 +40,15 @@ class Counter(
         lastUpdatedAt = Instant.now()
     }
 
+    companion object {
+        fun default() = Counter(
+            name = "",
+            currentCount = 0,
+            canIncrease = true,
+            canDecrease = false,
+            categoryId = null
+        )
+    }
+
 }
 

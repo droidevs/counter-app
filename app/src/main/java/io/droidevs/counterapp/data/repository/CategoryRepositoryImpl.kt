@@ -37,4 +37,8 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
     override suspend fun createCategory(category: Category) {
         categoryDao.insert(category.toEntity())
     }
+
+    override fun deleteCategory(categoryId: String) {
+        categoryDao.deleteCategory(categoryId)
+    }
 }

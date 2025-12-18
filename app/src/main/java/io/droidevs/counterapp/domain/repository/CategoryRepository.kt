@@ -15,4 +15,5 @@ interface CategoryRepository {
     fun allCategories(): Flow<List<Category>>
 
     suspend fun createCategory(category: Category)
+    fun deleteCategory(categoryId: String)
 }

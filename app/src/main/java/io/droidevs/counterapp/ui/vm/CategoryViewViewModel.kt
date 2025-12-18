@@ -18,5 +18,9 @@ class CategoryViewViewModel(
         }
 
 
+
+    fun deleteCategory() {
+        repository.deleteCategory(categoryId)
+    }
 }
 
