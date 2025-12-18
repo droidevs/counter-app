@@ -1,23 +1,30 @@
 package io.droidevs.counterapp
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowMetrics
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.window.layout.WindowMetricsCalculator
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigationrail.NavigationRailView
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -28,17 +35,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController : NavController;
     private lateinit var appBarConfiguration : AppBarConfiguration;
 
+    private lateinit var bottomNav: BottomNavigationView
+    private lateinit var navRail: NavigationRailView
+
+    private var currentWidthClass = WindowWidthSizeClass.Compact
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Enable edge-to-edge drawing (draw behind system bars)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         
         setContentView(binding!!.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
 
@@ -69,6 +84,37 @@ class MainActivity : AppCompatActivity() {
 
         NavigationUI.setupWithNavController(bottomNav, navController)
 
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateNavigationForSize()
+    }
+
+    private fun updateNavigationForSize() {
+        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+        val widthDp = metrics.bounds.width() / resources.displayMetrics.density
+
+        val newClass = when {
+            widthDp < 600 -> WindowWidthSizeClass.Compact
+            widthDp < 840 -> WindowWidthSizeClass.Medium
+            else -> WindowWidthSizeClass.Expanded
+        }
+
+        if (newClass != currentWidthClass) {
+            currentWidthClass = newClass
+            when (newClass) {
+                WindowWidthSizeClass.Compact -> {
+                    bottomNav.visibility = View.VISIBLE
+                    navRail.visibility = View.GONE
+                }
+
+                else -> {  // Medium + Expanded: Use Rail
+                    bottomNav.visibility = View.GONE
+                    navRail.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

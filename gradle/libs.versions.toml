@@ -10,14 +10,17 @@ appcompat = "1.7.1"
 material = "1.13.0"
 activity = "1.11.0"
 constraintlayout = "2.1.4"
+material3WindowSizeClass = "1.4.0"
 navigationFragmentKtx = "2.9.6"
 navigationUiKtx = "2.9.6"
 roomCommonJvm = "2.8.4"
 roomRuntimeAndroid = "2.8.4"
 preference = "1.2.0"
+window = "1.5.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommonJvm" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCommonJvm" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommonJvm" }
@@ -34,6 +37,7 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
 androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
