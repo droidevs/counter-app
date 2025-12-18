@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    android:id="@+id/categories_graph"
+    app:startDestination="@id/categoryListFragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <fragment
+        android:id="@+id/categoryListFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CategoryListFragment"
+        android:label="Categories">
+        <action
+            android:id="@+id/action_categoryList_to_categoryView"
+            app:destination="@id/categoryViewFragment" />
+
+        <action
+            android:id="@+id/action_categoryList_to_categoryCreate"
+            app:destination="@id/createCategoryFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryViewFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.ViewCategoryFragment"
+        android:label="Category View" >
+
+        <action
+            android:id="@+id/action_categoryView_to_counterCreate"
+            app:destination="@id/counterCreateFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/createCategoryFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CreateCategoryFragment"
+        android:label="Create Category" />
+
+
+</navigation>

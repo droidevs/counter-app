@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    android:id="@+id/counters_graph"
+    app:startDestination="@id/counterListFragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <fragment
+        android:id="@+id/counterListFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CounterListFragment"
+        android:label="Counters">
+
+        <action
+            android:id="@+id/action_counterList_to_counterView"
+            app:destination="@id/counterViewFragment" />
+
+        <action
+            android:id="@+id/action_counterList_to_counterCreate"
+            app:destination="@id/counterCreateFragment" />
+        <action
+            android:id="@+id/action_counterList_to_counterEdit"
+            app:destination="@id/editCounterFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/counterViewFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CounterViewFragment"
+        android:label="Counter View">
+
+        <action
+            android:id="@+id/action_counterView_to_counterEdit"
+            app:destination="@id/editCounterFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editCounterFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CounterEditFragment"
+        android:label="Edit Counter" />
+
+    <fragment
+        android:id="@+id/counterCreateFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.CreateCounterFragment"
+        android:label="Create Counter" />
+
+</navigation>

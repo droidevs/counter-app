@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
-
+        
         setContentView(binding!!.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
             navController = navController,
             configuration = appBarConfiguration
         )
+        var bottomNav = binding!!.bottomNavigation
+
+        NavigationUI.setupWithNavController(bottomNav, navController)
 
     }
 
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menuSettings -> {
-                navController.navigate(R.id.action_home_to_settings)
+                navController.navigate(R.id.action_to_settings_graph)
                 true
             }
         }

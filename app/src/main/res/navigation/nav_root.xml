@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_root"
+    app:startDestination="@id/home_graph">
+
+    <include app:graph="@navigation/nav_home"/>
+    <include app:graph="@navigation/nav_settings"/>
+    <include app:graph="@navigation/nav_counters"/>
+    <include app:graph="@navigation/nav_categories"/>
+
+    <action
+        android:id="@+id/action_to_settings_graph"
+        app:destination="@id/settings_graph"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"/>
+
+    <action
+        android:id="@+id/action_to_counters_graph"
+        app:destination="@id/counters_graph"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"/>
+
+    <action
+        android:id="@+id/action_to_categories_graph"
+        app:destination="@id/categories_graph"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"/>
+
+    <action
+        android:id="@+id/action_to_home_graph"
+        app:destination="@id/home_graph"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"/>
+
+</navigation>

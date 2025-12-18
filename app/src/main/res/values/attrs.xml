@@ -5,4 +5,5 @@
     <attr name="drawableEdit" format="reference" />
     <attr name="drawableReset" format="reference" />
     <attr name="drawableSettings" format="reference" />
+    <attr name="drawableHome" format="reference" />
 </resources>

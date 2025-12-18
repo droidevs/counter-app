@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@id/home_graph"
+        android:icon="?drawableHome"
+        android:title="Home"/>
+
+    <item
+        android:id="@id/counters_graph"
+        android:icon="@drawable/ic_counter"
+        android:title="Counters" />
+
+    <item
+        android:id="@id/categories_graph"
+        android:icon="@drawable/ic_category"
+        android:title="Categories" />
+
+    <item
+        android:id="@id/settings_graph"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings" />
+</menu>

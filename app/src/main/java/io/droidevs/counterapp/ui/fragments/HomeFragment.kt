@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -107,8 +108,9 @@ class HomeFragment : Fragment() {
             listener = object : OnCounterClickListener {
                 override fun onCounterClick(counter: CounterSnapshot) {
                     //Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_to_counters_graph)
                     findNavController().navigate(
-                        R.id.action_home_to_counterView,
+                        R.id.action_counterList_to_counterView,
                         Bundle().apply {
                             putParcelable(CounterViewFragment.ARG_COUNTER, counter.toParcelable())
                         }
@@ -122,8 +124,9 @@ class HomeFragment : Fragment() {
             listener = object : OnCategoryClickListener {
                 override fun onCategoryClick(category: CategoryUiModel) {
                     //Toast.makeText(requireContext(), "Category clicked: ${category.name}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_to_categories_graph)
                     findNavController().navigate(
-                        R.id.action_home_to_categoryView,
+                        R.id.action_categoryList_to_categoryView,
                         Bundle().apply {
                             putString(ViewCategoryFragment.ARG_CATEGORY_ID, category.id)
                         }
@@ -142,19 +145,23 @@ class HomeFragment : Fragment() {
 
         btnViewAll.setOnClickListener { v ->
             findNavController().navigate(
-                R.id.action_home_to_counterList
+                R.id.action_to_counters_graph
             )
+
+            findNavController().navigate(R.id.counterListFragment)
         }
 
         btnCreate.setOnClickListener { v ->
-            findNavController().navigate(R.id.action_home_to_counterCreate)
+            findNavController().navigate(R.id.action_to_counters_graph)
+            findNavController().navigate(R.id.action_counterList_to_counterCreate)
         }
 
         btnViewCategories.setOnClickListener { v ->
-            findNavController().navigate(R.id.action_home_to_categoryList)
+            findNavController().navigate(R.id.action_to_categories_graph)
         }
         btnCreateCategory.setOnClickListener { v ->
-            findNavController().navigate(R.id.action_home_to_categoryCreate)
+            findNavController().navigate(R.id.action_to_categories_graph)
+            findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
         }
 
     }

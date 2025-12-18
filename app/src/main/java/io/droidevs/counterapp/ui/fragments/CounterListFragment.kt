@@ -69,7 +69,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         fabAdd.setOnClickListener {
             //Toast.makeText(requireContext(), "Add Counter clicked", Toast.LENGTH_SHORT).show()
             findNavController().navigate(
-                R.id.action_list_to_counterCreate
+                R.id.action_counterList_to_counterCreate
             )
         }
     }
@@ -96,7 +96,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         }
 
         findNavController().navigate(
-            R.id.action_list_to_counterView,
+            R.id.action_counterList_to_counterView,
             bundle
         )
     }

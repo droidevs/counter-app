@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
@@ -85,6 +86,7 @@ class CreateCounterFragment : Fragment() {
             android.R.layout.simple_spinner_item,
             mutableListOf()
         )
+
 
         adapter?.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item
