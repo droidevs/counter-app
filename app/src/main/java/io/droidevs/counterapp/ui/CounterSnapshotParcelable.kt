@@ -7,6 +7,7 @@ data class CounterSnapshotParcelable(
     val id: String,
     val name: String,
     val currentCount: Int,
+    val categoryId: String,
     val createdAtMillis: Long,
     val lastUpdatedAtMillis: Long,
     val canIncrease: Boolean,
@@ -17,6 +18,7 @@ data class CounterSnapshotParcelable(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readInt(),
+        parcel.readString() ?: "",
         parcel.readLong(),
         parcel.readLong(),
         parcel.readByte() != 0.toByte(),
@@ -27,6 +29,7 @@ data class CounterSnapshotParcelable(
         parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeInt(currentCount)
+        parcel.writeString(categoryId)
         parcel.writeLong(createdAtMillis)
         parcel.writeLong(lastUpdatedAtMillis)
         parcel.writeByte(if (canIncrease) 1 else 0)

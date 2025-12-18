@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.toDomain
+import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.ui.models.CounterSnapshot
-import io.droidevs.counterapp.ui.toDomain
-import io.droidevs.counterapp.ui.toSnapshot
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map

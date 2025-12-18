@@ -10,6 +10,7 @@ fun CounterEntity.toDomain(): Counter {
         name = name,
         currentCount = currentCount,
         createdAt = createdAt,
+        categoryId = categoryId,
         canIncrease = canIncrement,
         canDecrease = canDecrement,
     )

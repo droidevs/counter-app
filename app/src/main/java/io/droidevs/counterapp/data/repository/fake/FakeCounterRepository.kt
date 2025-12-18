@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.data.repository.fake
 
+import android.util.Log
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import kotlinx.coroutines.flow.Flow
@@ -47,6 +48,8 @@ class FakeCounterRepository(
 
     override suspend fun deleteCounter(counter: Counter) {
         DummyData.counters.removeIf { it.id == counter.id }
+        Log.i("FakeCounterRepository", "Counter deleted: $counter")
+        Log.i("Category id : ", "${counter.categoryId}")
         val indexCategory = DummyData.categories.indexOfFirst { it.id == counter.categoryId }
         val category = DummyData.categories[indexCategory]
         val newCategory = category.copy(

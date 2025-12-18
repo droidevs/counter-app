@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.ui.models.CounterSnapshot
-import io.droidevs.counterapp.ui.toDomain
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 

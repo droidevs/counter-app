@@ -128,7 +128,7 @@ class CounterViewFragment : Fragment() {
                 viewModel.delete()
                 Toast.makeText(requireContext(), "Counter Deleted", Toast.LENGTH_SHORT).show()
 
-                //findNavController().popBackStack()
+                findNavController().popBackStack()
                 true
             }
             else -> super.onOptionsItemSelected(item)
