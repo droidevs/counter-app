@@ -6,9 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemCategoryBinding
+import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 
-class CategoryListAdapter() :
+class CategoryListAdapter(
+    val listener: OnCategoryClickListener? = null
+) :
     ListAdapter<CategoryUiModel, CategoryListAdapter.CategoryVH>(Diff()) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -22,6 +25,9 @@ class CategoryListAdapter() :
 
     override fun onBindViewHolder(holder: CategoryVH, position: Int) {
         holder.bind(getItem(position))
+        holder.itemView.setOnClickListener {
+            listener?.onCategoryClick(getItem(position))
+        }
     }
 
 

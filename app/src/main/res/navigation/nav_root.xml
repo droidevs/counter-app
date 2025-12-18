@@ -14,27 +14,31 @@
         app:destination="@id/settings_graph"
         app:launchSingleTop="true"
         app:popUpTo="@id/nav_root"
-        app:popUpToInclusive="false"/>
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true" />
 
     <action
         android:id="@+id/action_to_counters_graph"
         app:destination="@id/counters_graph"
         app:launchSingleTop="true"
         app:popUpTo="@id/nav_root"
-        app:popUpToInclusive="false"/>
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true"/>
 
     <action
         android:id="@+id/action_to_categories_graph"
         app:destination="@id/categories_graph"
         app:launchSingleTop="true"
         app:popUpTo="@id/nav_root"
-        app:popUpToInclusive="false"/>
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true"/>
 
     <action
         android:id="@+id/action_to_home_graph"
         app:destination="@id/home_graph"
         app:launchSingleTop="true"
         app:popUpTo="@id/nav_root"
-        app:popUpToInclusive="false"/>
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true"/>
 
 </navigation>

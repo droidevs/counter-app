@@ -7,10 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.CounterApp
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
+import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
+import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
+import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CategoryListViewModel
 import io.droidevs.counterapp.ui.vm.factories.CategoryListViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +49,19 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = CategoryListAdapter()
+        adapter = CategoryListAdapter(
+            listener = object : OnCategoryClickListener {
+                override fun onCategoryClick(category: CategoryUiModel) {
+                    findNavController().navigate(R.id.action_to_categories_graph)
+                    findNavController().navigate(
+                        R.id.action_categoryList_to_categoryView,
+                        Bundle().apply {
+                            putString(ARG_CATEGORY_ID, category.id.toString())
+                        }
+                    )
+                }
+            }
+        )
 
         binding.rvCategories.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCategories.adapter = adapter

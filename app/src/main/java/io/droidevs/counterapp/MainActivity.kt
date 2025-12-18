@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -52,6 +53,11 @@ class MainActivity : AppCompatActivity() {
 
         navController = navHostFragment.navController
 
+        // Restore state if activity was recreated
+        if (savedInstanceState != null) {
+            navController.restoreState(savedInstanceState.getBundle("nav_state"))
+        }
+
         appBarConfiguration = AppBarConfiguration.Builder(R.id.homeFragment).build()
 
         NavigationUI.setupActionBarWithNavController(
@@ -87,5 +93,11 @@ class MainActivity : AppCompatActivity() {
             navController = navController,
             configuration = appBarConfiguration
         ) || super.onSupportNavigateUp()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val bundle = findNavController(R.id.nav_host_fragment).saveState()
+        outState.putBundle("nav_state", bundle)
     }
 }
