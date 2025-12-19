@@ -15,11 +15,11 @@ internal class HomeCounterAdapter(
     private val counters: MutableList<CounterWithCategoryUiModel>,
     private val listener: OnCounterClickListener? = null
 ) :
-    RecyclerView.Adapter<HomeCounterAdapter.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
-        viewType: Int): ViewHolder {
+        viewType: Int): RecyclerView.ViewHolder {
 
         return when (viewType) {
             VIEW_TYPE_ADD -> {
@@ -39,14 +39,18 @@ internal class HomeCounterAdapter(
                 )
                 ViewHolder(binding)
             }
-        } as ViewHolder
+        } as RecyclerView.ViewHolder
     }
 
-    override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(@NonNull holder: RecyclerView.ViewHolder, position: Int) {
         var cwg = counters[position]
-        holder.bind(cwg)
-        holder.itemView.setOnClickListener {
-            listener?.onCounterClick(cwg.counter)
+        if (holder is ViewHolder) {
+            holder.bind(cwg)
+            holder.itemView.setOnClickListener {
+                listener?.onCounterClick(cwg.counter)
+            }
+        } else {
+            (holder as AddViewHolder).bind()
         }
     }
 
@@ -75,7 +79,7 @@ internal class HomeCounterAdapter(
 
     class AddViewHolder(binding: ItemEmptyAddBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        init {
+        fun bind() {
             itemView.setOnClickListener {
                 // todo : fire action click
                 itemView.animate()
