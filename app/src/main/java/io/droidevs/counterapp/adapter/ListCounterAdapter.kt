@@ -19,11 +19,14 @@ class ListCounterAdapter(
         val binding: ItemListCounterBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         val tvName: TextView = binding.tvCounterName
-        val tvCount: TextView = binding.tvCounterCount
+        val tvCount: TextView = binding.tvCounterValue
+        val updatedAt : TextView = binding.tvUpdated
+        val tvCategory : TextView = binding.tvCategory
 
         fun bind(counter: CounterSnapshot) {
             tvName.text = counter.name
             tvCount.text = counter.currentCount.toString()
+            updatedAt.text = counter.lastUpdatedAt.toString()
             binding.root.setOnClickListener {
                 listener.onCounterClick(counter)
             }

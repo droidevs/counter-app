@@ -1,15 +1,22 @@
 package io.droidevs.counterapp.adapter
 
+import android.R.attr.category
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.adapter.HomeCounterAdapter.AddViewHolder
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 
 class HomeCategoryAdapter(
     private val listener: OnCategoryClickListener? = null
@@ -54,10 +61,23 @@ class HomeCategoryAdapter(
 
         private val name = binding.categoryName
         private val count = binding.categoryCount
+        private val container = binding.container
 
         fun bind(item: CategoryUiModel) {
             name.text = item.name
             count.text = item.countersCount.toString()
+            val color = CategoryColorUtil.generateColor(context = itemView.context, category = item.toDomain())
+
+            val drawable = ContextCompat
+                .getDrawable(itemView.context, R.drawable.bg_category_card)
+                ?.mutate()
+
+            drawable?.setTint(color)
+            container.background = drawable
+
+            name.setTextColor(
+                if (isDark(color)) Color.WHITE else Color.BLACK
+            )
         }
     }
 

@@ -56,5 +56,7 @@
     <string name="view_categories">View Categories</string>
     <string name="create_category">Create Category</string>
     <string name="total_categories_0">TotalCategories: 0</string>
+    <string name="minus">Minus\n</string>
+    <string name="plus">Plus</string>
 
 </resources>

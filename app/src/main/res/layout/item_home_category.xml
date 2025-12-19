@@ -9,6 +9,7 @@
     app:cardBackgroundColor="@android:color/transparent">
 
     <LinearLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_category_card"

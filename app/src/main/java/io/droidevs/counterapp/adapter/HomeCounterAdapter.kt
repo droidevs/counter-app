@@ -1,14 +1,20 @@
 package io.droidevs.counterapp.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 
 
 internal class HomeCounterAdapter(
@@ -57,6 +63,7 @@ internal class HomeCounterAdapter(
             holder.itemView.setOnClickListener {
                 listener?.onCounterClick(cwg.counter)
             }
+
         } else {
             (holder as AddViewHolder).bind(
                 onClick = onAddCounter
@@ -94,6 +101,21 @@ internal class HomeCounterAdapter(
             }
             btnMinus.setOnClickListener {
                 onDecrement(cwg)
+            }
+
+            cwg.category?.let {
+                val color = CategoryColorUtil.generateColor(context = itemView.context, category = it.toDomain())
+
+                val drawable = ContextCompat
+                    .getDrawable(itemView.context, R.drawable.bg_chip)
+                    ?.mutate()
+
+                drawable?.setTint(color)
+                category.background = drawable
+
+                category.setTextColor(
+                    if (isDark(color)) Color.WHITE else Color.BLACK
+                )
             }
         }
     }
