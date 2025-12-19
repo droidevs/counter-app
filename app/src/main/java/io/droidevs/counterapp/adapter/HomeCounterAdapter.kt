@@ -19,7 +19,8 @@ internal class HomeCounterAdapter(
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
-        viewType: Int): RecyclerView.ViewHolder {
+        viewType: Int
+    ): RecyclerView.ViewHolder {
 
         return when (viewType) {
             VIEW_TYPE_ADD -> {
@@ -39,12 +40,12 @@ internal class HomeCounterAdapter(
                 )
                 ViewHolder(binding)
             }
-        } as RecyclerView.ViewHolder
+        }
     }
 
     override fun onBindViewHolder(@NonNull holder: RecyclerView.ViewHolder, position: Int) {
-        var cwg = counters[position]
         if (holder is ViewHolder) {
+            var cwg = counters[position]
             holder.bind(cwg)
             holder.itemView.setOnClickListener {
                 listener?.onCounterClick(cwg.counter)

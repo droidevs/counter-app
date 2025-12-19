@@ -78,11 +78,11 @@ class FakeCounterRepository(
 
     override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
         return DummyData.countersFlow.map { list ->
-            list.sortedByDescending { it.lastUpdatedAt }
+            var counters = list.sortedByDescending { it.lastUpdatedAt }
                 .take(limit)
 
             val categoriesMap = DummyData.categories.associateBy { it.id }
-            list.map { counter ->
+            counters.map { counter ->
                 val category = categoriesMap[counter.categoryId]
 
                 CounterWithCategory(
