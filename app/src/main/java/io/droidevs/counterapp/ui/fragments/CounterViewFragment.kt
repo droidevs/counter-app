@@ -8,6 +8,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -75,7 +77,7 @@ class CounterViewFragment : Fragment() {
 
                 counter?.let { c ->
                     tvName.text = c.name
-                    tvCount.text = c.currentCount.toString()
+                    updateCount(tvCount,c.currentCount)
                     tvCreatedAt.text = "Created at: ${c.createdAt}"
                     tvLastUpdatedAt.text = "Last updated: ${c.lastUpdatedAt}"
 
@@ -94,6 +96,13 @@ class CounterViewFragment : Fragment() {
             //Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
             viewModel.decrement()
         }
+    }
+
+    fun updateCount(textView: TextView, value: Int) {
+        textView.text = value.toString()
+        textView.startAnimation(
+            AnimationUtils.loadAnimation(textView.context, R.anim.count_change)
+        )
     }
 
     @Deprecated("Deprecated in Java")
