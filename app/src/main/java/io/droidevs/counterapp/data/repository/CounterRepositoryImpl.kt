@@ -6,10 +6,13 @@ import io.droidevs.counterapp.data.dao.CounterDao
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.model.CounterWithCategory
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.toDomainModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlin.collections.map
 
 class CounterRepositoryImpl(
     private var dao: CounterDao,
@@ -49,5 +52,21 @@ class CounterRepositoryImpl(
 
     override suspend fun deleteCounter(counter: Counter) {
         dao.delete(counter.toEntity())
+    }
+
+    override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
+        return dao.getCountersWithCategories().map { data ->
+            data.map {
+                it.toDomainModel()
+            }
+        }
+    }
+
+    override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
+        return dao.getLastEditedCountersWithCategories(limit).map { data ->
+            data.map {
+                it.toDomainModel()
+            }
+        }
     }
 }

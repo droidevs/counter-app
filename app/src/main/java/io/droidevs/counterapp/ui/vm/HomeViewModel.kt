@@ -14,11 +14,11 @@ class HomeViewModel(
 ) : ViewModel() {
 
 
-    val countersSnapshots = counterRepository.getLastEdited(6)
+    val countersSnapshots = counterRepository.getLastEditedWithCategory(6)
         .onStart { emit(emptyList()) }
         .map { counters ->
             counters.map {
-                it.toSnapshot()
+                it.toUiModel()
             }
         }
 

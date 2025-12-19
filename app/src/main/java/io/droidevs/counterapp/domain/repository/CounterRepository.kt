@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.domain.repository
 
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.model.CounterWithCategory
 import kotlinx.coroutines.flow.Flow
 
 interface CounterRepository {
@@ -16,5 +17,9 @@ interface CounterRepository {
     suspend fun createCounter(counter : Counter)
 
     suspend fun deleteCounter(counter : Counter)
+
+    fun getCountersWithCategories(): Flow<List<CounterWithCategory>>
+
+    fun getLastEditedWithCategory(limit : Int) : Flow<List<CounterWithCategory>>
 
 }

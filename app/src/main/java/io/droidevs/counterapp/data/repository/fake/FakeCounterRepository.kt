@@ -6,7 +6,9 @@ import io.droidevs.counterapp.data.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.model.CounterWithCategory
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.toDomain
 
 class FakeCounterRepository(
     val dummyData: DummyData
@@ -59,6 +61,38 @@ class FakeCounterRepository(
         dummyData.emitCounterUpdate()
         dummyData.emitCategoryUpdate()
     }
+
+    override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
+        return DummyData.countersFlow.map {
+            it.map { counter ->
+                val category = DummyData.categories.find { category ->
+                    category.id == counter.categoryId
+                }
+                CounterWithCategory(
+                    counter = counter.toDomain(),
+                    category = category?.toDomain()
+                )
+            }
+        }
+    }
+
+    override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
+        return DummyData.countersFlow.map { list ->
+            list.sortedByDescending { it.lastUpdatedAt }
+                .take(limit)
+
+            val categoriesMap = DummyData.categories.associateBy { it.id }
+            list.map { counter ->
+                val category = categoriesMap[counter.categoryId]
+
+                CounterWithCategory(
+                    counter = counter.toDomain(),
+                    category = category?.toDomain()
+                )
+            }
+        }
+    }
+
 
     override fun getAllCounters(): Flow<List<Counter>> =
         DummyData.countersFlow.map { counters ->

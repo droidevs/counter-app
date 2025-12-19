@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
 import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 
 
 internal class HomeCounterAdapter(
-    private val counters: MutableList<CounterSnapshot>,
+    private val counters: MutableList<CounterWithCategoryUiModel>,
     private val listener: OnCounterClickListener? = null
 ) :
     RecyclerView.Adapter<HomeCounterAdapter.ViewHolder>() {
@@ -28,10 +29,10 @@ internal class HomeCounterAdapter(
     }
 
     override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
-        var counter = counters[position]
-        holder.bind(counter)
+        var cwg = counters[position]
+        holder.bind(cwg)
         holder.itemView.setOnClickListener {
-            listener?.onCounterClick(counter)
+            listener?.onCounterClick(cwg.counter)
         }
     }
 
@@ -47,15 +48,15 @@ internal class HomeCounterAdapter(
         var btnPlus = binding.btnPlus
         var btnMinus = binding.btnMinus
 
-        fun bind(counter: CounterSnapshot) {
-            name.text = counter.name
-            count.text = counter.currentCount.toString()
-            category.text = "Category" // TODO: get category name from db
-            updatedAt.text = counter.lastUpdatedAt.toString()
+        fun bind(cwg: CounterWithCategoryUiModel) {
+            name.text = cwg.counter.name
+            count.text = cwg.counter.currentCount.toString()
+            category.text = cwg.category?.name
+            updatedAt.text = cwg.counter.lastUpdatedAt.toString()
         }
     }
 
-    public fun updateCounters(counters: List<CounterSnapshot>) {
+    public fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
         this.counters.clear()
         this.counters.addAll(counters)
         notifyDataSetChanged()

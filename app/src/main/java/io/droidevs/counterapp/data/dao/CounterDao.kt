@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import io.droidevs.counterapp.data.entities.CounterEntity
+import io.droidevs.counterapp.data.entities.CounterWithCategoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,4 +36,10 @@ interface CounterDao {
 
     @Delete
     suspend fun delete(counter: CounterEntity)
+
+    @Query("SELECT * FROM counters")
+    fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
+
+    @Query("SELECT * FROM counters ORDER BY last_updated_at DESC LIMIT :limit")
+    fun getLastEditedCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
 }
