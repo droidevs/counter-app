@@ -39,6 +39,10 @@ class HomeCategoryAdapter(
         }
     }
 
+    override fun onViewAttachedToWindow(holder: CategoryViewHolder) {
+        super.onViewAttachedToWindow(holder)
+    }
+
     private object DiffCallback : DiffUtil.ItemCallback<CategoryUiModel>() {
         override fun areItemsTheSame(
             oldItem: CategoryUiModel,

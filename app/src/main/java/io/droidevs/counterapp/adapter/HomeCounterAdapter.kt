@@ -44,6 +44,8 @@ internal class HomeCounterAdapter(
         var category: TextView = binding.txtCategory
         var count = binding.txtCount
         var updatedAt = binding.txtUpdated
+        var btnPlus = binding.btnPlus
+        var btnMinus = binding.btnMinus
 
         fun bind(counter: CounterSnapshot) {
             name.text = counter.name

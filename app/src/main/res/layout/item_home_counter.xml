@@ -71,7 +71,8 @@
             app:layout_constraintTop_toBottomOf="@id/txtCount"
             app:layout_constraintBottom_toTopOf="@id/txtUpdated"
             android:layout_marginStart="16dp"
-            app:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary"
+            android:stateListAnimator="@animator/button_press_scale"/>
 
         <ImageButton
             android:id="@+id/btnPlus"
@@ -85,7 +86,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/btnMinus"
             android:layout_marginStart="8dp"
-            app:tint="?attr/colorOnPrimary" />
+            app:tint="?attr/colorOnPrimary"
+            android:stateListAnimator="@animator/button_press_scale"/>
 
         <!-- Date -->
         <TextView
