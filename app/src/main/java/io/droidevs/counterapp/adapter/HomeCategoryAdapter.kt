@@ -5,26 +5,48 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.adapter.HomeCounterAdapter.AddViewHolder
+import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 
 class HomeCategoryAdapter(
     private val listener: OnCategoryClickListener? = null
-) : ListAdapter<CategoryUiModel, HomeCategoryAdapter.CategoryViewHolder>(
+) : ListAdapter<CategoryUiModel, RecyclerView.ViewHolder>(
     DiffCallback
 ) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemHomeCategoryBinding.inflate(inflater, parent, false)
-        return CategoryViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType) {
+            VIEW_TYPE_ADD -> {
+                var binding = ItemEmptyAddBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                    )
+                AddViewHolder(binding)
+            }
+            else -> {
+                var binding = ItemHomeCategoryBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                    )
+                CategoryViewHolder(binding)
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.bind(getItem(position))
-        holder.itemView.setOnClickListener {
-            listener?.onCategoryClick(getItem(position))
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is CategoryViewHolder) {
+            holder.bind(getItem(position))
+            holder.itemView.setOnClickListener {
+                listener?.onCategoryClick(getItem(position))
+            }
+        }
+        else {
+            (holder as AddViewHolder).bind()
         }
     }
 
@@ -39,7 +61,12 @@ class HomeCategoryAdapter(
         }
     }
 
-    override fun onViewAttachedToWindow(holder: CategoryViewHolder) {
+    override fun getItemCount(): Int = currentList.size + 1
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == currentList.size) VIEW_TYPE_ADD else VIEW_TYPE_CATEGORY
+    }
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
     }
 
@@ -53,5 +80,10 @@ class HomeCategoryAdapter(
             oldItem: CategoryUiModel,
             newItem: CategoryUiModel
         ): Boolean = oldItem == newItem
+    }
+
+    companion object {
+        private const val VIEW_TYPE_CATEGORY = 0
+        private const val VIEW_TYPE_ADD = 1
     }
 }
