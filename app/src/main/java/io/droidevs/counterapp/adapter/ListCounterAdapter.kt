@@ -9,9 +9,10 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 
 class ListCounterAdapter(
-    private var counters: List<CounterSnapshot> = ArrayList<CounterSnapshot>(),
+    private var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
     private val listener : OnCounterClickListener
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
@@ -23,12 +24,13 @@ class ListCounterAdapter(
         val updatedAt : TextView = binding.tvUpdated
         val tvCategory : TextView = binding.tvCategory
 
-        fun bind(counter: CounterSnapshot) {
-            tvName.text = counter.name
-            tvCount.text = counter.currentCount.toString()
-            updatedAt.text = counter.lastUpdatedAt.toString()
+        fun bind(data: CounterWithCategoryUiModel) {
+            tvName.text = data.counter.name
+            tvCount.text = data.counter.currentCount.toString()
+            tvCategory.text = data.category?.name
+            updatedAt.text = data.counter.lastUpdatedAt.toString()
             binding.root.setOnClickListener {
-                listener.onCounterClick(counter)
+                listener.onCounterClick(data.counter)
             }
         }
     }
@@ -48,8 +50,8 @@ class ListCounterAdapter(
     }
 
     override fun getItemCount(): Int = counters.size
-    fun updateCounters(counters: List<CounterSnapshot>) {
-        var l = this.counters as ArrayList<CounterSnapshot>
+    fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
+        var l = this.counters as ArrayList<CounterWithCategoryUiModel>
         l.clear()
         l.addAll(counters)
         notifyDataSetChanged()
