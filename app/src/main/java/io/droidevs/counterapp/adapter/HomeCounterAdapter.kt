@@ -40,15 +40,15 @@ internal class HomeCounterAdapter(
     }
 
     internal class ViewHolder(binding: ItemHomeCounterBinding) : RecyclerView.ViewHolder(binding.root) {
-        var name: TextView = binding.tvCounterName
-        var count = binding.tvCurrentCount
-        var createdAt = binding.tvCreatedDate
-        var updatedAt = binding.tvLastEditedDate
+        var name: TextView = binding.txtCounterName
+        var category: TextView = binding.txtCategory
+        var count = binding.txtCount
+        var updatedAt = binding.txtUpdated
 
         fun bind(counter: CounterSnapshot) {
             name.text = counter.name
             count.text = counter.currentCount.toString()
-            createdAt.text = counter.createdAt.toString()
+            category.text = "Category" // TODO: get category name from db
             updatedAt.text = counter.lastUpdatedAt.toString()
         }
     }

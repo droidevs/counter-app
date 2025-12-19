@@ -60,8 +60,8 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater)
 
-        recycler = binding.recyclerLastCounters
-        categoryRecycler = binding.recyclerTopCategories
+        recycler = binding.recyclerRecentCounters
+        categoryRecycler = binding.recyclerCategories
 
         return binding.root
     }
@@ -71,8 +71,6 @@ class HomeFragment : Fragment() {
         setUpRecyclerView()
         setUpButtons()
 
-        var totalCountersText = binding.txtTotalCounters
-        var totalCategoriesText = binding.txtTotalCategories
 
         lifecycleScope.launch {
             viewModel.countersSnapshots.collect { counters ->
@@ -83,7 +81,7 @@ class HomeFragment : Fragment() {
 
         lifecycleScope.launch {
             viewModel.countersNumber.collect { size ->
-                totalCountersText.text = "Total Counters: ${size}"
+                // todo :
             }
         }
 
@@ -94,7 +92,7 @@ class HomeFragment : Fragment() {
         }
         lifecycleScope.launch {
             viewModel.categoriesCount.collectLatest { count ->
-                totalCategoriesText.text = "Total Categories: ${count}"
+                // todo:
             }
         }
 
@@ -138,10 +136,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun setUpButtons() {
-        var btnViewAll = binding.btnViewAllCounters
-        var btnCreate = binding.btnNewCounter
-        var btnViewCategories = binding.btnViewAllCategories
-        var btnCreateCategory = binding.btnCreateCategory
+        var btnViewAll = binding.txtViewAllCounters
+        //var btnCreate = binding.btnNewCounter
+        var btnViewCategories = binding.txtViewAllCategories
+        //var btnCreateCategory = binding.btnCreateCategory
 
         btnViewAll.setOnClickListener { v ->
             findNavController().navigate(
@@ -151,18 +149,18 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.counterListFragment)
         }
 
-        btnCreate.setOnClickListener { v ->
-            findNavController().navigate(R.id.action_to_counters_graph)
-            findNavController().navigate(R.id.action_counterList_to_counterCreate)
-        }
+//        btnCreate.setOnClickListener { v ->
+//            findNavController().navigate(R.id.action_to_counters_graph)
+//            findNavController().navigate(R.id.action_counterList_to_counterCreate)
+//        }
 
         btnViewCategories.setOnClickListener { v ->
             findNavController().navigate(R.id.action_to_categories_graph)
         }
-        btnCreateCategory.setOnClickListener { v ->
-            findNavController().navigate(R.id.action_to_categories_graph)
-            findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
-        }
+//        btnCreateCategory.setOnClickListener { v ->
+//            findNavController().navigate(R.id.action_to_categories_graph)
+//            findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
+//        }
 
     }
 

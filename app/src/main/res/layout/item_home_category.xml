@@ -1,35 +1,38 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="140dp"
     android:layout_height="wrap_content"
     android:layout_marginEnd="12dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/transparent"
-    android:foreground="?attr/selectableItemBackground">
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@android:color/transparent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="@drawable/bg_category_card">
+        android:background="@drawable/bg_category_card"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Category Name -->
         <TextView
-            android:id="@+id/txtCategoryName"
+            android:id="@+id/category_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fitness"
+            android:text="Health"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:textColor="?attr/colorOnSurface"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/category_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 COUNTERS"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant"/>
+
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>
 

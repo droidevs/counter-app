@@ -30,10 +30,12 @@ class HomeCategoryAdapter(
 
     inner class CategoryViewHolder(binding: ItemHomeCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        private val name = binding.txtCategoryName
+        private val name = binding.categoryName
+        private val count = binding.categoryCount
 
         fun bind(item: CategoryUiModel) {
             name.text = item.name
+            count.text = item.countersCount.toString()
         }
     }
 

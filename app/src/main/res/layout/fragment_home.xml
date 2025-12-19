@@ -1,128 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".ui.fragments.HomeFragment">
+    android:background="?colorBackground">
 
-    <!-- Vertical 50% Guideline -->
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_vertical_50"
-        android:layout_width="wrap_content"
+        android:id="@+id/guideline1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.5"/>
 
-    <!-- ================= TOP HALF: COUNTERS ================= -->
-
-    <!-- Last Counters RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerLastCounters"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    <!-- ===== RECENT COUNTERS HEADER ===== -->
+    <TextView
+        android:id="@+id/txtRecentCounters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recent Counters"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="?attr/colorOnBackground"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- View All Counters Button -->
-    <Button
-        android:id="@+id/btnViewAllCounters"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/view_all_counters"
-        app:layout_constraintTop_toBottomOf="@id/recyclerLastCounters"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnNewCounter"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp" />
-
-    <!-- New Counter Button -->
-    <Button
-        android:id="@+id/btnNewCounter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/create_new_counter"
-        app:layout_constraintTop_toTopOf="@id/btnViewAllCounters"
-        app:layout_constraintBottom_toBottomOf="@id/btnViewAllCounters"
-        app:layout_constraintStart_toEndOf="@id/btnViewAllCounters"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Total Counters Text -->
     <TextView
-        android:id="@+id/txtTotalCounters"
+        android:id="@+id/txtViewAllCounters"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/total_counters_0"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btnViewAllCounters"
-        app:layout_constraintBottom_toTopOf="@id/guideline_vertical_50"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        android:layout_marginTop="12dp" />
+        android:text="View All ›"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtRecentCounters"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ================= BOTTOM HALF: CATEGORIES ================= -->
-
-    <!-- Top Categories RecyclerView -->
+    <!-- ===== RECENT COUNTERS LIST ===== -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerTopCategories"
-        android:layout_width="0dp"
+        android:id="@+id/recyclerRecentCounters"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:clipToPadding="false"
+        android:padding="10dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toTopOf="@id/guideline_vertical_50"
-        app:layout_constraintBottom_toTopOf="@id/btnViewAllCategories"
+        app:layout_constraintTop_toBottomOf="@id/txtRecentCounters"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:flow_verticalAlign="center"
-        android:padding="20dp"
-        />
+        app:layout_constraintBottom_toTopOf="@id/guideline1"
+        android:orientation="horizontal"/>
 
-    <!-- View All Categories Button -->
-    <Button
-        android:id="@+id/btnViewAllCategories"
+    <!-- ===== CATEGORIES HEADER ===== -->
+    <TextView
+        android:id="@+id/txtCategories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Categories"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="?attr/colorOnBackground"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/txtViewAllCategories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View All ›"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/txtCategories"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ===== CATEGORIES LIST ===== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCategories"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/view_categories"
-        app:layout_constraintTop_toBottomOf="@id/recyclerTopCategories"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnCreateCategory"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintBottom_toTopOf="@id/txtTotalCategories"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp" />
-
-    <!-- Create Category Button -->
-    <Button
-        android:id="@+id/btnCreateCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/create_category"
-        app:layout_constraintTop_toTopOf="@id/btnViewAllCategories"
-        app:layout_constraintBottom_toBottomOf="@id/btnViewAllCategories"
-        app:layout_constraintStart_toEndOf="@id/btnViewAllCategories"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Total Categories Text -->
-    <TextView
-        android:id="@+id/txtTotalCategories"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/total_categories_0"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btnViewAllCategories"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingTop="12dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/txtCategories"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-         />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -13,13 +13,13 @@
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
 
-    <!-- Circle outline -->
-    <path
-        android:pathData="M12,12m-9,0a9,9 0,1 1,18 0a9,9 0,1 1,-18 0"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOutline"
-        android:strokeWidth="2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+<!--    &lt;!&ndash; Circle outline &ndash;&gt;-->
+<!--    <path-->
+<!--        android:pathData="M12,12m-9,0a9,9 0,1 1,18 0a9,9 0,1 1,-18 0"-->
+<!--        android:fillColor="@android:color/transparent"-->
+<!--        android:strokeColor="?attr/colorOutline"-->
+<!--        android:strokeWidth="2"-->
+<!--        android:strokeLineCap="round"-->
+<!--        android:strokeLineJoin="round" />-->
 
 </vector>

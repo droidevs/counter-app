@@ -1,85 +1,104 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:minWidth="220dp"
+    android:maxHeight="300dp"
+    android:layout_marginEnd="12dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="@android:color/transparent"
-    android:foreground="?attr/selectableItemBackground">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@drawable/bg_card">
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_counter_card"
+        android:padding="16dp">
 
-        <!-- Counter Name -->
+        <!-- Category Chip -->
         <TextView
-            android:id="@+id/tvCounterName"
+            android:id="@+id/txtCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HEALTH"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/bg_chip"
+            android:textColor="?attr/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/txtCounterName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Counter Name"
-            android:textSize="18sp"
+            android:text="Water Intake"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toStartOf="@id/txtCategory"/>
 
-        <!-- Current Count -->
+        <!-- Count -->
         <TextView
-            android:id="@+id/tvCurrentCount"
+            android:id="@+id/txtCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="45"
-            android:textSize="32sp"
+            android:text="5"
+            android:textSize="36sp"
             android:textStyle="bold"
             android:textColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/tvCounterName"
+            app:layout_constraintTop_toBottomOf="@id/txtCounterName"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"/>
+            app:layout_constraintBottom_toTopOf="@id/btnMinus"/>
 
-        <!-- Divider -->
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="?attr/colorOutline"
-            app:layout_constraintTop_toBottomOf="@id/tvCurrentCount"
+        <!-- Buttons -->
+        <ImageButton
+            android:id="@+id/btnMinus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_secondary"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_decrement"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"/>
+            app:layout_constraintEnd_toStartOf="@id/btnPlus"
+            app:layout_constraintTop_toBottomOf="@id/txtCount"
+            app:layout_constraintBottom_toTopOf="@id/txtUpdated"
+            android:layout_marginStart="16dp"
+            app:tint="?attr/colorPrimary" />
 
-        <!-- Created Date -->
+        <ImageButton
+            android:id="@+id/btnPlus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_primary"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_increment"
+            app:layout_constraintTop_toTopOf="@id/btnMinus"
+            app:layout_constraintStart_toEndOf="@id/btnMinus"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/btnMinus"
+            android:layout_marginStart="8dp"
+            app:tint="?attr/colorOnPrimary" />
+
+        <!-- Date -->
         <TextView
-            android:id="@+id/tvCreatedDate"
-            android:layout_width="0dp"
+            android:id="@+id/txtUpdated"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Created: 2025-01-01"
+            android:text="Updated: 12/19/2025"
             android:textSize="12sp"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintTop_toBottomOf="@id/divider"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvLastEditedDate"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <!-- Last Edited Date -->
-        <TextView
-            android:id="@+id/tvLastEditedDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Updated: 2025-01-10"
-            android:textSize="12sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:gravity="end"
-            app:layout_constraintTop_toBottomOf="@id/divider"
-            app:layout_constraintStart_toEndOf="@id/tvCreatedDate"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>
+
