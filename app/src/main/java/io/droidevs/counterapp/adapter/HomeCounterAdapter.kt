@@ -13,7 +13,10 @@ import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 
 internal class HomeCounterAdapter(
     private val counters: MutableList<CounterWithCategoryUiModel>,
-    private val listener: OnCounterClickListener? = null
+    private val listener: OnCounterClickListener? = null,
+    private val onAddCounter : () -> Unit = {},
+    private val onIncrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
+    private val onDecrement : (counter: CounterWithCategoryUiModel) -> Unit = {}
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -46,12 +49,18 @@ internal class HomeCounterAdapter(
     override fun onBindViewHolder(@NonNull holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
             var cwg = counters[position]
-            holder.bind(cwg)
+            holder.bind(
+                cwg = cwg,
+                onIncrement = onIncrement,
+                onDecrement = onDecrement
+            )
             holder.itemView.setOnClickListener {
                 listener?.onCounterClick(cwg.counter)
             }
         } else {
-            (holder as AddViewHolder).bind()
+            (holder as AddViewHolder).bind(
+                onClick = onAddCounter
+            )
         }
     }
 
@@ -70,27 +79,40 @@ internal class HomeCounterAdapter(
         var btnPlus = binding.btnPlus
         var btnMinus = binding.btnMinus
 
-        fun bind(cwg: CounterWithCategoryUiModel) {
+        fun bind(
+            cwg: CounterWithCategoryUiModel,
+            onIncrement: (CounterWithCategoryUiModel) -> Unit,
+            onDecrement: (CounterWithCategoryUiModel) -> Unit
+        ) {
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
             category.text = cwg.category?.name
             updatedAt.text = cwg.counter.lastUpdatedAt.toString()
+
+            btnPlus.setOnClickListener {
+                onIncrement(cwg)
+            }
+            btnMinus.setOnClickListener {
+                onDecrement(cwg)
+            }
         }
     }
 
     class AddViewHolder(binding: ItemEmptyAddBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind() {
+        fun bind(
+            onClick: () -> Unit = {}
+        ) {
             itemView.setOnClickListener {
-                // todo : fire action click
                 itemView.animate()
                     .scaleX(1.05f)
                     .scaleY(1.05f)
-                    .setDuration(600)
+                    .setDuration(400)
                     .withEndAction {
                         itemView.animate().scaleX(1f).scaleY(1f).duration = 600
                     }
                     .start()
+                onClick()
             }
         }
     }

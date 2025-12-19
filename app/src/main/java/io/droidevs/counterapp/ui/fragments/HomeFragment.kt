@@ -113,6 +113,16 @@ class HomeFragment : Fragment() {
                         }
                     )
                 }
+            },
+            onAddCounter = {
+                findNavController().navigate(R.id.action_to_counters_graph)
+                findNavController().navigate(R.id.action_counterList_to_counterCreate)
+            },
+            onIncrement = { counter ->
+                viewModel.incrementCounter(counter.counter)
+            },
+            onDecrement = { counter ->
+                viewModel.decrementCounter(counter.counter)
             }
         )
         categoryRecycler?.layoutManager =
