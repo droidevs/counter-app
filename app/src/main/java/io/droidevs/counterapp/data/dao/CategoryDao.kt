@@ -13,14 +13,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
 
-    @Query("SELECT * FROM categories ORDER BY counters_count DESC LIMIT :limit")
+    @Query("SELECT * FROM categories WHERE is_system = 0 ORDER BY counters_count DESC LIMIT :limit")
     fun getTopCategories(limit : Int): Flow<List<CategoryEntity>>
 
-    @Query("SELECT COUNT(*) FROM categories")
+    @Query("SELECT COUNT(*) FROM categories WHERE is_system = 0")
     fun getTotalCategoriesCount() : Flow<Int>
 
-    @Query("SELECT * FROM categories")
+    @Query("SELECT * FROM categories WHERE is_system = 0")
     fun getAllCategories(): Flow<List<CategoryEntity>>
+
+    @Query("SELECT * FROM categories WHERE is_system = 1")
+    fun getSystemCategories(): Flow<List<CategoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
@@ -29,7 +32,7 @@ interface CategoryDao {
 
 
     @Transaction
-    @Query("SELECT * FROM categories WHERE id = :categoryId")
+    @Query("SELECT * FROM categories WHERE id = :categoryId AND is_system = 0")
     fun getCategoryWithCounters(
         categoryId: String
     ) : Flow<CategoryWithCountersEntity>

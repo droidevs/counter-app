@@ -13,5 +13,7 @@ data class CategoryEntity(
     @ColumnInfo(name = "color")
     val color : Int,
     @ColumnInfo(name = "counters_count")
-    val countersCount: Int
+    val countersCount: Int,
+    @ColumnInfo(name = "is_system")
+    val isSystem: Boolean = false
 )

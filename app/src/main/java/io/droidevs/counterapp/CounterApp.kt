@@ -19,6 +19,10 @@ import io.droidevs.counterapp.data.repository.fake.FakeSettingsRepository
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.repository.SettingsRepository
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class CounterApp : Application() {
 
@@ -48,6 +52,7 @@ class CounterApp : Application() {
 
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -102,6 +107,10 @@ class CounterApp : Application() {
             settingsRepository = SettingsRepositoryImpl(
                 PreferenceManager.getDefaultSharedPreferences(applicationContext)
             )
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryRepository.seedDefaults()
+            counterRepository.seedDefaults()
         }
     }
 }

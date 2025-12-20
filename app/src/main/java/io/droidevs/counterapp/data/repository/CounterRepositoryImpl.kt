@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.data.repository
 
 import android.util.Log
+import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.data.dao.CounterDao
 import io.droidevs.counterapp.data.toDomain
@@ -67,6 +68,16 @@ class CounterRepositoryImpl(
             data.map {
                 it.toDomainModel()
             }
+        }
+    }
+
+    override suspend fun seedDefaults() {
+        dao.insertAll(DefaultData.defaultCounters)
+    }
+
+    override fun getSystemCounters(): Flow<List<Counter>> {
+        return dao.getAllSystem().map { counters ->
+            counters.map { it.toDomain() }
         }
     }
 }

@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.data.repository
 
+import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
@@ -44,5 +45,17 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
 
     override suspend fun getExistingCategoryColors(): List<Int> {
         return categoryDao.getExistingCategoryColors()
+    }
+
+    override suspend fun seedDefaults() {
+        DefaultData.defaultCategories.forEach { category ->
+            categoryDao.insert(category)
+        }
+    }
+
+    override fun getSystemCategories(): Flow<List<Category>> {
+        return categoryDao.getSystemCategories().map { list ->
+            list.map { it.toDomain() }
+        }
     }
 }

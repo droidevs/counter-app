@@ -33,6 +33,8 @@ data class CounterEntity(
 
     @ColumnInfo(name = "category_id")
     val categoryId: String? = null,
+    @ColumnInfo(name = "is_system")
+    val isSystem: Boolean = false,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Instant,

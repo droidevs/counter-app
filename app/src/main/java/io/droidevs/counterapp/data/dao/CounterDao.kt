@@ -13,8 +13,12 @@ import kotlinx.coroutines.flow.Flow
 interface CounterDao {
 
 
-    @Query("SELECT * FROM counters")
+    @Query("SELECT * FROM counters WHERE is_system = 0")
     fun getAll() : Flow<List<CounterEntity>>
+
+    @Query("SELECT * FROM counters WHERE is_system = 1")
+    fun getAllSystem(): Flow<List<CounterEntity>>
+
     @Insert
     suspend fun insertAll(counters: List<CounterEntity>)
 
@@ -26,20 +30,21 @@ interface CounterDao {
 
     @Query("""
         SELECT * FROM counters
+        WHERE is_system = 0
         ORDER BY last_updated_at DESC
         LIMIT :limit
     """)
     fun getLastEdited(limit : Int) : Flow<List<CounterEntity>>
 
-    @Query("SELECT COUNT(*) FROM counters")
+    @Query("SELECT COUNT(*) FROM counters WHERE is_system = 0")
     fun getTotalCounters(): Flow<Int>
 
     @Delete
     suspend fun delete(counter: CounterEntity)
 
-    @Query("SELECT * FROM counters")
+    @Query("SELECT * FROM counters WHERE is_system = 0")
     fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
 
-    @Query("SELECT * FROM counters ORDER BY last_updated_at DESC LIMIT :limit")
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
     fun getLastEditedCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
 }

@@ -17,6 +17,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.enableSavedStateHandles
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -101,6 +102,7 @@ class MainActivity : AppCompatActivity() {
                 ?.childFragmentManager
                 ?.fragments
                 ?.firstOrNull()
+
 
             if (fragment is VolumeKeyHandler) {
                 when(event.keyCode) {
