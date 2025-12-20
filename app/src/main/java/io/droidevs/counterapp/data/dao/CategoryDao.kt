@@ -30,6 +30,8 @@ interface CategoryDao {
     @Insert
     suspend fun insert(category: CategoryEntity)
 
+    @Query("SELECT * FROM categories WHERE ```key``` = :key LIMIT 1")
+    suspend fun getByKey(key: String): CategoryEntity?
 
     @Transaction
     @Query("SELECT * FROM categories WHERE id = :categoryId AND is_system = 0")

@@ -71,9 +71,9 @@ class CounterRepositoryImpl(
         }
     }
 
-    override suspend fun seedDefaults() {
-        dao.insertAll(DefaultData.defaultCounters)
-    }
+//    override suspend fun seedDefaults() {
+//        dao.insertAll(DefaultData.defaultCounters)
+//    }
 
     override fun getSystemCounters(): Flow<List<Counter>> {
         return dao.getAllSystem().map { counters ->

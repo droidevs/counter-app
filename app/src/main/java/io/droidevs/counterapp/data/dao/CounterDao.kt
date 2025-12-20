@@ -19,6 +19,9 @@ interface CounterDao {
     @Query("SELECT * FROM counters WHERE is_system = 1")
     fun getAllSystem(): Flow<List<CounterEntity>>
 
+    @Query("SELECT * FROM counters WHERE ```key``` = :key LIMIT 1")
+    suspend fun getByKey(key: String): CounterEntity?
+
     @Insert
     suspend fun insertAll(counters: List<CounterEntity>)
 

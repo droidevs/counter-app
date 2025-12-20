@@ -47,11 +47,11 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
         return categoryDao.getExistingCategoryColors()
     }
 
-    override suspend fun seedDefaults() {
-        DefaultData.defaultCategories.forEach { category ->
-            categoryDao.insert(category)
-        }
-    }
+//    override suspend fun seedDefaults() {
+//        DefaultData.defaultCategories.forEach { category ->
+//            categoryDao.insert(category)
+//        }
+//    }
 
     override fun getSystemCategories(): Flow<List<Category>> {
         return categoryDao.getSystemCategories().map { list ->

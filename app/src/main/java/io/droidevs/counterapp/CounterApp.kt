@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import io.droidevs.counterapp.data.AppDatabase
+import io.droidevs.counterapp.data.DefaultDataInitializer
 import io.droidevs.counterapp.data.SettingKeys
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.data.repository.CategoryRepositoryImpl
@@ -112,8 +113,10 @@ class CounterApp : Application() {
             )
         }
         GlobalScope.launch(Dispatchers.IO) {
-            categoryRepository.seedDefaults()
-            counterRepository.seedDefaults()
+            DefaultDataInitializer.init(
+                categoryDao = categoryDao,
+                counterDao = counterDao
+            )
         }
 
         // todo: register system counters receivers
