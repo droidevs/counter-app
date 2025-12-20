@@ -2,7 +2,7 @@ package io.droidevs.counterapp.domain.system
 
 enum class SystemCounterType(
 
-    /** Stable system key (used in DB & collectors) */
+    /** Stable system kay (used in DB & collectors) */
     val key: String,
 
     /** Human readable name for UI */

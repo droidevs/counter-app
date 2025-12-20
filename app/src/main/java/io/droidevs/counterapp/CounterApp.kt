@@ -100,6 +100,10 @@ class CounterApp : Application() {
                     )
                 )
             }
+            GlobalScope.launch(Dispatchers.IO) {
+                categoryRepository.seedDefaults()
+                counterRepository.seedDefaults()
+            }
 
         } else {
             counterRepository = CounterRepositoryImpl(
@@ -111,12 +115,13 @@ class CounterApp : Application() {
             settingsRepository = SettingsRepositoryImpl(
                 PreferenceManager.getDefaultSharedPreferences(applicationContext)
             )
-        }
-        GlobalScope.launch(Dispatchers.IO) {
-            DefaultDataInitializer.init(
-                categoryDao = categoryDao,
-                counterDao = counterDao
-            )
+
+            GlobalScope.launch(Dispatchers.IO) {
+                DefaultDataInitializer.init(
+                    categoryDao = categoryDao,
+                    counterDao = counterDao
+                )
+            }
         }
 
         // todo: register system counters receivers

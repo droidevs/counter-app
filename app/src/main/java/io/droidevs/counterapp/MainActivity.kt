@@ -14,9 +14,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var navRail: NavigationRailView
+    private lateinit var drawer : DrawerLayout
 
     private var currentWidthClass = WindowWidthSizeClass.Compact
 
@@ -66,6 +69,10 @@ class MainActivity : AppCompatActivity() {
         }
         //toolbar?.setOnMenuItemClickListener(this)
         setSupportActionBar(toolbar)
+
+        drawer = binding!!.drawerLayout
+
+        setupDrawer()
 
         var navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
@@ -116,6 +123,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    private fun setupDrawer() {
+        binding!!.navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+
+                R.id.menu_history -> {
+                    openHistory()
+                }
+
+                R.id.menu_system_category -> {
+                    openSystemCategories()
+                }
+
+                R.id.menu_rate -> {
+                    rateApp()
+                }
+
+                R.id.menu_about -> {
+                    openAbout()
+                }
+
+                R.id.menu_settings -> {
+                    openSettings()
+                }
+            }
+
+            drawer.closeDrawer(GravityCompat.START)
+            true
+        }
     }
 
     private fun updateNavigationForSize() {
@@ -172,5 +209,26 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         val bundle = findNavController(R.id.nav_host_fragment).saveState()
         outState.putBundle("nav_state", bundle)
+    }
+
+
+    private fun openHistory() {
+        // Navigate to history fragment
+    }
+
+    private fun openSystemCategories() {
+        // Navigate to system categories fragment
+    }
+
+    private fun rateApp() {
+        // Open Play Store
+    }
+
+    private fun openAbout() {
+        // About screen
+    }
+
+    private fun openSettings() {
+        // Settings screen
     }
 }

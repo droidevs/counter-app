@@ -46,7 +46,7 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        isSystem = requireArguments().getBoolean("isSystem")
+        isSystem = arguments?.getBoolean("isSystem") == true
 
         setupRecyclerView()
         loadCategories()
@@ -75,11 +75,11 @@ class CategoryListFragment : Fragment() {
     private fun loadCategories() {
         viewLifecycleOwner.lifecycleScope.launch {
             if (isSystem)
-                viewModel.categories.value.collectLatest {
+                viewModel.systemCategories.value.collectLatest {
                     adapter.submitList(it)
                 }
             else
-                viewModel.systemCategories.value.collectLatest {
+                viewModel.categories.value.collectLatest {
                     adapter.submitList(it)
                 }
         }

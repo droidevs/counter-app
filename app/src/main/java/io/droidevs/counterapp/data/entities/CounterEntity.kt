@@ -22,8 +22,8 @@ import java.time.Instant
 data class CounterEntity(
     @PrimaryKey
     val id: String,
-    @ColumnInfo(name = "`key`")
-    val key: String? = null,
+    @ColumnInfo(name = "kay")
+    val kay: String? = null,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "current_count")
@@ -34,7 +34,8 @@ data class CounterEntity(
     val canDecrement: Boolean,
 
     @ColumnInfo(name = "category_id")
-    val categoryId: String? = null,
+    val categoryId: String?,
+
     @ColumnInfo(name = "is_system")
     val isSystem: Boolean = false,
 

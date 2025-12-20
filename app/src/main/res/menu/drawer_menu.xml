@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_history"
+            android:title="History"
+            android:icon="@drawable/ic_history"/>
+
+        <item
+            android:id="@+id/menu_system_category"
+            android:title="System Categories"
+            android:icon="@drawable/ic_category"/>
+
+    </group>
+
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/menu_rate"
+                android:title="Rate App"
+                android:icon="@drawable/ic_star"/>
+
+            <item
+                android:id="@+id/menu_about"
+                android:title="About"
+                android:icon="@drawable/ic_info"/>
+
+            <item
+                android:id="@+id/menu_settings"
+                android:title="Settings"
+                android:icon="@drawable/ic_settings"/>
+        </menu>
+    </item>
+
+</menu>

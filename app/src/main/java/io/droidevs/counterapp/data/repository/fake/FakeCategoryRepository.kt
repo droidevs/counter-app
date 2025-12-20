@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.data.repository.fake
 
 import io.droidevs.counterapp.data.DefaultData
+import io.droidevs.counterapp.data.entities.CategoryEntity
 import io.droidevs.counterapp.data.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
@@ -93,7 +94,9 @@ class FakeCategoryRepository(
 
     override suspend fun seedDefaults() {
         dummyData.categories.addAll(
-            DefaultData.defaultCategories
+            DefaultData.buildCategories(
+                existing = emptyMap()
+            )
         )
         dummyData.emitCategoryUpdate()
     }

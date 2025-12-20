@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.CounterWithCategory
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.system.SystemCategory
 import io.droidevs.counterapp.domain.toDomain
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.map
@@ -106,7 +107,15 @@ class FakeCounterRepository(
 
     override suspend fun seedDefaults() {
         DummyData.counters.addAll(
-            DefaultData.defaultCounters
+            DefaultData.buildCounters(
+                existing = emptyMap(),
+                // generate the list from categories dummy data that has kay != null
+                categoryIdMap = DummyData.categories
+                    .filter { it.kay != null }                    // Skip null kay
+                .associate { category ->                       // Build the map
+                    SystemCategory.valueOf(category.kay!!) to category.id
+                }
+            )
         )
     }
 
