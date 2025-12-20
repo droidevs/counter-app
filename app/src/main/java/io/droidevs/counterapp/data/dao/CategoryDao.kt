@@ -43,4 +43,7 @@ interface CategoryDao {
     @Query("DELETE FROM categories WHERE id = :categoryId")
     fun deleteCategory(categoryId : String)
 
+    @Query("SELECT color FROM categories WHERE color != 0") // Exclude defaults
+    suspend fun getExistingCategoryColors(): List<Int>
+
 }

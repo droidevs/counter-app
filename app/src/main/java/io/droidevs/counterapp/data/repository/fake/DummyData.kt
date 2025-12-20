@@ -2,6 +2,8 @@ package io.droidevs.counterapp.data.repository.fake
 
 import io.droidevs.counterapp.data.entities.CategoryEntity
 import io.droidevs.counterapp.data.entities.CounterEntity
+import io.droidevs.counterapp.data.repository.CategoryColorProvider
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
 import java.util.UUID
@@ -62,7 +64,8 @@ object DummyData {
             CategoryEntity(
                 id = id,
                 name = categoryNames.getOrElse(index) { "Category $index" },
-                countersCount = categoryCounterMap[id] ?: 0
+                countersCount = categoryCounterMap[id] ?: 0,
+                color = 0
             )
         }.toMutableList()
     }

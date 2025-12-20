@@ -16,4 +16,6 @@ interface CategoryRepository {
 
     suspend fun createCategory(category: Category)
     fun deleteCategory(categoryId: String)
+
+    suspend fun getExistingCategoryColors(): List<Int>
 }

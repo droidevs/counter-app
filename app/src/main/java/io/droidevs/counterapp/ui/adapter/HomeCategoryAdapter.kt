@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
@@ -62,21 +63,23 @@ class HomeCategoryAdapter(
         private val count = binding.categoryCount
         private val container = binding.container
 
-        fun bind(item: CategoryUiModel) {
-            name.text = item.name
-            count.text = item.countersCount.toString()
-            val color = CategoryColorUtil.generateColor(context = itemView.context, category = item.toDomain())
+        fun bind(category: CategoryUiModel) {
+            name.text = category.name
+            count.text = category.countersCount.toString()
 
             val drawable = ContextCompat
                 .getDrawable(itemView.context, R.drawable.bg_category_card)
                 ?.mutate()
 
-            drawable?.setTint(color)
+
+            if (category.color.colorInt != 0) {
+                drawable?.setTint(category.color.colorInt)
+            } else {
+                val color = CategoryColorUtil.generateColor(context = itemView.context, category = category.toDomain())
+                drawable?.setTint(color)
+            }
             container.background = drawable
 
-            name.setTextColor(
-                if (isDark(color)) Color.WHITE else Color.BLACK
-            )
         }
     }
 

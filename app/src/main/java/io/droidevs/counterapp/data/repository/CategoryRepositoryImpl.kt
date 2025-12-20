@@ -41,4 +41,8 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
     override fun deleteCategory(categoryId: String) {
         categoryDao.deleteCategory(categoryId)
     }
+
+    override suspend fun getExistingCategoryColors(): List<Int> {
+        return categoryDao.getExistingCategoryColors()
+    }
 }

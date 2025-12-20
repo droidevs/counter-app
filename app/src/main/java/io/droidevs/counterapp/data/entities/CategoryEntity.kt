@@ -8,8 +8,10 @@ import androidx.room.PrimaryKey
 data class CategoryEntity(
     @PrimaryKey
     val id: String,
+    @ColumnInfo(name = "name")
     val name: String,
-
+    @ColumnInfo(name = "color")
+    val color : Int,
     @ColumnInfo(name = "counters_count")
     val countersCount: Int
 )

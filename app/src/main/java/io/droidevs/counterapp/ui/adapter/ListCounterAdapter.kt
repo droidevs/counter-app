@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
@@ -37,24 +38,28 @@ class ListCounterAdapter(
             }
 
             data.category?.let {
-                val color = CategoryColorUtil.generateColor(context = itemView.context, category = it.toDomain())
-
                 val drawable = ContextCompat
                     .getDrawable(itemView.context, R.drawable.bg_chip)
                     ?.mutate()
 
+                var color : Int
+                if (it.color.colorInt != 0) {
+                    color = it.color.colorInt
+                } else {
+                    color = CategoryColorUtil.generateColor(
+                        context = itemView.context,
+                        category = it.toDomain()
+                    )
+                }
                 drawable?.setTint(color)
                 tvCategory.background = drawable
 
-                tvCategory.setTextColor(
-                    if (isDark(color)) Color.WHITE else Color.BLACK
-                )
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        var binding : ItemListCounterBinding = ItemListCounterBinding.inflate(
+        var binding: ItemListCounterBinding = ItemListCounterBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false

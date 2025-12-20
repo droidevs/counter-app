@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
@@ -104,18 +105,22 @@ internal class HomeCounterAdapter(
             }
 
             cwg.category?.let {
-                val color = CategoryColorUtil.generateColor(context = itemView.context, category = it.toDomain())
-
                 val drawable = ContextCompat
                     .getDrawable(itemView.context, R.drawable.bg_chip)
                     ?.mutate()
-
+                var color : Int
+                if (it.color.colorInt != 0) {
+                    color = it.color.colorInt
+                } else {
+                    color = CategoryColorUtil.generateColor(
+                        context = itemView.context,
+                        category = it.toDomain()
+                    )
+                }
                 drawable?.setTint(color)
                 category.background = drawable
 
-                category.setTextColor(
-                    if (isDark(color)) Color.WHITE else Color.BLACK
-                )
+
             }
         }
     }

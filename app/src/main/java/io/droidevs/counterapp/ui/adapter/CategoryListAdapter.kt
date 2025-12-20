@@ -1,11 +1,13 @@
 package io.droidevs.counterapp.ui.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemCategoryBinding
 import io.droidevs.counterapp.domain.toDomain
@@ -40,18 +42,24 @@ class CategoryListAdapter(
         private val name = binding.tvCategoryName
         private val countersCount = binding.tvCountersCount
 
-        fun bind(item : CategoryUiModel) {
-            name.text = item.name
-            countersCount.text = "${item.countersCount} counters"
+        fun bind(category : CategoryUiModel) {
+            name.text = category.name
+            countersCount.text = "${category.countersCount} counters"
 
-            val color = CategoryColorUtil.generateColor(
-                context = itemView.context,
-                category = item.toDomain()
-            )
-            val drawable = ContextCompat.getDrawable(itemView.context, R.drawable.bg_category_card)
+            val drawable =
+                ContextCompat.getDrawable(itemView.context, R.drawable.bg_category_card)
+                    ?.mutate()
+            var color : Int
+            if (category.color.colorInt != 0){
+                color = category.color.colorInt
+            } else {
+                color = CategoryColorUtil.generateColor(
+                    context = itemView.context,
+                    category = category.toDomain()
+                )
+            }
             drawable?.setTint(color)
-
-            // alpha based on the number of counters
+            // todo : alpha based on the number of counters
             binding.container.background = drawable
 
 

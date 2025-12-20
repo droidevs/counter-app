@@ -118,6 +118,7 @@ class CreateCategoryFragment : Fragment() {
         val category = CategoryUiModel(
             id = UUID.randomUUID().toString(),
             name = name,
+            color = CategoryColor(colorInt = selectedColor),
             countersCount = 0
         )
 

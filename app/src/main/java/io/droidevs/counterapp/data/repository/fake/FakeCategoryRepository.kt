@@ -86,4 +86,8 @@ class FakeCategoryRepository(
         dummyData.emitCategoryUpdate()
     }
 
+    override suspend fun getExistingCategoryColors(): List<Int> {
+        return dummyData.categories.map { it.color }
+    }
+
 }
