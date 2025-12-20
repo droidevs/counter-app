@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowMetrics
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -71,6 +72,14 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         drawer = binding!!.drawerLayout
+
+        val toggle = ActionBarDrawerToggle(
+            this, drawer, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
 
         setupDrawer()
 

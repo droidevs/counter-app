@@ -58,5 +58,7 @@
     <string name="total_categories_0">TotalCategories: 0</string>
     <string name="minus">Minus\n</string>
     <string name="plus">Plus</string>
+    <string name="navigation_drawer_open">Open Drawer</string>
+    <string name="navigation_drawer_close">Close Drawer</string>
 
 </resources>
