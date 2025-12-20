@@ -2,4 +2,11 @@
 <resources>
     <dimen name="category_spacing">12dp</dimen>
     <dimen name="color_spacing">8dp</dimen>
+
+
+    <!-- home dimens-->
+    <dimen name="home_list_max_height">300dp</dimen>
+    <dimen name="home_list_min_width">220dp</dimen>
+    <dimen name="home_list_padding">16dp</dimen>
+    <dimen name="home_add_width">120dp</dimen>
 </resources>

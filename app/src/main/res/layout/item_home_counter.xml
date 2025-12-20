@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:minWidth="220dp"
-    android:maxHeight="300dp"
+    android:minWidth="@dimen/home_list_min_width"
+    android:maxHeight="@dimen/home_list_max_height"
     android:layout_marginEnd="12dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="25dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/transparent">
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@drawable/bg_counter_card"
-        android:padding="16dp">
+        android:padding="@dimen/home_list_padding">
 
         <!-- Category Chip -->
         <TextView
@@ -39,10 +39,10 @@
             android:text="Water Intake"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:maxLines="3"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtCategory"/>
+            app:layout_constraintTop_toBottomOf="@id/txtCategory"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <!-- Count -->
         <TextView
