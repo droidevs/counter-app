@@ -18,6 +18,8 @@ class SystemCounterSyncWorker(
     override suspend fun doWork(): Result {
         val counters = systemCounterManager.fetchSystemCounters()
         // TODO : save/ update counters in my db
+        // todo : create a new repo named SystemCounterUpdater and use it to update the counter by defining
+        // cutom functions to update all counters
         return Result.success()
     }
 }

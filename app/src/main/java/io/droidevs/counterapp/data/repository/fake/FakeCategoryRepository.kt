@@ -12,6 +12,7 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 
 class FakeCategoryRepository(
     val dummyData: DummyData
@@ -65,7 +66,9 @@ class FakeCategoryRepository(
     }
 
     override fun allCategories(): Flow<List<Category>> {
-        return categoriesFlow
+        return categoriesFlow.map { categories ->
+            categories.filter { !it.isSystem }
+        }
     }
 
     override suspend fun createCategory(category: Category) {
