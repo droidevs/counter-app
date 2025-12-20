@@ -11,17 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.adapter.CategoryColorAdapter
+import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.data.repository.CategoryColorProvider
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
-import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryColor
 import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 import io.droidevs.counterapp.ui.vm.factories.CreateCategoryViewModelFactory
-import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
-import java.time.Instant
 import java.util.UUID
 
 

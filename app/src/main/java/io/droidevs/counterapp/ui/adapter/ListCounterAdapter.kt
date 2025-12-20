@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.adapter
+package io.droidevs.counterapp.ui.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater

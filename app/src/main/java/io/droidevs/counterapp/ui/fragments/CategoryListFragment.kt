@@ -9,10 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.adapter.CategoryListAdapter
+import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener

@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.adapter
+package io.droidevs.counterapp.ui.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.adapter.HomeCounterAdapter.AddViewHolder
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
 import io.droidevs.counterapp.domain.toDomain

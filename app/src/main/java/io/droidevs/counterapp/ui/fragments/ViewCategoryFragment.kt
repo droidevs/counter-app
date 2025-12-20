@@ -8,14 +8,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.adapter.CategoryCountersAdapter
+import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 import io.droidevs.counterapp.ui.vm.factories.CategoryViewViewModelFactory
