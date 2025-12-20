@@ -47,6 +47,8 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
             androidx.preference.R.id.recycler_view
         )
 
+
+
         rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -57,6 +59,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
                     in 4..7 -> setTitle("Display")
                     else -> setTitle("Other")
                 }
+
 
             }
         })
@@ -131,7 +134,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
         findPreference<Preference>(KEY_HOMEPAGE)
             ?.setOnPreferenceClickListener {
-                openUrl("https://counter.roman.zone")
+                openUrl("https://github.com/droidevs/counter-app")
                 true
             }
 
@@ -249,7 +252,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
         override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
 
-            return true
+            return false
         }
 
         /* -------------------- Helpers -------------------- */
@@ -260,11 +263,11 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
         }
 
         private fun showWipeDialog() {
-            TODO("implement a confirmation dialog")
+            // TODO implement a confirmation dialog
         }
 
         private fun export() {
-            TODO("implement export logic")
+            // TODO "implement export logic"
         }
 
         companion object {
