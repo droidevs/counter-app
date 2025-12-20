@@ -18,7 +18,8 @@ import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 
 class HomeCategoryAdapter(
-    private val listener: OnCategoryClickListener? = null
+    private val listener: OnCategoryClickListener? = null,
+    private val onAdd: (() -> Unit)? = null
 ) : ListAdapter<CategoryUiModel, RecyclerView.ViewHolder>(
     DiffCallback
 ) {
@@ -52,7 +53,7 @@ class HomeCategoryAdapter(
             }
         }
         else {
-            (holder as AddViewHolder).bind()
+            (holder as AddViewHolder).bind(onAdd ?: {})
         }
     }
 
@@ -80,6 +81,24 @@ class HomeCategoryAdapter(
         }
     }
 
+    class AddViewHolder(binding: ItemEmptyAddBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(
+            onClick: () -> Unit = {}
+        ) {
+            itemView.setOnClickListener {
+                itemView.animate()
+                    .scaleX(1.05f)
+                    .scaleY(1.05f)
+                    .setDuration(400)
+                    .withEndAction {
+                        itemView.animate().scaleX(1f).scaleY(1f).duration = 600
+                    }
+                    .start()
+                onClick()
+            }
+        }
+    }
     override fun getItemCount(): Int = currentList.size + 1
 
     override fun getItemViewType(position: Int): Int {

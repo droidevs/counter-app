@@ -139,6 +139,10 @@ class HomeFragment : Fragment() {
                         }
                     )
                 }
+            },
+            onAdd = {
+                findNavController().navigate(R.id.action_to_categories_graph)
+                findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
             }
         )
 

@@ -57,23 +57,16 @@ class CreateCategoryFragment : Fragment() {
         val recycler = binding.recyclerColors
         val createBtn = binding.btnCreateCategory
 
-        // 1️⃣ Generate colors
+
         colors = CategoryColorProvider.generatePalette(
             context = requireContext(),
             numColors = 8
         ) as MutableList<CategoryColor>
 
 
-        // 2️⃣ Pick suggested color
-        val suggested = CategoryColorProvider.generateColorForCategory(
-            context = requireContext(),
-            categoryName = binding.etCategoryName.text.toString().trim()
-        )
 
-        selectedColor = suggested.colorInt
         previewCard.setCardBackgroundColor(selectedColor)
 
-        // 3️⃣ RecyclerView setup
         adapter = CategoryColorAdapter(colors) { color ->
             selectedColor = color
             previewCard.setCardBackgroundColor(color)
@@ -85,12 +78,17 @@ class CreateCategoryFragment : Fragment() {
             GridSpacingItemDecoration(resources.getDimensionPixelSize(R.dimen.color_spacing))
         )
 
-        // 4️⃣ Live preview text update
+
         editName.doAfterTextChanged {
             previewName.text = it?.toString().orEmpty()
+            val suggested = CategoryColorProvider.generateColorForCategory(
+                context = requireContext(),
+                categoryName = binding.etCategoryName.text.toString().trim()
+            )
+
+            selectedColor = suggested.colorInt
         }
 
-        // 5️⃣ Create category
         createBtn.setOnClickListener {
             val name = editName.text?.toString()?.trim()
 
