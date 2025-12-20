@@ -64,6 +64,12 @@ class CreateCategoryFragment : Fragment() {
         ) as MutableList<CategoryColor>
 
 
+        val suggested = CategoryColorProvider.generateColorForCategory(
+            context = requireContext(),
+            categoryName = binding.etCategoryName.text.toString().trim()
+        )
+
+        selectedColor = suggested.colorInt
 
         previewCard.setCardBackgroundColor(selectedColor)
 
