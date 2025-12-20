@@ -2,7 +2,6 @@ package io.droidevs.counterapp.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -10,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil

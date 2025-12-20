@@ -45,6 +45,4 @@ object CategoryColorUtil {
         return darkness >= 0.5
     }
 
-
-
 }

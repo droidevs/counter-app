@@ -6,11 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.adapter.CategoryColorAdapter
+import io.droidevs.counterapp.data.repository.CategoryColorProvider
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
 import io.droidevs.counterapp.domain.model.Category
+import io.droidevs.counterapp.domain.model.CategoryColor
+import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 import io.droidevs.counterapp.ui.vm.factories.CreateCategoryViewModelFactory
@@ -28,6 +34,11 @@ class CreateCategoryFragment : Fragment() {
         )
     }
 
+    private lateinit var adapter: CategoryColorAdapter
+    private lateinit var colors: MutableList<CategoryColor>
+    private var selectedColor: Int = 0
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,10 +51,58 @@ class CreateCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnSaveCategory.setOnClickListener {
+        val previewCard = binding.cardPreview
+        val previewName = binding.tvPreviewName
+        val editName = binding.etCategoryName
+        val recycler = binding.recyclerColors
+        val createBtn = binding.btnCreateCategory
+
+        // 1️⃣ Generate colors
+        colors = CategoryColorProvider.generatePalette(
+            context = requireContext(),
+            numColors = 8
+        ) as MutableList<CategoryColor>
+
+
+        // 2️⃣ Pick suggested color
+        val suggested = CategoryColorProvider.generateColorForCategory(
+            context = requireContext(),
+            categoryName = binding.etCategoryName.text.toString().trim()
+        )
+
+        selectedColor = suggested.colorInt
+        previewCard.setCardBackgroundColor(selectedColor)
+
+        // 3️⃣ RecyclerView setup
+        adapter = CategoryColorAdapter(colors) { color ->
+            selectedColor = color
+            previewCard.setCardBackgroundColor(color)
+        }
+
+        recycler.layoutManager = GridLayoutManager(requireContext(), 5)
+        recycler.adapter = adapter
+        recycler.addItemDecoration(
+            GridSpacingItemDecoration(resources.getDimensionPixelSize(R.dimen.color_spacing))
+        )
+
+        // 4️⃣ Live preview text update
+        editName.doAfterTextChanged {
+            previewName.text = it?.toString().orEmpty()
+        }
+
+        // 5️⃣ Create category
+        createBtn.setOnClickListener {
+            val name = editName.text?.toString()?.trim()
+
+            if (name.isNullOrEmpty()) {
+                editName.error = "Category name required"
+                return@setOnClickListener
+            }
+
             saveCategory()
         }
     }
+
 
     private fun saveCategory() {
         val name = binding.etCategoryName.text.toString().trim()

@@ -1,6 +1,5 @@
 package io.droidevs.counterapp.adapter
 
-import android.R.attr.category
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
