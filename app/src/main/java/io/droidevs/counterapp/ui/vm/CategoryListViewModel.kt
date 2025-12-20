@@ -9,10 +9,21 @@ class CategoryListViewModel(
     repository: CategoryRepository
 ) : ViewModel() {
 
-    val categories = repository.allCategories()
+    val categories = lazy {
+            repository.allCategories()
             .map { categories ->
-                 categories.map { category ->
-                     category.toUiModel()
-                 }
+                categories.map { category ->
+                    category.toUiModel()
+                }
             }
+    }
+
+    val systemCategories = lazy {
+        repository.getSystemCategories()
+            .map { categories ->
+                categories.map { category ->
+                    category.toUiModel()
+                }
+            }
+    }
 }
