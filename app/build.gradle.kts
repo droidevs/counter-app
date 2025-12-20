@@ -67,4 +67,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.work.runtime)  // Check for latest; 2.9.x is current stable series
+    implementation(libs.androidx.work.runtime.ktx)
 }

@@ -1,6 +1,7 @@
 package io.droidevs.counterapp
 
 import android.app.Application
+import android.telecom.Call
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -19,6 +20,8 @@ import io.droidevs.counterapp.data.repository.fake.FakeSettingsRepository
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.repository.SettingsRepository
+import io.droidevs.counterapp.internal.broadcasts.CallReceiver
+import io.droidevs.counterapp.internal.scheduleSystemCounterSync
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -112,5 +115,13 @@ class CounterApp : Application() {
             categoryRepository.seedDefaults()
             counterRepository.seedDefaults()
         }
+
+        // todo: register system counters receivers
+        scheduleSystemCounterSync(this)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        // unregister recievers
     }
 }

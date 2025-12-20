@@ -17,6 +17,7 @@ roomCommonJvm = "2.8.4"
 roomRuntimeAndroid = "2.8.4"
 preference = "1.2.0"
 window = "1.5.1"
+workRuntime = "2.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +25,8 @@ androidx-material3-window-size-class1 = { module = "androidx.compose.material3:m
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommonJvm" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCommonJvm" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommonJvm" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntime" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
