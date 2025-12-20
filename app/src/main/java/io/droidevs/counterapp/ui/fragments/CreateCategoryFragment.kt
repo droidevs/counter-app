@@ -89,7 +89,7 @@ class CreateCategoryFragment : Fragment() {
             previewName.text = it?.toString().orEmpty()
             val suggested = CategoryColorProvider.generateColorForCategory(
                 context = requireContext(),
-                categoryName = binding.etCategoryName.text.toString().trim()
+                categoryName = it.toString().trim()
             )
 
             selectedColor = suggested.colorInt
