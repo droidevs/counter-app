@@ -1,19 +1,24 @@
 package io.droidevs.counterapp
 
 import android.app.Application
+import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import io.droidevs.counterapp.data.AppDatabase
+import io.droidevs.counterapp.data.SettingKeys
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.data.repository.CategoryRepositoryImpl
 import io.droidevs.counterapp.data.dao.CounterDao
 import io.droidevs.counterapp.data.repository.CounterRepositoryImpl
+import io.droidevs.counterapp.data.repository.SettingsRepositoryImpl
 import io.droidevs.counterapp.data.repository.fake.DummyData
 import io.droidevs.counterapp.data.repository.fake.FakeCategoryRepository
 import io.droidevs.counterapp.data.repository.fake.FakeCounterRepository
+import io.droidevs.counterapp.data.repository.fake.FakeSettingsRepository
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.repository.SettingsRepository
 
 class CounterApp : Application() {
 
@@ -38,6 +43,8 @@ class CounterApp : Application() {
 
     lateinit var categoryRepository: CategoryRepository
         private set
+
+    lateinit var settingsRepository: SettingsRepository
 
 
 
@@ -74,12 +81,27 @@ class CounterApp : Application() {
             val dummyData = DummyData
             counterRepository = FakeCounterRepository(dummyData = dummyData)
             categoryRepository = FakeCategoryRepository(dummyData = dummyData)
+
+            settingsRepository = FakeSettingsRepository().apply {
+                seed(
+                    mapOf(
+                        SettingKeys.SOUNDS_ON to true,
+                        SettingKeys.THEME to "dark",
+                        SettingKeys.HIDE_CONTROLS to false
+                    )
+                )
+            }
+
         } else {
             counterRepository = CounterRepositoryImpl(
                 dao = counterDao,
                 categoryDao = categoryDao
             )
             categoryRepository = CategoryRepositoryImpl(categoryDao)
+
+            settingsRepository = SettingsRepositoryImpl(
+                PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            )
         }
     }
 }

@@ -5,25 +5,35 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.data.PrefKeys
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.data.Themes
+import io.droidevs.counterapp.CounterApp
+import io.droidevs.counterapp.data.SettingKeys
+import io.droidevs.counterapp.ui.vm.SettingsViewModel
+import io.droidevs.counterapp.ui.vm.factories.SettingsViewModelFactory
+import kotlinx.coroutines.launch
 
-class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceChangeListener{
+class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceChangeListener {
 
-    private lateinit var sharedPrefs: SharedPreferences
+
+    private val viewModel: SettingsViewModel by viewModels {
+        SettingsViewModelFactory(
+           repo = (requireContext().applicationContext as CounterApp).settingsRepository
+        )
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +41,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         val rv = view.findViewById<RecyclerView>(
             androidx.preference.R.id.recycler_view
@@ -41,15 +52,16 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
                 super.onScrolled(recyclerView, dx, dy)
                 val lm = rv.layoutManager as LinearLayoutManager
                 //Log.i(TAG, "First visible item position: ${lm.findFirstVisibleItemPosition()}")
-                when(lm.findFirstVisibleItemPosition()) {
-                    in 1..3 ->setTitle("Controls")
-                    in 4..7 ->setTitle("Display")
+                when (lm.findFirstVisibleItemPosition()) {
+                    in 1..3 -> setTitle("Controls")
+                    in 4..7 -> setTitle("Display")
                     else -> setTitle("Other")
                 }
 
             }
         })
     }
+
 
 
     private fun setTitle(title: String) {
@@ -74,11 +86,11 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
         menu.findItem(R.id.menuSettings)?.isVisible = false
     }
 
-    private val appVersion : String
+    private val appVersion: String
         get() = try {
             requireContext().packageManager
                 .getPackageInfo(requireContext().packageName, 0)
-                .versionName ?:getString(R.string.unknown_version)
+                .versionName ?: getString(R.string.unknown_version)
         } catch (e: Exception) {
             getString(R.string.unknown_version)
         }
@@ -87,13 +99,11 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
         try {
-
-            setupThemePreference()
-            setupVersionPreference()
-            setupActions()
+            bindBooleans()
+            bindTheme()
+            bindActions()
+            bindVersion()
 
         } catch (e: NullPointerException) {
             Log.e(TAG, "Unable to retrieve one of the preferences", e)
@@ -101,28 +111,11 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     }
 
-    /* -------------------- Theme -------------------- */
-
-    private fun setupThemePreference() {
-        val themePref = findPreference<ListPreference>(PrefKeys.THEME.key)
-
-        themePref?.summary =
-            getString(Themes.getCurrent(
-                sharedPrefs = sharedPrefs
-            ).labelId)
-
-        themePref?.onPreferenceChangeListener = this
-    }
-
-    /* -------------------- Version -------------------- */
-
-    private fun setupVersionPreference() {
+    private fun bindVersion() {
         findPreference<Preference>(KEY_VERSION)?.summary = appVersion
     }
 
-    /* -------------------- Action Preferences -------------------- */
-
-    private fun setupActions() {
+    private fun bindActions() {
 
         findPreference<Preference>(KEY_REMOVE_COUNTERS)
             ?.setOnPreferenceClickListener {
@@ -132,7 +125,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
         findPreference<Preference>(KEY_EXPORT_COUNTERS)
             ?.setOnPreferenceClickListener {
-                export()
+                viewModel.exportCounters()
                 true
             }
 
@@ -149,44 +142,138 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
             }
     }
 
-    /* -------------------- Preference Change -------------------- */
-
-    override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-        if (preference.key == PrefKeys.THEME.key) {
-            Themes.initCurrentTheme(
-                identifier = newValue.toString(),
-                sharedPrefs = sharedPrefs)
-            preference.summary =
-                getString(Themes.getCurrent(
-                    id = newValue.toString(),
-                    sharedPrefs = sharedPrefs
-                ).labelId)
+    private fun bindTheme() {
+        findPreference<ListPreference>(SettingKeys.THEME.key)?.apply {
+            value = viewModel.theme.value
+            setOnPreferenceChangeListener { _, newValue ->
+                viewModel.setTheme(newValue.toString())
+                true
+            }
         }
-        return true
     }
 
-    /* -------------------- Helpers -------------------- */
+
+    private fun bindBooleans() {
+
+        bindCheckListener(SettingKeys.HIDE_CONTROLS.key) {
+            viewModel.setHideControls(it)
+        }
+
+        bindCheckListener(SettingKeys.HIDE_LAST_UPDATE.key) {
+            viewModel.setHideLastUpdate(it)
+        }
+        bindCheckListener(SettingKeys.SOUNDS_ON.key) {
+            viewModel.setSoundsOn(it)
+        }
+
+        bindCheckListener(SettingKeys.VIBRATION_ON.key) {
+            viewModel.setVibrationOn(it)
+        }
+        bindCheckListener(SettingKeys.HARDWARE_BTN_CONTROL_ON.key) {
+            viewModel.setHardControlOn(it)
+        }
+
+        bindCheckListener(SettingKeys.LABEL_CONTROL_ON.key) {
+            viewModel.setLabelControlOn(it)
+        }
+
+        bindCheckListener(SettingKeys.KEEP_SCREEN_ON.key) {
+            viewModel.setKeepScreenOn(it)
+        }
 
 
-    private fun openUrl(url: String) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        lifecycleScope.launch {
+            viewModel.soundsOn.collect {
+                bindCheckState(SettingKeys.SOUNDS_ON.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.vibrationOn.collect {
+                bindCheckState(SettingKeys.VIBRATION_ON.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.hardControlOn.collect {
+                bindCheckState(SettingKeys.HARDWARE_BTN_CONTROL_ON.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.labelControlOn.collect {
+                bindCheckState(SettingKeys.LABEL_CONTROL_ON.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.keepScreenOn.collect {
+                bindCheckState(SettingKeys.KEEP_SCREEN_ON.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.hideControls.collect {
+                bindCheckState(SettingKeys.HIDE_CONTROLS.key, it)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.hideLastUpdate.collect {
+                bindCheckState(SettingKeys.HIDE_LAST_UPDATE.key, it)
+            }
+        }
     }
 
-    private fun showWipeDialog() {
-        TODO("implement a confirmation dialog")
-    }
 
-    private fun export() {
-        TODO("implement export logic")
-    }
+        fun bindCheckListener(
+            key: String,
+            onChange: (Boolean) -> Unit
+        ) {
+            findPreference<CheckBoxPreference>(key)?.setOnPreferenceChangeListener { _, newValue ->
+                onChange.invoke(newValue as Boolean)
+                true
+            }
+        }
 
-    companion object {
-        private val TAG: String = SettingsFragment::class.java.simpleName
+        fun bindCheckState(
+            key: String,
+            state: Boolean
+        ) {
+            findPreference<CheckBoxPreference>(key)?.apply {
+                isChecked = state ?: false
+            }
+        }
 
-        const val KEY_REMOVE_COUNTERS = "removeCounters"
-        const val KEY_EXPORT_COUNTERS = "exportCounters"
-        const val KEY_HOMEPAGE = "homepage"
-        const val KEY_TIP = "tip"
-        const val KEY_VERSION = "version"
+        /* -------------------- Preference Change -------------------- */
+
+        override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
+
+            return true
+        }
+
+        /* -------------------- Helpers -------------------- */
+
+
+        private fun openUrl(url: String) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }
+
+        private fun showWipeDialog() {
+            TODO("implement a confirmation dialog")
+        }
+
+        private fun export() {
+            TODO("implement export logic")
+        }
+
+        companion object {
+            private val TAG: String = SettingsFragment::class.java.simpleName
+
+            const val KEY_REMOVE_COUNTERS = "removeCounters"
+            const val KEY_EXPORT_COUNTERS = "exportCounters"
+            const val KEY_HOMEPAGE = "homepage"
+            const val KEY_TIP = "tip"
+            const val KEY_VERSION = "version"
+        }
     }
-}

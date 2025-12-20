@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.data
 
-enum class PrefKeys(val key: String) {
+enum class SettingKeys(val key: String) {
     ACTIVE_COUNTER("activeKey"),
     KEEP_SCREEN_ON("keepScreenOn"),
     HIDE_CONTROLS("hideControls"),

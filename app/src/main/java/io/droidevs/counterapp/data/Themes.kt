@@ -3,6 +3,7 @@ package io.droidevs.counterapp.data
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.repository.SettingsRepository
 
 enum class Themes(private val identifier: String, val labelId: Int) {
     LIGHT("light", R.string.settings_theme_light),
@@ -11,12 +12,12 @@ enum class Themes(private val identifier: String, val labelId: Int) {
     SYSTEM("system", R.string.settings_theme_system);
 
     companion object {
-        fun getCurrent(id: String? = null, sharedPrefs: SharedPreferences): Themes {
+        fun getCurrent(id: String? = null, repo: SettingsRepository): Themes {
             var identifier : String? = null
             if (id!= null) {
                 identifier = id
             } else {
-                identifier = sharedPrefs.getString(PrefKeys.THEME.key, SYSTEM.name)!!
+                identifier = repo.getString(SettingKeys.THEME.key, SYSTEM.name)
             }
             for (t in entries) {
                 if (t.identifier == identifier) {
@@ -31,8 +32,8 @@ enum class Themes(private val identifier: String, val labelId: Int) {
          *
          * @param sharedPrefs [SharedPreferences] that contain the theme preference.
          */
-        fun initCurrentTheme(identifier: String? = null, sharedPrefs: SharedPreferences) {
-            val currentTheme = getCurrent(identifier,sharedPrefs)
+        fun initCurrentTheme(identifier: String? = null, repo: SettingsRepository) {
+            val currentTheme = getCurrent(identifier,repo)
 
             when (currentTheme) {
                 LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

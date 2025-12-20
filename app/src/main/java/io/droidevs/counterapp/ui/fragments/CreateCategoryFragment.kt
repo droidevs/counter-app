@@ -93,6 +93,7 @@ class CreateCategoryFragment : Fragment() {
             )
 
             selectedColor = suggested.colorInt
+            previewCard.setCardBackgroundColor(selectedColor)
         }
 
         createBtn.setOnClickListener {
