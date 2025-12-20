@@ -3,6 +3,7 @@ package io.droidevs.counterapp
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -26,6 +27,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
 import io.droidevs.counterapp.databinding.ActivityMainBinding
+import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 
 class MainActivity : AppCompatActivity() {
     var binding : ActivityMainBinding? = null
@@ -89,6 +91,29 @@ class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateNavigationForSize()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            val fragment = supportFragmentManager
+                .primaryNavigationFragment
+                ?.childFragmentManager
+                ?.fragments
+                ?.firstOrNull()
+
+            if (fragment is VolumeKeyHandler) {
+                when(event.keyCode) {
+                    KeyEvent.KEYCODE_VOLUME_UP -> {
+                        if (fragment.onVolumeUp()) return true
+                    }
+                    KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                        if (fragment.onVolumeDown()) return true
+                    }
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun updateNavigationForSize() {

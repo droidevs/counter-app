@@ -21,13 +21,14 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.models.CounterSnapshot
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
+import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
 import io.droidevs.counterapp.ui.vm.factories.CounterViewModelFactory
 import kotlinx.coroutines.launch
 
-class CounterViewFragment : Fragment() {
+class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
     lateinit var binding : FragmentCounterViewBinding
     private lateinit var viewModel: CounterViewViewModel
@@ -138,6 +139,24 @@ class CounterViewFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onVolumeUp(): Boolean {
+        Toast.makeText(
+            requireContext(),
+            "Volume up",
+            Toast.LENGTH_SHORT
+        ).show()
+        return true
+    }
+
+    override fun onVolumeDown(): Boolean {
+        Toast.makeText(
+            requireContext(),
+            "Volume down",
+            Toast.LENGTH_SHORT
+        ).show()
+        return true
     }
 
     companion object {

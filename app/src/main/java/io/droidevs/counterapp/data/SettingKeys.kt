@@ -9,5 +9,5 @@ enum class SettingKeys(val key: String) {
     HARDWARE_BTN_CONTROL_ON("hardControlOn"),
     VIBRATION_ON("vibrationOn"),
     SOUNDS_ON("soundsOn"),
-    THEME("theme"),
+    THEME("theme")
 }

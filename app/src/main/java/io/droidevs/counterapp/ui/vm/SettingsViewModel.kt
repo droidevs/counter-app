@@ -17,11 +17,12 @@ class SettingsViewModel(
     val soundsOn = _soundsOn
         .asStateFlow()
 
+
     private val _vibrationOn = MutableStateFlow(repo.getBoolean(SettingKeys.VIBRATION_ON.key, true))
     val vibrationOn = _vibrationOn
         .asStateFlow()
 
-    private val _hardControlOn = MutableStateFlow(repo.getBoolean(SettingKeys.HARDWARE_BTN_CONTROL_ON.key, true))
+    private val _hardControlOn = MutableStateFlow(repo.getBoolean(SettingKeys.HARDWARE_BTN_CONTROL_ON.key, false))
     val hardControlOn = _hardControlOn
         .asStateFlow()
 
