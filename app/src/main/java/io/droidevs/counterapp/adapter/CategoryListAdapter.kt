@@ -2,12 +2,16 @@ package io.droidevs.counterapp.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemCategoryBinding
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 
 class CategoryListAdapter(
     val listener: OnCategoryClickListener? = null
@@ -39,6 +43,17 @@ class CategoryListAdapter(
         fun bind(item : CategoryUiModel) {
             name.text = item.name
             countersCount.text = "${item.countersCount} counters"
+
+            val color = CategoryColorUtil.generateColor(
+                context = itemView.context,
+                category = item.toDomain()
+            )
+            val drawable = ContextCompat.getDrawable(itemView.context, R.drawable.bg_category_card)
+            drawable?.setTint(color)
+
+            // alpha based on the number of counters
+            binding.container.background = drawable
+
 
         }
     }
