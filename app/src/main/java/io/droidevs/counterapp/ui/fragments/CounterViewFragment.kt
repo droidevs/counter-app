@@ -142,20 +142,24 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     }
 
     override fun onVolumeUp(): Boolean {
-        Toast.makeText(
-            requireContext(),
-            "Volume up",
-            Toast.LENGTH_SHORT
-        ).show()
+//        Toast.makeText(
+//            requireContext(),
+//            "Volume up",
+//            Toast.LENGTH_SHORT
+//        ).show()
+        // todo : add a flag that is in the settings
+        viewModel.increment()
         return true
     }
 
     override fun onVolumeDown(): Boolean {
-        Toast.makeText(
-            requireContext(),
-            "Volume down",
-            Toast.LENGTH_SHORT
-        ).show()
+//        Toast.makeText(
+//            requireContext(),
+//            "Volume down",
+//            Toast.LENGTH_SHORT
+//        ).show()
+        // todo : add a flag that is in the settings
+        viewModel.decrement()
         return true
     }
 
