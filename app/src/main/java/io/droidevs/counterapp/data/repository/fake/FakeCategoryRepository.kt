@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.data.repository.fake
 
+import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
@@ -88,6 +89,19 @@ class FakeCategoryRepository(
 
     override suspend fun getExistingCategoryColors(): List<Int> {
         return dummyData.categories.map { it.color }
+    }
+
+    override suspend fun seedDefaults() {
+        dummyData.categories.addAll(
+            DefaultData.defaultCategories
+        )
+        dummyData.emitCategoryUpdate()
+    }
+
+    override fun getSystemCategories(): Flow<List<Category>> {
+        return categoriesFlow.map { list ->
+            list.filter { it.isSystem }
+        }
     }
 
 }

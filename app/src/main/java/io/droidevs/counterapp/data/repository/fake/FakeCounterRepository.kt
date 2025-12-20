@@ -1,19 +1,30 @@
 package io.droidevs.counterapp.data.repository.fake
 
 import android.util.Log
+import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
+import io.droidevs.counterapp.domain.model.Category
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.CounterWithCategory
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toDomain
+import kotlinx.coroutines.flow.asStateFlow
+import kotlin.collections.map
 
 class FakeCounterRepository(
     val dummyData: DummyData
 ) : CounterRepository {
 
+    private val countersFlow: Flow<List<Counter>> =
+        dummyData.countersFlow.asStateFlow()
+            .map { counters ->
+                counters.map {
+                    it.toDomain()
+                }
+            }
     // ------------------- Counter Operations -------------------
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
@@ -63,13 +74,13 @@ class FakeCounterRepository(
     }
 
     override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
-        return DummyData.countersFlow.map {
+        return countersFlow.map {
             it.map { counter ->
                 val category = DummyData.categories.find { category ->
                     category.id == counter.categoryId
                 }
                 CounterWithCategory(
-                    counter = counter.toDomain(),
+                    counter = counter,
                     category = category?.toDomain()
                 )
             }
@@ -90,6 +101,18 @@ class FakeCounterRepository(
                     category = category?.toDomain()
                 )
             }
+        }
+    }
+
+    override suspend fun seedDefaults() {
+        DummyData.counters.addAll(
+            DefaultData.defaultCounters
+        )
+    }
+
+    override fun getSystemCounters(): Flow<List<Counter>> {
+        return countersFlow.map { list ->
+            list.filter { it.isSystem }
         }
     }
 

@@ -11,7 +11,8 @@ fun CategoryEntity.toDomain(): Category {
         id = id,
         name = name,
         color = CategoryColor(color),
-        countersCount = countersCount
+        countersCount = countersCount,
+        isSystem = isSystem
     )
 }
 
@@ -19,7 +20,8 @@ fun CategoryEntity.toDomain(): Category {
 fun Category.toEntity(): CategoryEntity =
     CategoryEntity(
         id = id, name = name, countersCount = countersCount,
-        color = color.colorInt
+        color = color.colorInt,
+        isSystem = isSystem
     )
 
 
