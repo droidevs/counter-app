@@ -18,6 +18,10 @@ class CounterRepositoryImpl(
     private var dao: CounterDao,
     private var categoryDao: CategoryDao
 ) : CounterRepository {
+    override fun getCounter(id: String): Flow<Counter?> {
+        return dao.getCounter(id)
+            .map { it.toDomain() }
+    }
 
     override fun getAllCounters(): Flow<List<Counter>> {
         return dao.getAll().map { counters ->

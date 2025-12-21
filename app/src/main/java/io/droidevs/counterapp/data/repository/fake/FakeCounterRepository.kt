@@ -164,6 +164,12 @@ class FakeCounterRepository(
         }
     }
 
+    override fun getCounter(id: String): Flow<Counter?> {
+        return countersFlow.map { list ->
+            list.firstOrNull { it.id == id }
+        }
+    }
+
 
     override fun getAllCounters(): Flow<List<Counter>> =
         countersFlow

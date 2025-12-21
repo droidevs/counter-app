@@ -6,6 +6,8 @@ import io.droidevs.counterapp.domain.model.CategoryWithCounters
 
 interface CategoryRepository {
 
+    fun getCategory(categoryId: String): Flow<Category?>
+
     fun topCategories(limit: Int): Flow<List<Category>>
 
     fun getTotalCategoriesCount(): Flow<Int>

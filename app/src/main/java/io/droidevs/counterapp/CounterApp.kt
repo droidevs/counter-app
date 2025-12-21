@@ -18,6 +18,7 @@ import io.droidevs.counterapp.data.repository.fake.DummyData
 import io.droidevs.counterapp.data.repository.fake.FakeCategoryRepository
 import io.droidevs.counterapp.data.repository.fake.FakeCounterRepository
 import io.droidevs.counterapp.data.repository.fake.FakeSettingsRepository
+import io.droidevs.counterapp.di.UseCaseModule
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.repository.SettingsRepository
@@ -29,6 +30,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class CounterApp : Application() {
+
+
+    lateinit var useCases: UseCaseModule
+        private set
 
     private val isTest = true
 
@@ -123,6 +128,8 @@ class CounterApp : Application() {
                 )
             }
         }
+
+        useCases = UseCaseModule(categoryRepository, counterRepository)
 
         // todo: register system counters receivers
         scheduleSystemCounterSync(this)

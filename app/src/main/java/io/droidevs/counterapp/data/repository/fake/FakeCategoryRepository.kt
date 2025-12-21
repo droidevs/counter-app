@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.data.repository.fake
 
 import io.droidevs.counterapp.data.DefaultData
-import io.droidevs.counterapp.data.entities.CategoryEntity
 import io.droidevs.counterapp.data.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +11,6 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 
 class FakeCategoryRepository(
     val dummyData: DummyData
@@ -26,6 +24,12 @@ class FakeCategoryRepository(
                     it.toDomain()
                 }
             }
+
+    override fun getCategory(categoryId: String): Flow<Category?> {
+        return categoriesFlow.map { list ->
+            list.firstOrNull { it.id == categoryId }
+        }
+    }
 
     // ---------------- Public API ----------------
 

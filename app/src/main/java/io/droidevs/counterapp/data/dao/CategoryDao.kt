@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
 
+
     @Query("SELECT * FROM categories WHERE is_system = 0 ORDER BY counters_count DESC LIMIT :limit")
     fun getTopCategories(limit : Int): Flow<List<CategoryEntity>>
 

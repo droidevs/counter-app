@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRepository {
+    override fun getCategory(categoryId: String): Flow<Category?> {
+        return categoryDao.getCategory(categoryId).map { it.toDomain() }
+    }
 
     // Get top 3 categories (ordered by countersCount)
     override fun topCategories(limit: Int) : Flow<List<Category>> {

@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 interface CounterDao {
 
 
+    @Query("SELECT * FROM counters WHERE id = :id")
+    fun getCounter(id: String): Flow<CounterEntity>
+
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
     fun getAll() : Flow<List<CounterEntity>>
 

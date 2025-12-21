@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface CounterRepository {
 
+
+    fun getCounter(id: String): Flow<Counter?>
     fun getAllCounters(): Flow<List<Counter>>
 
     fun getLastEdited(limit: Int) : Flow<List<Counter>>
