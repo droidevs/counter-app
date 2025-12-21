@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
+import io.droidevs.counterapp.ui.utils.getRelativeTime
 
 class ListCounterAdapter(
     var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
@@ -39,7 +40,7 @@ class ListCounterAdapter(
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
             tvCategory.text = data.category?.name
-            updatedAt.text = data.counter.lastUpdatedAt.toString()
+            updatedAt.text = getRelativeTime(data.counter.lastUpdatedAt)
 
             binding.root.setOnClickListener {
                 listener.onCounterClick(data.counter)

@@ -16,6 +16,7 @@ import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
+import io.droidevs.counterapp.ui.utils.getRelativeTime
 
 
 internal class HomeCounterAdapter(
@@ -95,7 +96,7 @@ internal class HomeCounterAdapter(
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
             category.text = cwg.category?.name
-            updatedAt.text = cwg.counter.lastUpdatedAt.toString()
+            updatedAt.text = getRelativeTime(cwg.counter.lastUpdatedAt)
 
             btnPlus.setOnClickListener {
                 onIncrement(cwg)
