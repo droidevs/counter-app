@@ -7,13 +7,16 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
@@ -63,7 +66,25 @@ class ViewCategoryFragment : Fragment() {
             viewModel.category.collect { data ->
                 binding.tvCategoryName.text = data.category.name
                 binding.tvCountersCount.text = "Counters: ${data.category.countersCount}"
-                adapter.submitList(data.counters)
+                if (data.counters.isEmpty()) {
+                    binding.rvCounters.visibility = View.GONE
+                    binding.fabAddCounter.visibility = View.GONE
+                    binding.stateContainer.visibility = VISIBLE
+                    showEmptyState {
+                        findNavController().navigate(
+                            R.id.action_categoryView_to_counterCreate,
+                            Bundle().apply {
+                                putString(ARG_CATEGORY_ID, viewModel.categoryId)
+                            }
+                        )
+                    }
+
+                } else {
+                    binding.rvCounters.visibility = VISIBLE
+                    binding.fabAddCounter.visibility = VISIBLE
+                    binding.stateContainer.visibility = View.GONE
+                    adapter.submitList(data.counters)
+                }
             }
         }
         binding.fabAddCounter.setOnClickListener {
@@ -90,6 +111,25 @@ class ViewCategoryFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showEmptyState(
+        onAction: () -> Unit,
+    ) {
+        val binding = EmptyStateLayoutBinding.inflate(
+            layoutInflater,
+            this.binding.stateContainer,
+            false
+        )
+//        this.binding.stateContainer.removeAllViews()
+        this.binding.stateContainer.addView(binding.root)
+        binding.icon.setImageResource(R.drawable.ic_counter)
+        binding.titleText.setText(R.string.empty_category_counters_title)
+        binding.subtitleText.setText(R.string.empty_category_counters_message)
+        binding.createButton.setText(R.string.action_create_counter)
+
+        binding.createButton.setOnClickListener { onAction() }
+        binding.root.isVisible = true
     }
 
     companion object {

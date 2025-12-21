@@ -19,4 +19,16 @@
         <!-- 16sp, Medium weight – prominent but not overwhelming -->
         <item name="android:fontWeight">500</item>
     </style>
+
+
+
+    <style name="PrimaryActionButton">
+        <item name="android:background">@drawable/bg_primary_button</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="android:paddingHorizontal">32dp</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
 </resources>

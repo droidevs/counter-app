@@ -61,4 +61,33 @@
     <string name="navigation_drawer_open">Open Drawer</string>
     <string name="navigation_drawer_close">Close Drawer</string>
 
+
+
+    <!-- Generic Actions -->
+    <string name="action_create">Create</string>
+    <string name="action_add">Add</string>
+    <string name="action_retry">Retry</string>
+
+    <string name="action_create_category">Create Category</string>
+    <string name="action_create_counter">Create Counter</string>
+
+    <!-- Empty Categories -->
+    <string name="empty_categories_title">No categories yet</string>
+    <string name="empty_categories_message">
+        Create your first category to organize your counters.
+    </string>
+
+    <!-- Empty Counters (Global) -->
+    <string name="empty_counters_title">No counters yet</string>
+    <string name="empty_counters_message">
+        Start tracking by creating your first counter.
+    </string>
+
+    <!-- Empty Counters (Inside Category) -->
+    <string name="empty_category_counters_title">No counters in this category</string>
+    <string name="empty_category_counters_message">
+        Create a counter in this category to begin tracking.
+    </string>
+
+
 </resources>

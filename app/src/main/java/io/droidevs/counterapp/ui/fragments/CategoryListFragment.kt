@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
@@ -75,14 +77,55 @@ class CategoryListFragment : Fragment() {
     private fun loadCategories() {
         viewLifecycleOwner.lifecycleScope.launch {
             if (isSystem)
-                viewModel.systemCategories.value.collectLatest {
-                    adapter.submitList(it)
+                viewModel.systemCategories.value.collectLatest { categories ->
+                    adapter.submitList(categories)
                 }
             else
-                viewModel.categories.value.collectLatest {
-                    adapter.submitList(it)
+                viewModel.categories.value.collectLatest { categories ->
+                    if (categories.isEmpty()) {
+                        showStateContainer()
+                        showEmptyState {
+                            findNavController().navigate(
+                                R.id.action_categoryList_to_categoryCreate
+                            )
+                        }
+                    } else {
+                        hideStateContainer()
+                        adapter.submitList(categories)
+                    }
                 }
         }
+    }
+
+
+    private fun showEmptyState(
+        onAction: () -> Unit,
+    ) {
+        val binding = EmptyStateLayoutBinding.inflate(
+            layoutInflater,
+            this.binding.stateContainer,
+            false
+        )
+        this.binding.stateContainer.addView(binding.root)
+        binding.icon.setImageResource(R.drawable.ic_category)
+        binding.titleText.setText(R.string.empty_categories_title)
+        binding.subtitleText.setText(R.string.empty_categories_message)
+        binding.createButton.setText(R.string.action_create_category)
+
+        binding.createButton.setOnClickListener { onAction() }
+        binding.root.isVisible = true
+    }
+
+
+    fun showStateContainer() {
+        binding.rvCategories.visibility = View.GONE
+        binding.stateContainer.visibility = View.VISIBLE
+    }
+
+    fun hideStateContainer() {
+        binding.stateContainer.removeAllViews()
+        binding.rvCategories.visibility = View.VISIBLE
+        binding.stateContainer.visibility = View.GONE
     }
 
     companion object {

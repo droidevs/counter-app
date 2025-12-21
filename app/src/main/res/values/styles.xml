@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
+    <style name="EmptyStateTitle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?colorOnBackground</item>
+    </style>
+
+    <style name="EmptyStateSubtitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?colorOnSurfaceVariant</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PrimaryActionButton">
+        <item name="android:background">@drawable/bg_primary_button</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+
     <!-- COUNTER APP CUSTOM TYPOGRAPHY -->
 
     <!-- Large Screen Titles (e.g., "My Counters" at the top of Counter List screen) -->

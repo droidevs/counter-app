@@ -9,8 +9,8 @@ data class Category(
 ) {
     companion object {
         fun default() = Category(
-            id = "",
-            name = "",
+            id = "dummy_id",
+            name = "Dummy Category",
             color = CategoryColor.default(),
             countersCount = 0
         )

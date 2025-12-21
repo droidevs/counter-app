@@ -6,6 +6,9 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.appcompat.app.ActionBar
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
 import io.droidevs.counterapp.domain.model.Counter
@@ -88,8 +92,23 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
 
         lifecycleScope.launch {
             viewModel.counters.collect { counters->
-                var adapter = recyclerView.adapter as ListCounterAdapter
-                adapter.updateCounters(counters)
+                if (counters.isEmpty()) {
+                    binding.rvCounters.visibility = View.GONE
+                    binding.fabAddCounter.visibility = View.GONE
+                    binding.stateContainer.visibility = View.VISIBLE
+                    showEmptyState {
+                        findNavController().navigate(
+                            R.id.action_counterList_to_counterCreate
+                        )
+                    }
+                } else {
+                    binding.rvCounters.visibility = View.VISIBLE
+                    binding.fabAddCounter.visibility = View.VISIBLE
+                    binding.stateContainer.removeAllViews()
+                    binding.stateContainer.visibility = View.GONE
+                    var adapter = recyclerView.adapter as ListCounterAdapter
+                    adapter.updateCounters(counters)
+                }
             }
         }
 
@@ -99,6 +118,25 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
                 R.id.action_counterList_to_counterCreate
             )
         }
+    }
+
+    private fun showEmptyState(
+        onAction: () -> Unit,
+    ) {
+        val binding = EmptyStateLayoutBinding.inflate(
+            layoutInflater,
+            this.binding.stateContainer,
+            false
+        )
+//        this.binding.stateContainer.removeAllViews()
+        this.binding.stateContainer.addView(binding.root)
+        binding.icon.setImageResource(R.drawable.ic_counter)
+        binding.titleText.setText(R.string.empty_counters_title)
+        binding.subtitleText.setText(R.string.empty_counters_message)
+        binding.createButton.setText(R.string.action_create_counter)
+
+        binding.createButton.setOnClickListener { onAction() }
+        binding.root.isVisible = true
     }
 
     override fun onStop() {
