@@ -31,14 +31,17 @@ class FakeCategoryRepository(
 
     override fun topCategories(limit: Int): Flow<List<Category>> {
         return categoriesFlow.map { list ->
-            list.sortedByDescending { it.countersCount }
+            list.filter { !it.isSystem }
+                .sortedByDescending { it.countersCount }
                 .take(limit)
         }
     }
 
     override fun getTotalCategoriesCount(): Flow<Int> {
-        return categoriesFlow.map {
-            it.size
+        return categoriesFlow.map { categories ->
+            categories.filter {
+                !it.isSystem
+            }.size
         }
     }
 

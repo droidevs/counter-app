@@ -13,6 +13,7 @@ import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.system.SystemCategory
 import io.droidevs.counterapp.domain.toDomain
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlin.collections.map
 
 class FakeCounterRepository(
@@ -30,14 +31,17 @@ class FakeCounterRepository(
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
         return DummyData.countersFlow.map { list ->
-            list.sortedByDescending { it.lastUpdatedAt }
+            list.filter { !it.isSystem }
+                .sortedByDescending { it.lastUpdatedAt }
                 .take(limit)
                 .map { it.toDomain() }
         }
     }
 
     override fun getTotalCounters(): Flow<Int> {
-        return DummyData.countersFlow.map { it.size }
+        return DummyData.countersFlow.map {
+            it.filter { !it.isSystem }.size
+        }
     }
 
     override suspend fun saveCounter(counter: Counter) {
@@ -90,10 +94,13 @@ class FakeCounterRepository(
 
     override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
         return DummyData.countersFlow.map { list ->
-            var counters = list.sortedByDescending { it.lastUpdatedAt }
+            var counters = list.filter { !it.isSystem }
+                .sortedByDescending { it.lastUpdatedAt }
                 .take(limit)
 
-            val categoriesMap = DummyData.categories.associateBy { it.id }
+            val categoriesMap = DummyData.categories.filter { !it.isSystem }
+                .associateBy { it.id }
+
             counters.map { counter ->
                 val category = categoriesMap[counter.categoryId]
 
