@@ -76,7 +76,9 @@ class CountersListViewModel(
 
         viewModelScope.launch {
             repository.saveCounter(
-                counter
+                counter.apply {
+                    orderAnchorAt = Instant.now()
+                }
             )
         }
     }
