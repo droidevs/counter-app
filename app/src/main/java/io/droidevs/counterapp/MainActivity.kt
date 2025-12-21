@@ -2,36 +2,34 @@ package io.droidevs.counterapp
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowMetrics
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.enableSavedStateHandles
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
+
 
 class MainActivity : AppCompatActivity() {
     var binding : ActivityMainBinding? = null
@@ -65,9 +63,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         toolbar = binding!!.mainToolbar
-        toolbar?.setNavigationOnClickListener { v: View? ->
-            TODO("open a drawer")
-        }
         //toolbar?.setOnMenuItemClickListener(this)
         setSupportActionBar(toolbar)
 
@@ -92,17 +87,37 @@ class MainActivity : AppCompatActivity() {
             navController.restoreState(savedInstanceState.getBundle("nav_state"))
         }
 
-        appBarConfiguration = AppBarConfiguration.Builder(R.id.homeFragment).build()
-
-        NavigationUI.setupActionBarWithNavController(
-            this,
-            navController = navController,
-            configuration = appBarConfiguration
+        val topLevelDestinations = setOf(
+            R.id.homeFragment,
+            R.id.counterListFragment,
+            R.id.categoryListFragment,
+            R.id.settingsFragment
         )
+        appBarConfiguration = AppBarConfiguration(
+            topLevelDestinations,
+            drawer
+        )
+
+//        NavigationUI.setupActionBarWithNavController(
+//            this,
+//            navController = navController,
+//            configuration = appBarConfiguration
+//        )
         var bottomNav = binding!!.bottomNavigation
 
-        NavigationUI.setupWithNavController(bottomNav, navController)
+        //NavigationUI.setupWithNavController(bottomNav, navController)
 
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        bottomNav.setupWithNavController(navController)
+
+
+        navController.addOnDestinationChangedListener { _, dest, _ ->
+            if (dest.id in topLevelDestinations) {
+                toolbar?.setNavigationOnClickListener { drawer.openDrawer(GravityCompat.START) }
+            } else {
+                toolbar?.setNavigationOnClickListener { navController.navigateUp() }
+            }
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -208,9 +223,8 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(
-            navController = navController,
-            configuration = appBarConfiguration
+        return navController.navigateUp(
+            appBarConfiguration = appBarConfiguration
         ) || super.onSupportNavigateUp()
     }
 
