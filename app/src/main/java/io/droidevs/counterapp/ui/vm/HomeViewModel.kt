@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.ui.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.model.Counter
@@ -48,19 +49,21 @@ class HomeViewModel(
 
     fun incrementCounter(counter: CounterUiModel) {
         if (activeCounter != null && activeCounter!!.id != counter.id) {
-            flushInteraction(counter.toDomain())
+            flushInteraction(activeCounter!!)
         }
+
         activeCounter = counter.toDomain()
         var c = activeCounter!!
         c.increment()
         viewModelScope.launch {
             counterRepository.saveCounter(c)
         }
+        scheduleInteractionEnd(c)
     }
 
     fun decrementCounter(counter: CounterUiModel) {
         if (activeCounter != null && activeCounter!!.id != counter.id) {
-            flushInteraction(counter.toDomain())
+            flushInteraction(activeCounter!!)
         }
         activeCounter = counter.toDomain()
         var c = activeCounter!!
@@ -76,12 +79,13 @@ class HomeViewModel(
         interactionJob?.cancel()
 
         interactionJob = viewModelScope.launch {
-            delay(600) // user stopped tapping
+            delay(2000) // user stopped tapping
             finishInteraction(counter)
         }
     }
 
     private fun finishInteraction(counter: Counter) {
+        Log.i("HomeViewModel", "finishInteraction: ${counter.currentCount}")
         counter.apply {
             orderAnchorAt = Instant.now()
         }

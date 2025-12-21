@@ -17,6 +17,7 @@ import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
+import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.toParcelable
@@ -55,8 +56,35 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         recyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        val adapter = ListCounterAdapter(listener = this)
+        val adapter = ListCounterAdapter(
+            listener = this,
+            onIncrement = {
+                viewModel.increment(it)
+            },
+            onDecrement = {
+                viewModel.decrement(it)
+            }
+        )
         recyclerView.adapter = adapter
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                val layoutManager = rv.layoutManager as LinearLayoutManager
+
+                val first = layoutManager.findFirstVisibleItemPosition()
+                val last = layoutManager.findLastVisibleItemPosition()
+
+                val visibleKeys = mutableSetOf<CounterUiModel>()
+
+                for (i in first..last) {
+                    val item = adapter.counters.getOrNull(i) ?: continue
+                    visibleKeys += item.counter
+                }
+
+                viewModel.onVisibleItemsChanged(visibleKeys)
+            }
+        })
 
         lifecycleScope.launch {
             viewModel.counters.collect { counters->
@@ -71,6 +99,11 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
                 R.id.action_counterList_to_counterCreate
             )
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.flushAllPendingReorders()
     }
 
     override fun onCreateView(

@@ -21,7 +21,7 @@ class FakeCounterRepository(
 ) : CounterRepository {
 
     private val countersFlow: Flow<List<Counter>> =
-        dummyData.countersFlow.asStateFlow()
+        DummyData.countersFlow.asStateFlow()
             .map { counters ->
                 counters.map {
                     it.toDomain()
@@ -30,16 +30,15 @@ class FakeCounterRepository(
     // ------------------- Counter Operations -------------------
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
-        return DummyData.countersFlow.map { list ->
+        return countersFlow.map { list ->
             list.filter { !it.isSystem }
-                .sortedByDescending { it.lastUpdatedAt }
+                .sortedByDescending { it.orderAnchorAt }
                 .take(limit)
-                .map { it.toDomain() }
         }
     }
 
     override fun getTotalCounters(): Flow<Int> {
-        return DummyData.countersFlow.map {
+        return countersFlow.map {
             it.filter { !it.isSystem }.size
         }
     }
@@ -48,7 +47,7 @@ class FakeCounterRepository(
         val index = DummyData.counters.indexOfFirst { it.id == counter.id }
         if (index != -1) {
             DummyData.counters[index] = counter.toEntity()
-            dummyData.emitCounterUpdate()
+            DummyData.emitCounterUpdate()
         }
     }
 
@@ -60,8 +59,8 @@ class FakeCounterRepository(
             countersCount = category.countersCount + 1
         )
         DummyData.categories[indexCategory] = newCategory
-        dummyData.emitCounterUpdate()
-        dummyData.emitCategoryUpdate()
+        DummyData.emitCounterUpdate()
+        DummyData.emitCategoryUpdate()
     }
 
     override suspend fun deleteCounter(counter: Counter) {
@@ -74,13 +73,16 @@ class FakeCounterRepository(
             countersCount = category.countersCount - 1
         )
         DummyData.categories[indexCategory] = newCategory
-        dummyData.emitCounterUpdate()
-        dummyData.emitCategoryUpdate()
+        DummyData.emitCounterUpdate()
+        DummyData.emitCategoryUpdate()
     }
 
     override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
         return countersFlow.map {
-            it.map { counter ->
+            it.filter {
+                !it.isSystem
+            }.sortedByDescending { it.orderAnchorAt }
+                .map { counter ->
                 val category = DummyData.categories.find { category ->
                     category.id == counter.categoryId
                 }
@@ -93,9 +95,9 @@ class FakeCounterRepository(
     }
 
     override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
-        return DummyData.countersFlow.map { list ->
+        return countersFlow.map { list ->
             var counters = list.filter { !it.isSystem }
-                .sortedByDescending { it.lastUpdatedAt }
+                .sortedByDescending { it.orderAnchorAt }
                 .take(limit)
 
             val categoriesMap = DummyData.categories.filter { !it.isSystem }
@@ -105,7 +107,7 @@ class FakeCounterRepository(
                 val category = categoriesMap[counter.categoryId]
 
                 CounterWithCategory(
-                    counter = counter.toDomain(),
+                    counter = counter,
                     category = category?.toDomain()
                 )
             }
@@ -133,7 +135,7 @@ class FakeCounterRepository(
     }
 
     override suspend fun incrementSystemCounter(counterKey: String) {
-        dummyData.counters.indexOfFirst {
+        DummyData.counters.indexOfFirst {
             it.kay == counterKey
         }.let { index ->
             if (index != -1) {
@@ -141,14 +143,14 @@ class FakeCounterRepository(
                 val newCounter = counter.copy(
                     currentCount = counter.currentCount + 1
                 )
-                dummyData.counters[index] = newCounter
-                dummyData.emitCounterUpdate()
+                DummyData.counters[index] = newCounter
+                DummyData.emitCounterUpdate()
             }
         }
     }
 
     override suspend fun updateSystemCounter(counterKey: String, count: Int) {
-        dummyData.counters.indexOfFirst {
+        DummyData.counters.indexOfFirst {
             it.kay == counterKey
         }.let { index ->
             if (index != -1) {
@@ -156,16 +158,14 @@ class FakeCounterRepository(
                 val newCounter = counter.copy(
                     currentCount = count
                 )
-                dummyData.counters[index] = newCounter
-                dummyData.emitCounterUpdate()
+                DummyData.counters[index] = newCounter
+                DummyData.emitCounterUpdate()
             }
         }
     }
 
 
     override fun getAllCounters(): Flow<List<Counter>> =
-        DummyData.countersFlow.map { counters ->
-            counters.map { it.toDomain() }
-        }
+        countersFlow
 
 }

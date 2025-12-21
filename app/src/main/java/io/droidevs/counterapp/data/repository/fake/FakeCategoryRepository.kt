@@ -20,7 +20,7 @@ class FakeCategoryRepository(
 
 
     private val categoriesFlow: Flow<List<Category>> =
-        dummyData.categoriesFlow.asStateFlow()
+        DummyData.categoriesFlow.asStateFlow()
             .map { categories ->
                 categories.map {
                     it.toDomain()
@@ -46,7 +46,7 @@ class FakeCategoryRepository(
     }
 
     override fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters> {
-        return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
+        return combine(DummyData.categoriesFlow, DummyData.countersFlow) { categories, counters ->
 
             try {
                 val category = categories.first {
@@ -75,36 +75,36 @@ class FakeCategoryRepository(
     }
 
     override suspend fun createCategory(category: Category) {
-        dummyData.categories.add(category.toEntity())
-        dummyData.emitCategoryUpdate()
+        DummyData.categories.add(category.toEntity())
+        DummyData.emitCategoryUpdate()
     }
 
     override fun deleteCategory(categoryId: String) {
-        dummyData.categories.removeIf { it.id == categoryId }
+        DummyData.categories.removeIf { it.id == categoryId }
         // delete all counters related with that category or set category id to null
-        dummyData.counters.forEach {
+        DummyData.counters.forEach {
             if (it.categoryId == categoryId) {
                 val newCounter = it.copy(
                     categoryId = null
                 )
-                dummyData.counters[dummyData.counters.indexOf(it)] = newCounter
+                DummyData.counters[DummyData.counters.indexOf(it)] = newCounter
             }
-            dummyData.emitCounterUpdate()
+            DummyData.emitCounterUpdate()
         }
-        dummyData.emitCategoryUpdate()
+        DummyData.emitCategoryUpdate()
     }
 
     override suspend fun getExistingCategoryColors(): List<Int> {
-        return dummyData.categories.map { it.color }
+        return DummyData.categories.map { it.color }
     }
 
     override suspend fun seedDefaults() {
-        dummyData.categories.addAll(
+        DummyData.categories.addAll(
             DefaultData.buildCategories(
                 existing = emptyMap()
             )
         )
-        dummyData.emitCategoryUpdate()
+        DummyData.emitCategoryUpdate()
     }
 
     override fun getSystemCategories(): Flow<List<Category>> {

@@ -9,7 +9,7 @@ data class CounterUiModel(
     val categoryId: String? = null,
     val createdAt: Instant,
     val lastUpdatedAt: Instant,
-    val orderAnchorAt: Instant = lastUpdatedAt,
+    val orderAnchorAt: Instant,
     // Flags copied from domain
     val canIncrease: Boolean,
     val canDecrease: Boolean

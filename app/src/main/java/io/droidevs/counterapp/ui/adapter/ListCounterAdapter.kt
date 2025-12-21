@@ -11,13 +11,16 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 
 class ListCounterAdapter(
-    private var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
-    private val listener : OnCounterClickListener
+    var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
+    private val listener : OnCounterClickListener,
+    private val onIncrement : (counter: CounterUiModel) -> Unit,
+    private val onDecrement : (counter: CounterUiModel) -> Unit,
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -28,13 +31,25 @@ class ListCounterAdapter(
         val updatedAt : TextView = binding.tvUpdated
         val tvCategory : TextView = binding.tvCategory
 
-        fun bind(data: CounterWithCategoryUiModel) {
+        fun bind(
+            data: CounterWithCategoryUiModel,
+            onIncrement: (counter: CounterUiModel) -> Unit,
+            onDecrement: (counter: CounterUiModel) -> Unit
+        ) {
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
             tvCategory.text = data.category?.name
             updatedAt.text = data.counter.lastUpdatedAt.toString()
+
             binding.root.setOnClickListener {
                 listener.onCounterClick(data.counter)
+            }
+            binding.btnPlus.setOnClickListener {
+                onIncrement(data.counter)
+            }
+
+            binding.btnMinus.setOnClickListener {
+                onDecrement(data.counter)
             }
 
             data.category?.let {
@@ -69,7 +84,11 @@ class ListCounterAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val counter = counters[position]
-        holder.bind(counter)
+        holder.bind(
+            data = counter,
+            onIncrement = onIncrement,
+            onDecrement = onDecrement
+        )
     }
 
     override fun getItemCount(): Int = counters.size
