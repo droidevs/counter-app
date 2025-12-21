@@ -42,5 +42,8 @@ data class CounterEntity(
     @ColumnInfo(name = "created_at")
     val createdAt: Instant,
     @ColumnInfo(name = "last_updated_at")
-    val lastUpdatedAt: Instant
+    val lastUpdatedAt: Instant,
+
+    @ColumnInfo(name = "order_anchor_at")
+    val orderAnchorAt: Instant
 )

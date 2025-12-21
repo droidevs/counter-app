@@ -44,7 +44,8 @@ object DefaultData {
                     canDecrement = true,
                     canIncrement = true,
                     createdAt = Instant.now(),
-                    lastUpdatedAt = Instant.now()
+                    lastUpdatedAt = Instant.now(),
+                    orderAnchorAt = Instant.now()
                 )
             }
 }

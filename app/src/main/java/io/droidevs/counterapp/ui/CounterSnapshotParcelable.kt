@@ -11,7 +11,8 @@ data class CounterSnapshotParcelable(
     val createdAtMillis: Long,
     val lastUpdatedAtMillis: Long,
     val canIncrease: Boolean,
-    val canDecrease: Boolean
+    val canDecrease: Boolean,
+    val orderAnchorAt: Long
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -22,7 +23,8 @@ data class CounterSnapshotParcelable(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readByte() != 0.toByte(),
-        parcel.readByte() != 0.toByte()
+        parcel.readByte() != 0.toByte(),
+        parcel.readLong()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -34,6 +36,7 @@ data class CounterSnapshotParcelable(
         parcel.writeLong(lastUpdatedAtMillis)
         parcel.writeByte(if (canIncrease) 1 else 0)
         parcel.writeByte(if (canDecrease) 1 else 0)
+        parcel.writeLong(orderAnchorAt)
     }
 
     override fun describeContents(): Int = 0

@@ -19,7 +19,7 @@ import androidx.navigation.fragment.findNavController
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.toParcelable
@@ -168,7 +168,7 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
         internal const val ARG_COUNTER = "counter"
 
         @JvmStatic
-        fun newInstance(counter: CounterSnapshot) : CounterViewFragment {
+        fun newInstance(counter: CounterUiModel) : CounterViewFragment {
             val fragment = CounterViewFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARG_COUNTER, counter.toParcelable())

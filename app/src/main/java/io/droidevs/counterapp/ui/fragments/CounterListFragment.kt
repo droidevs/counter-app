@@ -17,7 +17,7 @@ import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
@@ -87,7 +87,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
         menu.findItem(R.id.menuSettings)?.isVisible = false // hack fix todo : implement a custom menu for the list page
     }
 
-    override fun onCounterClick(counter: CounterSnapshot) {
+    override fun onCounterClick(counter: CounterUiModel) {
         // Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
 
         val bundle = Bundle().apply {

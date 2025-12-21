@@ -17,7 +17,7 @@ import io.droidevs.counterapp.ui.adapter.HomeCategoryAdapter
 import io.droidevs.counterapp.ui.adapter.HomeCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.toParcelable
@@ -99,7 +99,7 @@ class HomeFragment : Fragment() {
         recycler?.adapter = HomeCounterAdapter(
             counters = mutableListOf(),
             listener = object : OnCounterClickListener {
-                override fun onCounterClick(counter: CounterSnapshot) {
+                override fun onCounterClick(counter: CounterUiModel) {
                     //Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_to_counters_graph)
                     findNavController().navigate(

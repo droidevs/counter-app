@@ -26,7 +26,7 @@ class CounterRepositoryImpl(
     }
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
-        return dao.getLastEdited(5).map { counters ->
+        return dao.getCounters(5).map { counters ->
             counters.map { it.toDomain() }
         }
     }
@@ -63,7 +63,7 @@ class CounterRepositoryImpl(
     }
 
     override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
-        return dao.getLastEditedCountersWithCategories(limit).map { data ->
+        return dao.getCountersWithCategories(limit).map { data ->
             data.map {
                 it.toDomainModel()
             }

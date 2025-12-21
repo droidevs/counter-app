@@ -1,11 +1,11 @@
 package io.droidevs.counterapp.domain
 
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 
 
-fun Counter.toSnapshot(): CounterSnapshot {
-    return CounterSnapshot(
+fun Counter.toSnapshot(): CounterUiModel {
+    return CounterUiModel(
         id = id,
         name = name,
         currentCount = currentCount,
@@ -13,11 +13,12 @@ fun Counter.toSnapshot(): CounterSnapshot {
         createdAt = createdAt,
         lastUpdatedAt = lastUpdatedAt,
         canIncrease = canIncrease,
-        canDecrease = canDecrease
+        canDecrease = canDecrease,
+        orderAnchorAt = orderAnchorAt
     )
 }
 
-fun CounterSnapshot.toDomain(): Counter {
+fun CounterUiModel.toDomain(): Counter {
     return Counter(
         id = id,
         name = name,
@@ -26,6 +27,7 @@ fun CounterSnapshot.toDomain(): Counter {
         canDecrease = canDecrease,
         categoryId = categoryId,
         createdAt = createdAt,
-        lastUpdatedAt = lastUpdatedAt
+        lastUpdatedAt = lastUpdatedAt,
+        orderAnchorAt = orderAnchorAt
     )
 }

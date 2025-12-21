@@ -11,12 +11,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
 import io.droidevs.counterapp.ui.models.CategoryUiModel
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -117,7 +116,7 @@ class CreateCounterFragment : Fragment() {
         val canIncrease = binding.switchCanIncrease.isChecked
         val canDecrease = binding.switchCanDecrease.isChecked
 
-        val counter = CounterSnapshot(
+        val counter = CounterUiModel(
             id = UUID.randomUUID().toString(),
             name = name,
             currentCount = 0,
@@ -125,7 +124,8 @@ class CreateCounterFragment : Fragment() {
             canIncrease = canIncrease,
             canDecrease = canDecrease,
             createdAt = Instant.now(),
-            lastUpdatedAt = Instant.now()
+            lastUpdatedAt = Instant.now(),
+            orderAnchorAt = Instant.now()
         )
 
         viewModel.saveCounter(

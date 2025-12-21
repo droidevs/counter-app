@@ -53,7 +53,8 @@ object DummyData {
                 canDecrement = (0..1).random() == 1,
                 categoryId = categoryId,
                 createdAt = now.minusSeconds((index * 3600).toLong()),
-                lastUpdatedAt = now.minusSeconds((index * 1800).toLong())
+                lastUpdatedAt = now.minusSeconds((index * 1800).toLong()),
+                orderAnchorAt = now.minusSeconds((index * 1800).toLong())
             )
         }.toMutableList()
     }

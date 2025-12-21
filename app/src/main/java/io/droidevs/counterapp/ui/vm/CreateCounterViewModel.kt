@@ -6,7 +6,7 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -23,7 +23,7 @@ class CreateCounterViewModel(
 
 
     fun saveCounter(
-        counter: CounterSnapshot,
+        counter: CounterUiModel,
         onCounterSaved: () -> Unit
     ) {
         viewModelScope.launch {

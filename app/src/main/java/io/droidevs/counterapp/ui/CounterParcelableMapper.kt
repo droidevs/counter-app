@@ -1,10 +1,10 @@
 package io.droidevs.counterapp.ui
 
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import java.time.Instant
 
-// Map CounterSnapshot -> Parcelable
-fun CounterSnapshot.toParcelable(): CounterSnapshotParcelable = CounterSnapshotParcelable(
+// Map CounterUiModel -> Parcelable
+fun CounterUiModel.toParcelable(): CounterSnapshotParcelable = CounterSnapshotParcelable(
     id = id,
     name = name,
     currentCount = currentCount,
@@ -12,11 +12,12 @@ fun CounterSnapshot.toParcelable(): CounterSnapshotParcelable = CounterSnapshotP
     createdAtMillis = createdAt.toEpochMilli(),
     lastUpdatedAtMillis = lastUpdatedAt.toEpochMilli(),
     canIncrease = canIncrease,
-    canDecrease = canDecrease
+    canDecrease = canDecrease,
+    orderAnchorAt = orderAnchorAt.toEpochMilli()
 )
 
-// Map Parcelable -> CounterSnapshot
-fun CounterSnapshotParcelable.toUiModel(): CounterSnapshot = CounterSnapshot(
+// Map Parcelable -> CounterUiModel
+fun CounterSnapshotParcelable.toUiModel(): CounterUiModel = CounterUiModel(
     id = id,
     name = name,
     currentCount = currentCount,
@@ -24,5 +25,6 @@ fun CounterSnapshotParcelable.toUiModel(): CounterSnapshot = CounterSnapshot(
     createdAt = Instant.ofEpochMilli(createdAtMillis),
     lastUpdatedAt = Instant.ofEpochMilli(lastUpdatedAtMillis),
     canIncrease = canIncrease,
-    canDecrease = canDecrease
+    canDecrease = canDecrease,
+    orderAnchorAt = Instant.ofEpochMilli(orderAnchorAt)
 )

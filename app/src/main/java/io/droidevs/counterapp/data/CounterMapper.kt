@@ -27,6 +27,7 @@ fun Counter.toEntity(): CounterEntity {
         lastUpdatedAt = lastUpdatedAt,
         canIncrement = canIncrease,
         canDecrement = canDecrease,
-        isSystem = isSystem
+        isSystem = isSystem,
+        orderAnchorAt = createdAt
     )
 }

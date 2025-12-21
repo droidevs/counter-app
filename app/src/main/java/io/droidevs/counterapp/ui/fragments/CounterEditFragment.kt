@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.toUiModel
@@ -121,7 +121,7 @@ class CounterEditFragment : Fragment() {
 
         internal const val ARG_COUNTER = "counter"
         @JvmStatic
-        fun newInstance(counter: CounterSnapshot) =
+        fun newInstance(counter: CounterUiModel) =
             CounterEditFragment().apply {
                 arguments = bundleOf(ARG_COUNTER to counter.toParcelable())
             }

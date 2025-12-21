@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface CounterDao {
 
 
-    @Query("SELECT * FROM counters WHERE is_system = 0")
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
     fun getAll() : Flow<List<CounterEntity>>
 
     @Query("SELECT * FROM counters WHERE is_system = 1")
@@ -34,10 +34,10 @@ interface CounterDao {
     @Query("""
         SELECT * FROM counters
         WHERE is_system = 0
-        ORDER BY last_updated_at DESC
+        ORDER BY order_anchor_at DESC
         LIMIT :limit
     """)
-    fun getLastEdited(limit : Int) : Flow<List<CounterEntity>>
+    fun getCounters(limit : Int) : Flow<List<CounterEntity>>
 
     @Query("SELECT COUNT(*) FROM counters WHERE is_system = 0")
     fun getTotalCounters(): Flow<Int>
@@ -45,11 +45,11 @@ interface CounterDao {
     @Delete
     suspend fun delete(counter: CounterEntity)
 
-    @Query("SELECT * FROM counters WHERE is_system = 0")
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY order_anchor_at DESC")
     fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
 
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
-    fun getLastEditedCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
+    fun getCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
 
 
     @Query("""
@@ -63,7 +63,7 @@ interface CounterDao {
 
     @Query("""
         UPDATE counters
-        SET current_count = current_count
+        SET current_count = :count
         WHERE kay = :counterKey
     """)
     suspend fun updateSystemCounter(

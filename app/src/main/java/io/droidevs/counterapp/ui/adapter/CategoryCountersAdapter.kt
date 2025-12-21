@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.databinding.ItemCategoryCounterBinding
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 
 class CategoryCountersAdapter :
-    ListAdapter<CounterSnapshot, CategoryCountersAdapter.ViewHolder>(Diff()) {
+    ListAdapter<CounterUiModel, CategoryCountersAdapter.ViewHolder>(Diff()) {
 
     inner class ViewHolder(val binding: ItemCategoryCounterBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -31,11 +31,11 @@ class CategoryCountersAdapter :
         }
     }
 
-    class Diff : DiffUtil.ItemCallback<CounterSnapshot>() {
-        override fun areItemsTheSame(old: CounterSnapshot, new: CounterSnapshot) =
+    class Diff : DiffUtil.ItemCallback<CounterUiModel>() {
+        override fun areItemsTheSame(old: CounterUiModel, new: CounterUiModel) =
             old.id == new.id
 
-        override fun areContentsTheSame(old: CounterSnapshot, new: CounterSnapshot) =
+        override fun areContentsTheSame(old: CounterUiModel, new: CounterUiModel) =
             old == new
     }
 }

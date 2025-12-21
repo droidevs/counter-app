@@ -6,7 +6,7 @@ import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.ui.models.CounterSnapshot
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 
 class CounterViewViewModel(
-    initialCounter : CounterSnapshot,
+    initialCounter : CounterUiModel,
     val repository: CounterRepository
 ) : ViewModel() {
 
