@@ -28,6 +28,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
 import io.droidevs.counterapp.databinding.ActivityMainBinding
+import io.droidevs.counterapp.ui.fragments.CategoryListFragment
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 
 
@@ -240,7 +241,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSystemCategories() {
-        // Navigate to system categories fragment
+        val argument = Bundle()
+            .apply {
+                putBoolean(CategoryListFragment.IS_SYSTEM_CATEGORY, true)
+            }
+        navController.navigate(R.id.categories_graph, argument)
     }
 
     private fun rateApp() {

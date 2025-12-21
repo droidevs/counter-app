@@ -84,4 +84,8 @@ class CategoryListFragment : Fragment() {
                 }
         }
     }
+
+    companion object {
+        const val IS_SYSTEM_CATEGORY = "isSystem"
+    }
 }
