@@ -17,7 +17,7 @@ import java.time.Instant
             onDelete = ForeignKey.Companion.SET_NULL
         )
     ],
-    indices = [Index("category_id")]
+    indices = [Index("category_id"), Index(value = ["kay"], unique = true)],
 )
 data class CounterEntity(
     @PrimaryKey

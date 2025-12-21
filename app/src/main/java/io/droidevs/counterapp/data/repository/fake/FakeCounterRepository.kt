@@ -125,6 +125,36 @@ class FakeCounterRepository(
         }
     }
 
+    override suspend fun incrementSystemCounter(counterKey: String) {
+        dummyData.counters.indexOfFirst {
+            it.kay == counterKey
+        }.let { index ->
+            if (index != -1) {
+                val counter = dummyData.counters[index]
+                val newCounter = counter.copy(
+                    currentCount = counter.currentCount + 1
+                )
+                dummyData.counters[index] = newCounter
+                dummyData.emitCounterUpdate()
+            }
+        }
+    }
+
+    override suspend fun updateSystemCounter(counterKey: String, count: Int) {
+        dummyData.counters.indexOfFirst {
+            it.kay == counterKey
+        }.let { index ->
+            if (index != -1) {
+                val counter = dummyData.counters[index]
+                val newCounter = counter.copy(
+                    currentCount = count
+                )
+                dummyData.counters[index] = newCounter
+                dummyData.emitCounterUpdate()
+            }
+        }
+    }
+
 
     override fun getAllCounters(): Flow<List<Counter>> =
         DummyData.countersFlow.map { counters ->

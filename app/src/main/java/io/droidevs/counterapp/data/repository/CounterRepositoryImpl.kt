@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.data.repository
 
 import android.util.Log
-import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.data.dao.CounterDao
 import io.droidevs.counterapp.data.toDomain
@@ -78,5 +77,13 @@ class CounterRepositoryImpl(
         return dao.getAllSystem().map { counters ->
             counters.map { it.toDomain() }
         }
+    }
+
+    override suspend fun incrementSystemCounter(counterKey: String) {
+        dao.incrementSystemCounter(counterKey)
+    }
+
+    override suspend fun updateSystemCounter(counterKey: String, count: Int) {
+        dao.updateSystemCounter(counterKey, count)
     }
 }

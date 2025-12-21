@@ -6,20 +6,28 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.system.SystemCounterManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class SystemCounterSyncWorker(
     context: Context,
     params: WorkerParameters,
-    private val systemCounterManager: SystemCounterManager
+    private val systemCounterManager: SystemCounterManager,
+    private val repository: CounterRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         val counters = systemCounterManager.fetchSystemCounters()
-        // TODO : save/ update counters in my db
-        // todo : create a new repo named SystemCounterUpdater and use it to update the counter by defining
-        // cutom functions to update all counters
+
+        counters.forEach { key, value ->
+            CoroutineScope(Dispatchers.IO).launch {
+                repository.updateSystemCounter(key.name, value)
+            }
+        }
         return Result.success()
     }
 }

@@ -50,4 +50,24 @@ interface CounterDao {
 
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
     fun getLastEditedCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
+
+
+    @Query("""
+        UPDATE counters
+        SET current_count = current_count + 1
+        WHERE kay = :counterKey
+    """)
+    suspend fun incrementSystemCounter(
+        counterKey: String
+    )
+
+    @Query("""
+        UPDATE counters
+        SET current_count = current_count
+        WHERE kay = :counterKey
+    """)
+    suspend fun updateSystemCounter(
+        counterKey: String,
+        count: Int
+    )
 }

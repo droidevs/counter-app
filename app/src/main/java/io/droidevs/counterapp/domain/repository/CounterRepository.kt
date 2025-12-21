@@ -26,4 +26,13 @@ interface CounterRepository {
 
     fun getSystemCounters(): Flow<List<Counter>>
 
+    suspend fun incrementSystemCounter(
+        counterKey: String
+    )
+
+    suspend fun updateSystemCounter(
+        counterKey: String,
+        count: Int
+    )
+
 }
