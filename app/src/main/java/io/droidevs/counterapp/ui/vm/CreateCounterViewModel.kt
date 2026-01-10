@@ -2,8 +2,9 @@ package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.droidevs.counterapp.domain.repository.CategoryRepository
-import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
+import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
+import io.droidevs.counterapp.domain.usecases.requests.CreateCounterRequest
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.ui.models.CounterUiModel
@@ -11,12 +12,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class CreateCounterViewModel(
-    val repository : CounterRepository,
-    val categoryRepository: CategoryRepository
+    private val counterUseCases: CounterUseCases,
+    private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
 
-    val categories = categoryRepository.allCategories()
+    val categories = categoryUseCases.getAllCategories()
         .map { categories ->
             categories.map { it.toUiModel() }
         }
@@ -27,8 +28,8 @@ class CreateCounterViewModel(
         onCounterSaved: () -> Unit
     ) {
         viewModelScope.launch {
-            repository.createCounter(counter.toDomain())
+            counterUseCases.createCounter(CreateCounterRequest.of(counter.toDomain()))
+            onCounterSaved()
         }
-        onCounterSaved()
     }
 }

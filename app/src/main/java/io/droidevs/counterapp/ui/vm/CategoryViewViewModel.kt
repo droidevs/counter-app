@@ -1,26 +1,30 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
-import io.droidevs.counterapp.domain.repository.CategoryRepository
+import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.toUiModel
-import io.droidevs.counterapp.ui.models.CategoryWithCountersUiModel
+import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
+import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
+import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithCountersRequest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 class CategoryViewViewModel(
     val categoryId: String,
-    val repository: CategoryRepository
+    private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
-    val category = repository.categoryWithCounters(categoryId = categoryId)
-        .map { category ->
-            category.toUiModel()
-        }
-
-
+    val category = categoryUseCases.getCategoryWithCounters(
+        GetCategoryWithCountersRequest(categoryId = categoryId)
+    ).map { category ->
+        category.toUiModel()
+    }
 
     fun deleteCategory() {
-        repository.deleteCategory(categoryId)
+        viewModelScope.launch {
+            categoryUseCases.deleteCategory(
+                DeleteCategoryRequest(categoryId = categoryId)
+            )
+        }
     }
 }
-

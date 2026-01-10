@@ -31,10 +31,8 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory(
-            repository = (requireActivity().application as CounterApp)
-                .counterRepository,
-            categoryRepository = (requireActivity().application as CounterApp)
-                .categoryRepository
+            counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases,
+            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
         )
     }
 

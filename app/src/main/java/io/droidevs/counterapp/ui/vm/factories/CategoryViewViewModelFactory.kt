@@ -2,12 +2,12 @@ package io.droidevs.counterapp.ui.vm.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.droidevs.counterapp.domain.repository.CategoryRepository
+import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 
 class CategoryViewViewModelFactory(
-    val categoryId: String,
-    val repository: CategoryRepository
+    private val categoryId: String,
+    private val categoryUseCases: CategoryUseCases
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -15,7 +15,7 @@ class CategoryViewViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return CategoryViewViewModel(
                 categoryId = categoryId,
-                repository = repository
+                categoryUseCases = categoryUseCases
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

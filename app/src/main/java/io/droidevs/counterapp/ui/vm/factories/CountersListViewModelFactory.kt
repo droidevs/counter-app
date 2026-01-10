@@ -2,17 +2,18 @@ package io.droidevs.counterapp.ui.vm.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 
 class CountersListViewModelFactory(
-    var repository: CounterRepository
+    private val counterUseCases: CounterUseCases
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CountersListViewModel::class.java))
-            return CountersListViewModel(repository) as T
-        else
-            throw IllegalArgumentException("Unknown ViewModel class")
+        if (modelClass.isAssignableFrom(CountersListViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CountersListViewModel(counterUseCases) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

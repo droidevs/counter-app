@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp") version "2.0.21-1.0.28"
+    id("com.google.dagger.hilt.android") version "2.57.2"
+    //id('kotlin-kapt')
 }
 
 android {
@@ -76,4 +78,9 @@ dependencies {
 
     // Optional - For Coroutines support (needed to read/write)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.google.dagger)
+    ksp(libs.dagger.compiler)
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    ksp("com.google.dagger:hilt-compiler:2.57.2")
 }

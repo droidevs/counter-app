@@ -30,7 +30,7 @@ class CategoryListFragment : Fragment() {
 
     private val viewModel : CategoryListViewModel by viewModels {
         CategoryListViewModelFactory(
-            repository = (requireActivity().application as CounterApp).categoryRepository
+            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
         )
     }
 

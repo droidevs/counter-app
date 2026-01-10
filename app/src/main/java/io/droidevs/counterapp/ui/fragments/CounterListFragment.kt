@@ -35,7 +35,7 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
 
     private val viewModel : CountersListViewModel by viewModels {
         CountersListViewModelFactory(
-            (requireActivity().application as CounterApp).counterRepository
+            (requireActivity().application as CounterApp).useCases.counterUseCases
         )
     }
 

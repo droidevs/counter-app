@@ -3,9 +3,10 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toSnapshot
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
+import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +16,7 @@ import java.time.Instant
 
 class CounterEditViewModel(
     initialCounter: CounterUiModel,
-    val repository: CounterRepository
+    private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
     // Backing state
@@ -88,7 +89,16 @@ class CounterEditViewModel(
     // Save logic (to repository or database)
     fun save(onSaved: (() -> Unit)? = null) {
         viewModelScope.launch {
-            repository.saveCounter(_editedCounter.value)
+            // Build an UpdateCounterRequest using the edited counter fields
+            val edited = _editedCounter.value
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    edited.id,
+                    newName = edited.name,
+                    newCategoryId = edited.categoryId,
+                    newCount = edited.currentCount
+                )
+            )
             onSaved?.invoke()
         }
     }

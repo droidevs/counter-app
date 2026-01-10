@@ -4,12 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
+import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 class CountersListViewModel(
-    private val repository: CounterRepository
+    private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
     // key = Counter.key, value = Counter domain object
@@ -25,7 +25,7 @@ class CountersListViewModel(
     private val pendingReorderCounters = mutableMapOf<String, Counter>()
 
 
-    val counters: Flow<List<CounterWithCategoryUiModel>> = repository.getCountersWithCategories()
+    val counters: Flow<List<CounterWithCategoryUiModel>> = counterUseCases.getCountersWithCategories()
         .onStart { emit(emptyList()) }
         .map { counters ->
             counters.map {
@@ -38,7 +38,7 @@ class CountersListViewModel(
         val c = counter.toDomain()
         c.increment()
         viewModelScope.launch {
-            repository.saveCounter(c)
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = c.id, newCount = c.currentCount))
         }
 
         pendingReorderCounters[c.id] = c
@@ -49,12 +49,12 @@ class CountersListViewModel(
         val c = counter.toDomain()
         c.decrement()
         viewModelScope.launch {
-            repository.saveCounter(c)
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = c.id, newCount = c.currentCount))
         }
         pendingReorderCounters[c.id] = c
     }
 
-    fun onVisibleItemsChanged(items : Set<CounterUiModel>) {
+    fun onVisibleItemsChanged(items: Set<CounterUiModel>) {
         // Items that WERE visible but are NOT anymore
         val currentlyVisibleKeys = items.map { it.id }.toSet()
 
@@ -75,10 +75,11 @@ class CountersListViewModel(
         pendingReorderCounters.remove(counter.id)
 
         viewModelScope.launch {
-            repository.saveCounter(
-                counter.apply {
-                    orderAnchorAt = Instant.now()
-                }
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = counter.id,
+                    newCount = counter.currentCount
+                )
             )
         }
     }

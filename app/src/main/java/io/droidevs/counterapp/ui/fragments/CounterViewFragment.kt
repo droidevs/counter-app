@@ -41,7 +41,7 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
             this,
             CounterViewModelFactory(
                 counter = counter,
-                repository = (requireActivity().application as CounterApp).counterRepository
+                counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases
             )
         )[CounterViewViewModel::class.java]
 

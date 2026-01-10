@@ -27,7 +27,7 @@ class CreateCategoryFragment : Fragment() {
     private lateinit var binding: FragmentCreateCategoryBinding
     private val viewModel: CreateCategoryViewModel by viewModels {
         CreateCategoryViewModelFactory(
-            repository = (requireActivity().application as CounterApp).categoryRepository
+            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
         )
     }
 

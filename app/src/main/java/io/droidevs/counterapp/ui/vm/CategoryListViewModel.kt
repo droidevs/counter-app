@@ -1,16 +1,16 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
-import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toUiModel
+import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import kotlinx.coroutines.flow.map
 
 class CategoryListViewModel(
-    repository: CategoryRepository
+    categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
     val categories = lazy {
-            repository.allCategories()
+        categoryUseCases.getAllCategories()
             .map { categories ->
                 categories.map { category ->
                     category.toUiModel()
@@ -19,7 +19,7 @@ class CategoryListViewModel(
     }
 
     val systemCategories = lazy {
-        repository.getSystemCategories()
+        categoryUseCases.getSystemCategories()
             .map { categories ->
                 categories.map { category ->
                     category.toUiModel()

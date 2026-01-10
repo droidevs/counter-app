@@ -43,7 +43,7 @@ class CounterEditFragment : Fragment() {
             this,
             CounterEditViewModelFactory(
                 initialCounter = counter,
-                repository = (requireActivity().application as CounterApp).counterRepository
+                counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases
             )
         )[CounterEditViewModel::class.java]
 

@@ -29,8 +29,8 @@ class CreateCounterFragment : Fragment() {
 
     private val viewModel : CreateCounterViewModel by viewModels {
         CreateCounterViewModelFactory(
-            repository = (requireActivity().application as CounterApp).counterRepository,
-            categoryRepository = (requireActivity().application as CounterApp).categoryRepository
+            counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases,
+            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
         )
     }
 

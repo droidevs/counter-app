@@ -1,5 +1,7 @@
 [versions]
 agp = "8.10.1"
+dagger = "2.57.2"
+daggerCompiler = "2.57.2"
 datastorePreferences = "1.2.0"
 desugar_jdk_libs = "2.1.5"
 kotlin = "2.0.21"
@@ -31,7 +33,12 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomComm
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommonJvm" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntime" }
+dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "dagger" }
+dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "dagger" }
+dagger-android-support = { module = "com.google.dagger:dagger-android-support", version.ref = "dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+google-dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
