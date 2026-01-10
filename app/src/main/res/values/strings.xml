@@ -88,6 +88,7 @@
     <string name="empty_category_counters_message">
         Create a counter in this category to begin tracking.
     </string>
+    <string name="settings">Settings\n</string>
 
 
 </resources>

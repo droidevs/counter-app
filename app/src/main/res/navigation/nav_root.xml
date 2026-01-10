@@ -9,12 +9,6 @@
     <include app:graph="@navigation/nav_counters"/>
     <include app:graph="@navigation/nav_categories"/>
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="io.droidevs.counterapp.ui.fragments.HomeFragment"
-        android:label="Home"
-        app:graph="@navigation/nav_home"/>
-
     <action
         android:id="@+id/action_to_settings_graph"
         app:destination="@id/settings_graph"

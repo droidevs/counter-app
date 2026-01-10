@@ -16,8 +16,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
@@ -104,13 +107,13 @@ class MainActivity : AppCompatActivity() {
 //            navController = navController,
 //            configuration = appBarConfiguration
 //        )
-        var bottomNav = binding!!.bottomNavigation
+        bottomNav = binding!!.bottomNavigation
 
         //NavigationUI.setupWithNavController(bottomNav, navController)
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNav.setupWithNavController(navController)
-
+        //setupBottomNav()
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
             if (dest.id in topLevelDestinations) {
@@ -150,6 +153,30 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+//    private fun setupBottomNav() {
+//        bottomNav.setOnItemSelectedListener { item ->
+//            when(item.itemId) {
+//                R.id.home_graph -> {
+//                    navController.navigate(R.id.action_to_home_graph)
+//                    true
+//                }
+//                R.id.counters_graph -> {
+//                    navController.navigate(R.id.action_to_home_graph)
+//                    true
+//                }
+//                R.id.categories_graph -> {
+//                    navController.navigate(R.id.categories_graph)
+//                    true
+//                }
+//                R.id.settings_graph -> {
+//                    navController.navigate(R.id.settingsFragment)
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
+//    }
+
     private fun setupDrawer() {
         binding!!.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -178,6 +205,20 @@ class MainActivity : AppCompatActivity() {
             drawer.closeDrawer(GravityCompat.START)
             true
         }
+    }
+
+
+    // Navigate from drawer with arguments
+    fun NavController.navigateFromDrawer(destinationId: Int, args: Bundle? = null) {
+        val navOptions = NavOptions.Builder()
+            .setLaunchSingleTop(true) // Avoid multiple instances
+            .setPopUpTo(
+                destinationId = navController.graph.startDestinationId,
+                inclusive = false
+            ) // Keep bottom nav root intact
+            .build()
+
+        navController.navigate(destinationId, args, navOptions)
     }
 
     private fun updateNavigationForSize() {
@@ -245,7 +286,7 @@ class MainActivity : AppCompatActivity() {
             .apply {
                 putBoolean(CategoryListFragment.IS_SYSTEM_CATEGORY, true)
             }
-        navController.navigate(R.id.categories_graph, argument)
+        navController.navigate(R.id.action_to_categories_graph, argument)
     }
 
     private fun rateApp() {

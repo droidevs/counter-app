@@ -11,12 +11,17 @@ import android.net.Uri
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
+import androidx.preference.PreferenceCategory
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.CounterApp
@@ -47,24 +52,44 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
             androidx.preference.R.id.recycler_view
         )
 
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.main_menu, menu)
+                menu.findItem(R.id.menuSettings)?.isVisible = false
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return false
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
 
         rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val lm = rv.layoutManager as LinearLayoutManager
-                //Log.i(TAG, "First visible item position: ${lm.findFirstVisibleItemPosition()}")
-                when (lm.findFirstVisibleItemPosition()) {
-                    in 1..3 -> setTitle("Controls")
-                    in 4..7 -> setTitle("Display")
-                    else -> setTitle("Other")
-                }
-
-
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                updateToolbarTitle(rv)
             }
         })
+
     }
 
+    private fun updateToolbarTitle(rv: RecyclerView) {
+        val layoutManager = rv.layoutManager as LinearLayoutManager
+        val position = layoutManager.findFirstVisibleItemPosition()
+
+        if (position == RecyclerView.NO_POSITION) {
+            setTitle(getString(R.string.settings))
+            return
+        }
+        when(position) {
+            in 1..4 -> setTitle(getString(R.string.settings_controls))
+            in 5..7 -> setTitle(getString(R.string.settings_display))
+            else -> setTitle(getString(R.string.settings_other))
+        }
+
+    }
 
 
     private fun setTitle(title: String) {
@@ -75,7 +100,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
 
     override fun onResume() {
         super.onResume()
-        setHasOptionsMenu(true) // deprecated
+        //setHasOptionsMenu(true) // deprecated
     }
 
     override fun onPause() {
@@ -86,7 +111,7 @@ class SettingsFragment : PreferenceFragmentCompat() , Preference.OnPreferenceCha
     @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        menu.findItem(R.id.menuSettings)?.isVisible = false
+        //menu.findItem(R.id.menuSettings)?.isVisible = false
     }
 
     private val appVersion: String

@@ -69,4 +69,11 @@ dependencies {
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.androidx.work.runtime)  // Check for latest; 2.9.x is current stable series
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Preferences DataStore (stores key-value pairs)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core)
+
+    // Optional - For Coroutines support (needed to read/write)
+    implementation(libs.kotlinx.coroutines.android)
 }
