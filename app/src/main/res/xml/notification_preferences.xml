@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="counter_limit_notification"
+        android:title="Notify when limit reached"
+        android:summary="Get notified when a counter hits its maximum value"
+        android:defaultValue="true" />
+
+    <SwitchPreferenceCompat
+        android:key="daily_summary_notification"
+        android:title="Daily summary"
+        android:summary="Receive a daily overview of your counters"
+        android:defaultValue="true" />
+
+    <ListPreference
+        android:key="notification_sound"
+        android:title="Notification sound"
+        android:summary="%s"
+        android:entries="@array/notification_sound_entries"
+        android:entryValues="@array/notification_sound_values"
+        android:defaultValue="default" />
+
+    <ListPreference
+        android:key="vibration_pattern"
+        android:title="Vibration pattern"
+        android:summary="%s"
+        android:entries="@array/vibration_pattern_entries"
+        android:entryValues="@array/vibration_pattern_values"
+        android:defaultValue="default" />
+
+</PreferenceScreen>

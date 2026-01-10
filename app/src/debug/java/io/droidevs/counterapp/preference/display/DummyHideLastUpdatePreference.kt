@@ -1,8 +1,7 @@
 package io.droidevs.counterapp.preference.display
 
-// 2. HideLastUpdatePreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
 import io.droidevs.counterapp.domain.preference.display.HideLastUpdatePreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyHideLastUpdatePreference(

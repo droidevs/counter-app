@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="hardware_button_control"
+        android:title="Use hardware buttons"
+        android:summary="Control counters using volume or power buttons"
+        android:defaultValue="false" />
+
+    <SwitchPreferenceCompat
+        android:key="sounds_on"
+        android:title="Play sounds"
+        android:summary="Audible feedback on count actions"
+        android:defaultValue="true" />
+
+    <SwitchPreferenceCompat
+        android:key="vibration_on"
+        android:title="Vibrate on action"
+        android:summary="Haptic feedback when counting"
+        android:defaultValue="true" />
+
+    <SwitchPreferenceCompat
+        android:key="show_labels"
+        android:title="Show action labels"
+        android:summary="Display text labels next to hardware actions"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

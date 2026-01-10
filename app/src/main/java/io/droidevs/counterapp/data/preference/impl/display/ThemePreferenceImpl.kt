@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.domain.preference.display.ThemePreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,25 +17,20 @@ class ThemePreferenceImpl(
 
     companion object {
         val KEY = stringPreferencesKey("app_theme")
-
-        const val DEFAULT_VALUE = "system"
-        const val LIGHT = "light"
-        const val DARK = "dark"
-        const val SYSTEM = "system"
     }
 
-    override fun get(): Flow<String> = dataStore.data
-        .map { it[KEY] ?: DEFAULT_VALUE }
+    override fun get(): Flow<Theme> = dataStore.data
+        .map { it[KEY] ?: Theme.SYSTEM.name }.map { Theme.valueOf(it) }
 
-    override suspend fun set(value: String) {
+    override suspend fun set(value: Theme) {
         dataStore.edit { prefs ->
-            prefs[KEY] = value
+            prefs[KEY] = value.name
         }
     }
 
-    suspend fun getCurrent(): String = get().first()
+    suspend fun getCurrent(): Theme = get().first()
 
-    suspend fun isDark(): Boolean = getCurrent() == DARK
-    suspend fun isLight(): Boolean = getCurrent() == LIGHT
-    suspend fun isSystem(): Boolean = getCurrent() == SYSTEM
+    suspend fun isDark(): Boolean = getCurrent() == Theme.DARK
+    suspend fun isLight(): Boolean = getCurrent() == Theme.LIGHT
+    suspend fun isSystem(): Boolean = getCurrent() == Theme.SYSTEM
 }

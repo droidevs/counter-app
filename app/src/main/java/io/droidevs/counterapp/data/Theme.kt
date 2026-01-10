@@ -5,14 +5,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.repository.SettingsRepository
 
-enum class Themes(private val identifier: String, val labelId: Int) {
+enum class Theme(private val identifier: String, val labelId: Int) {
     LIGHT("light", R.string.settings_theme_light),
     DARK("dark", R.string.settings_theme_dark),
     AUTO("auto", R.string.settings_theme_auto_battery),
     SYSTEM("system", R.string.settings_theme_system);
 
     companion object {
-        fun getCurrent(id: String? = null, repo: SettingsRepository): Themes {
+        fun getCurrent(id: String? = null, repo: SettingsRepository): Theme {
             var identifier : String? = null
             if (id!= null) {
                 identifier = id

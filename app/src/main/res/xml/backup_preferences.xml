@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="auto_backup"
+        android:title="Automatic local backup"
+        android:summary="Daily backup to app's private storage"
+        android:defaultValue="true" />
+
+    <ListPreference
+        android:key="backup_interval"
+        android:title="Backup frequency"
+        android:summary="%s"
+        android:entries="@array/backup_interval_entries"
+        android:entryValues="@array/backup_interval_values"
+        android:defaultValue="24"
+        android:dependency="auto_backup" />
+
+    <!-- Informational preference – not changeable -->
+    <Preference
+        android:key="backup_location_info"
+        android:title="Backup location"
+        android:summary="Private app storage (not accessible from file manager)\nData is kept until you clear app data or uninstall"
+        android:selectable="false" />
+
+    <!-- Optional: manual export button -->
+    <Preference
+        android:key="manual_export"
+        android:title="Export backup now"
+        android:summary="Create a file you can save/share" />
+
+</PreferenceScreen>

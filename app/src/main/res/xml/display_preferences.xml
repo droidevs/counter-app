@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settings_display">
+        <ListPreference
+            android:defaultValue="system"
+            android:entries="@array/themeSelectionEntries"
+            android:entryValues="@array/themeSelectionValues"
+            android:icon="@drawable/ic_palette"
+            android:key="theme"
+            android:title="@string/settings_theme" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_brightness"
+            android:key="keepScreenOn"
+            android:summary="@string/settings_keep_on_summary"
+            android:title="@string/settings_keep_on_title" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_display"
+            android:key="hideControls"
+            android:summary="@string/settings_hide_controls_summary"
+            android:title="@string/settings_hide_controls_title" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_time"
+            android:key="hideLastUpdate"
+            android:title="@string/settings_hide_last_update_title" />
+
+        <SwitchPreferenceCompat
+            android:key="show_labels"
+            android:title="Show labels"
+            android:summary="Display descriptive labels next to counters" />
+    </PreferenceCategory>
+</PreferenceScreen>

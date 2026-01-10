@@ -14,4 +14,52 @@
         <item>auto</item>
     </string-array>
 
+    <string-array name="backup_interval_entries">
+        <item>Every 6 hours</item>
+        <item>Daily</item>
+        <item>Every 3 days</item>
+        <item>Weekly</item>
+    </string-array>
+
+    <string-array name="backup_interval_values">
+        <item>6</item>
+        <item>24</item>
+        <item>72</item>
+        <item>168</item>
+    </string-array>
+
+    <string-array name="notification_sound_entries">
+        <item>Default</item>
+        <item>None</item>
+        <item>Beep</item>
+        <item>Chime</item>
+        <item>Gentle</item>
+    </string-array>
+
+    <string-array name="notification_sound_values">
+        <item>default</item>
+        <item>none</item>
+        <item>beep</item>
+        <item>chime</item>
+        <item>gentle</item>
+    </string-array>
+
+    <string-array name="vibration_pattern_entries">
+        <item>Default</item>
+        <item>None</item>
+        <item>Short</item>
+        <item>Medium</item>
+        <item>Long</item>
+        <item>Heartbeat</item>
+    </string-array>
+
+    <string-array name="vibration_pattern_values">
+        <item>default</item>
+        <item>none</item>
+        <item>short</item>
+        <item>medium</item>
+        <item>long</item>
+        <item>heartbeat</item>
+    </string-array>
+
 </resources>

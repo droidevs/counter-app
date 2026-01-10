@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.display
 
-// 3. KeepScreenOnPreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
+
 import io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyKeepScreenOnPreference(

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        android:key="increment_step"
+        android:title="Increment step"
+        android:summary="How much the counter increases/decreases per tap"
+        android:inputType="number"
+        android:defaultValue="1" />
+
+    <EditTextPreference
+        android:key="default_value"
+        android:title="Default counter value"
+        android:summary="Value when creating a new counter"
+        android:inputType="number"
+        android:defaultValue="0" />
+
+    <EditTextPreference
+        android:key="minimum_value"
+        android:title="Minimum allowed value"
+        android:summary="Leave empty for no minimum"
+        android:inputType="number"
+        android:defaultValue="" />
+
+    <EditTextPreference
+        android:key="maximum_value"
+        android:title="Maximum allowed value"
+        android:summary="Leave empty for no maximum"
+        android:inputType="number"
+        android:defaultValue="" />
+
+</PreferenceScreen>

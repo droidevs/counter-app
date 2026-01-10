@@ -1,8 +1,7 @@
 package io.droidevs.counterapp.preference.display
 
-// 1. HideControlsPreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
 import io.droidevs.counterapp.domain.preference.display.HideControlsPreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyHideControlsPreference(
