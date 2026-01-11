@@ -8,6 +8,7 @@ import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
+import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,33 +18,27 @@ class CategoryListViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CategoryListUiState())
-    val uiState: StateFlow<CategoryListUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<CategoryListEvent>()
+    private val _event = MutableSharedFlow<CategoryListEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
 
-    private val isSystem = MutableStateFlow(false)
+    private val _isSystemMode = MutableStateFlow(false)
 
-    val categories: StateFlow<List<io.droidevs.counterapp.ui.models.CategoryUiModel>> = isSystem
-        .flatMapLatest { system ->
-            if (system) {
+    val uiState: StateFlow<CategoryListUiState> = _isSystemMode
+        .flatMapLatest { isSystem ->
+            if (isSystem) {
                 categoryUseCases.getSystemCategories()
             } else {
                 categoryUseCases.getAllCategories()
             }
-        }
-        .map { categories -> categories.map { it.toUiModel() } }
-        .onStart { 
-            _uiState.update { it.copy(isLoading = true) }
-        }
-        .onEach { categories ->
-            _uiState.update { it.copy(categories = categories, isLoading = false) }
+                .map { categories -> categories.map { it.toUiModel() } }
+                .onStart { emit(emptyList()) } // Emit empty list initially for the mapper
+                .map { categories -> categories.toUiState(isLoading = false, isSystem = isSystem) }
+                .onStart { emit(CategoryListUiState(isLoading = true, isSystem = isSystem)) } // Initial loading state
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            initialValue = CategoryListUiState() // Default empty state
         )
 
     fun onAction(action: CategoryListAction) {
@@ -59,8 +54,7 @@ class CategoryListViewModel @Inject constructor(
                 }
             }
             is CategoryListAction.SetSystemMode -> {
-                isSystem.value = action.isSystem
-                _uiState.update { it.copy(isSystem = action.isSystem) }
+                _isSystemMode.value = action.isSystem
             }
         }
     }

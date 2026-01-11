@@ -13,6 +13,7 @@ import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
+import io.droidevs.counterapp.ui.vm.mappers.toEditUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -24,14 +25,21 @@ class CounterEditViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
-    private val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
-        ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
-
-    private val _uiState = MutableStateFlow(CounterEditUiState(counter = initialCounter))
-    val uiState: StateFlow<CounterEditUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<CounterEditEvent>()
+    private val _event = MutableSharedFlow<CounterEditEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
+
+    val uiState: StateFlow<CounterEditUiState> = flow {
+        val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
+            ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
+        emit(initialCounter)
+    }
+        .map { it.toEditUiState(isLoading = false) }
+        .onStart { emit(CounterEditUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CounterEditUiState()
+        )
 
     fun onAction(action: CounterEditAction) {
         when (action) {
@@ -60,7 +68,7 @@ class CounterEditViewModel @Inject constructor(
     }
 
     private fun save() {
-        val currentCounter = _uiState.value.counter ?: return
+        val currentCounter = uiState.value.counter ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             counterUseCases.updateCounter(

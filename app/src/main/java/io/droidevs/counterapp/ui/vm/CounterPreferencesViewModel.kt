@@ -7,14 +7,15 @@ import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCas
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.toCounterBehaviorPreferenceUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,34 +24,23 @@ class CounterPreferencesViewModel @Inject constructor(
     private val useCases: CounterPreferenceUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CounterBehaviorPreferenceUiState())
-    val uiState: StateFlow<CounterBehaviorPreferenceUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<CounterBehaviorPreferenceEvent>()
+    private val _event = MutableSharedFlow<CounterBehaviorPreferenceEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<CounterBehaviorPreferenceEvent> = _event.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            useCases.getCounterIncrementStep().collectLatest { step ->
-                _uiState.update { it.copy(counterIncrementStep = step) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getDefaultCounterValue().collectLatest { value ->
-                _uiState.update { it.copy(defaultCounterValue = value) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getMinimumCounterValue().collectLatest { value ->
-                _uiState.update { it.copy(minimumCounterValue = value ?: 0) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getMaximumCounterValue().collectLatest { value ->
-                _uiState.update { it.copy(maximumCounterValue = value ?: 1000) }
-            }
-        }
+    val uiState: StateFlow<CounterBehaviorPreferenceUiState> = combine(
+        useCases.getCounterIncrementStep(),
+        useCases.getDefaultCounterValue(),
+        useCases.getMinimumCounterValue().onStart { emit(null) }, // Provide a default null for initial combine
+        useCases.getMaximumCounterValue().onStart { emit(null) }
+    ) { incrementStep, defaultValue, minimumValue, maximumValue ->
+        Triple(incrementStep, defaultValue, Pair(minimumValue, maximumValue)).toCounterBehaviorPreferenceUiState()
     }
+        .onStart { emit(CounterBehaviorPreferenceUiState()) } // Initial default state
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CounterBehaviorPreferenceUiState()
+        )
 
     fun onAction(action: CounterBehaviorPreferenceAction) {
         when (action) {

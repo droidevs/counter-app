@@ -8,6 +8,8 @@ import io.droidevs.counterapp.domain.usecases.preference.DisplayPreferenceUseCas
 import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.toDisplayPreferenceUiState
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,39 +19,28 @@ class DisplayPreferencesViewModel @Inject constructor(
     private val useCases: DisplayPreferenceUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(DisplayPreferenceUiState())
-    val uiState: StateFlow<DisplayPreferenceUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<DisplayPreferenceEvent>()
+    private val _event = MutableSharedFlow<DisplayPreferenceEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val event: SharedFlow<DisplayPreferenceEvent> = _event.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            useCases.getTheme().collectLatest { theme ->
-                _uiState.update { it.copy(theme = theme) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getHideControls().collectLatest { hide ->
-                _uiState.update { it.copy(hideControls = hide) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getHideLastUpdate().collectLatest { hide ->
-                _uiState.update { it.copy(hideLastUpdate = hide) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getKeepScreenOn().collectLatest { keep ->
-                _uiState.update { it.copy(keepScreenOn = keep) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getLabelControl().collectLatest { show ->
-                _uiState.update { it.copy(showLabels = show) }
-            }
-        }
+    val uiState: StateFlow<DisplayPreferenceUiState> = combine(
+        useCases.getTheme(),
+        useCases.getHideControls(),
+        useCases.getHideLastUpdate(),
+        useCases.getKeepScreenOn(),
+        useCases.getLabelControl()
+    ) { theme, hideControls, hideLastUpdate, keepScreenOn, showLabels ->
+        Quadruple(theme, hideControls, hideLastUpdate, keepScreenOn).toDisplayPreferenceUiState(showLabels)
     }
+        .onStart { emit(DisplayPreferenceUiState()) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = DisplayPreferenceUiState()
+        )
 
     fun onAction(action: DisplayPreferenceAction) {
         when (action) {
@@ -96,3 +87,10 @@ class DisplayPreferencesViewModel @Inject constructor(
         }
     }
 }
+
+data class Quadruple<out A, out B, out C, out D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

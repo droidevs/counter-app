@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.ui.vm.actions.SettingsAction
 import io.droidevs.counterapp.ui.vm.events.SettingsEvent
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,7 +15,11 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor() : ViewModel() {
 
-    private val _event = MutableSharedFlow<SettingsEvent>()
+    private val _event = MutableSharedFlow<SettingsEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val event: SharedFlow<SettingsEvent> = _event.asSharedFlow()
 
     fun onAction(action: SettingsAction) {

@@ -14,6 +14,7 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import io.droidevs.counterapp.ui.vm.states.CounterListUiState
+import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,27 +24,24 @@ class CountersListViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CounterListUiState())
-    val uiState: StateFlow<CounterListUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<CounterListEvent>()
+    private val _event = MutableSharedFlow<CounterListEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<CounterListEvent> = _event.asSharedFlow()
 
     private val visibleCounters = mutableMapOf<String, Counter>()
     private val pendingReorderCounters = mutableMapOf<String, Counter>()
 
-    init {
-        viewModelScope.launch {
-            counterUseCases.getCountersWithCategories()
-                .onStart { updateState { it.copy(isLoading = true) } }
-                .map { counters ->
-                    counters.map { it.toUiModel() }
-                }
-                .collect { counters ->
-                    updateState { it.copy(counters = counters, isLoading = false, showEmptyState = counters.isEmpty()) }
-                }
+    val uiState: StateFlow<CounterListUiState> = counterUseCases.getCountersWithCategories()
+        .map { counters ->
+            counters.map { it.toUiModel() }
         }
-    }
+        .onStart { emit(emptyList()) } // Emit empty list initially for the mapper
+        .map { counters -> counters.toUiState(isLoading = false) }
+        .onStart { emit(CounterListUiState(isLoading = true)) } // Initial loading state
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CounterListUiState() // Default empty state
+        )
 
     fun onAction(action: CounterListAction) {
         when (action) {
@@ -52,20 +50,10 @@ class CountersListViewModel @Inject constructor(
             is CounterListAction.VisibleItemsChanged -> onVisibleItemsChanged(action.items)
             CounterListAction.AddCounterClicked -> {
                 viewModelScope.launch {
-                    sendEvent(CounterListEvent.NavigateToCreateCounter)
+                    _event.emit(CounterListEvent.NavigateToCreateCounter)
                 }
             }
             CounterListAction.FlushAllPendingReorders -> flushAllPendingReorders()
-        }
-    }
-
-    private fun updateState(update: (CounterListUiState) -> CounterListUiState) {
-        _uiState.value = update(_uiState.value)
-    }
-
-    private fun sendEvent(event: CounterListEvent) {
-        viewModelScope.launch {
-            _event.emit(event)
         }
     }
 

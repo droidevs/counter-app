@@ -7,6 +7,7 @@ import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCa
 import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.toHardwarePreferenceUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,34 +17,23 @@ class HardwarePreferencesViewModel @Inject constructor(
     private val useCases: HardwarePreferenceUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HardwarePreferenceUiState())
-    val uiState: StateFlow<HardwarePreferenceUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<HardwarePreferenceEvent>()
+    private val _event = MutableSharedFlow<HardwarePreferenceEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<HardwarePreferenceEvent> = _event.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            useCases.getHardwareButtonControl().collectLatest { enabled ->
-                _uiState.update { it.copy(hardwareButtonControl = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getSoundsOn().collectLatest { enabled ->
-                _uiState.update { it.copy(soundsOn = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getVibrationOn().collectLatest { enabled ->
-                _uiState.update { it.copy(vibrationOn = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getLabelControl().collectLatest { show ->
-                _uiState.update { it.copy(showLabels = show) }
-            }
-        }
+    val uiState: StateFlow<HardwarePreferenceUiState> = combine(
+        useCases.getHardwareButtonControl(),
+        useCases.getSoundsOn(),
+        useCases.getVibrationOn(),
+        useCases.getLabelControl()
+    ) { hardwareButtonControl, soundsOn, vibrationOn, showLabels ->
+        Quadruple(hardwareButtonControl, soundsOn, vibrationOn, showLabels).toHardwarePreferenceUiState()
     }
+        .onStart { emit(HardwarePreferenceUiState()) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = HardwarePreferenceUiState()
+        )
 
     fun onAction(action: HardwarePreferenceAction) {
         when (action) {
@@ -82,3 +72,10 @@ class HardwarePreferencesViewModel @Inject constructor(
         }
     }
 }
+
+data class Quadruple<out A, out B, out C, out D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

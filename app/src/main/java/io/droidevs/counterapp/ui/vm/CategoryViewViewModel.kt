@@ -11,6 +11,8 @@ import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithC
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
+import io.droidevs.counterapp.ui.vm.mappers.toUiState
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,31 +26,23 @@ class CategoryViewViewModel @Inject constructor(
     private val categoryId: String = savedStateHandle.get<String>("categoryId")
         ?: throw IllegalArgumentException("CategoryId argument is required")
 
-    private val _uiState = MutableStateFlow(CategoryViewUiState())
-    val uiState: StateFlow<CategoryViewUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<CategoryViewEvent>()
+    private val _event = MutableSharedFlow<CategoryViewEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val event = _event.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            categoryUseCases.getCategoryWithCounters(
-                GetCategoryWithCountersRequest(categoryId = categoryId)
-            )
-            .onStart { _uiState.update { it.copy(isLoading = true) } }
-            .map { it.toUiModel() }
-            .collect { data ->
-                _uiState.update { 
-                    it.copy(
-                        category = data.category,
-                        counters = data.counters,
-                        isLoading = false,
-                        showEmptyState = data.counters.isEmpty()
-                    ) 
-                }
-            }
-        }
-    }
+    val uiState: StateFlow<CategoryViewUiState> = categoryUseCases.getCategoryWithCounters(
+        GetCategoryWithCountersRequest(categoryId = categoryId)
+    )
+        .map { it.toUiModel().toUiState(isLoading = false) }
+        .onStart { emit(CategoryViewUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CategoryViewUiState(isLoading = true)
+        )
 
     fun onAction(action: CategoryViewAction) {
         when (action) {
@@ -59,7 +53,7 @@ class CategoryViewViewModel @Inject constructor(
             }
             CategoryViewAction.DeleteCategoryClicked -> deleteCategory()
             is CategoryViewAction.SetCategoryId -> {
-                // Already handled in init via SavedStateHandle, but could be used for re-loading
+                // Handled by state initialization
             }
         }
     }

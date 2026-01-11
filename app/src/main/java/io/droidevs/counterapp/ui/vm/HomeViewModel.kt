@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
 import io.droidevs.counterapp.ui.vm.states.HomeUiState
+import io.droidevs.counterapp.ui.vm.mappers.toHomeUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -28,48 +29,34 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<HomeEvent>()
+    private val _event = MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<HomeEvent> = _event.asSharedFlow()
 
     private var activeCounter: Counter? = null
     private var interactionJob: Job? = null
 
-    init {
-        viewModelScope.launch {
-            counterUseCases.getLimitCountersWithCategory(6)
-                .onStart { _uiState.update { it.copy(isLoadingCounters = true) } }
-                .map { counters -> counters.map { it.toUiModel() } }
-                .collect { counters ->
-                    _uiState.update { it.copy(recentCounters = counters, isLoadingCounters = false) }
-                }
-        }
-
-        viewModelScope.launch {
-            counterUseCases.getTotalNumberOfCounters()
-                .collect { count ->
-                    _uiState.update { it.copy(countersCount = count) }
-                }
-        }
-
-        viewModelScope.launch {
-            categoryUseCases.getTopCategories(3)
-                .onStart { _uiState.update { it.copy(isLoadingCategories = true) } }
-                .map { categories -> categories.map { it.toUiModel() } }
-                .collect { categories ->
-                    _uiState.update { it.copy(categories = categories, isLoadingCategories = false) }
-                }
-        }
-
-        viewModelScope.launch {
-            categoryUseCases.getTotalCategoriesCount()
-                .collect { count ->
-                    _uiState.update { it.copy(categoriesCount = count) }
-                }
-        }
+    val uiState: StateFlow<HomeUiState> = combine(
+        counterUseCases.getLimitCountersWithCategory(6)
+            .map { counters -> counters.map { it.toUiModel() } }
+            .onStart { emit(emptyList()) },
+        counterUseCases.getTotalNumberOfCounters()
+            .onStart { emit(0) },
+        categoryUseCases.getTopCategories(3)
+            .map { categories -> categories.map { it.toUiModel() } }
+            .onStart { emit(emptyList()) },
+        categoryUseCases.getTotalCategoriesCount()
+            .onStart { emit(0) },
+        MutableStateFlow(false).onStart { emit(true) }, // isLoadingCounters
+        MutableStateFlow(false).onStart { emit(true) } // isLoadingCategories
+    ) { recentCounters, countersCount, categories, categoriesCount, isLoadingCounters, isLoadingCategories ->
+        Sixfold(recentCounters, countersCount, categories, categoriesCount, isLoadingCounters, isLoadingCategories).toHomeUiState()
     }
+        .onStart { emit(HomeUiState(isLoadingCounters = true, isLoadingCategories = true)) } // Initial loading state
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = HomeUiState()
+        )
 
     fun onAction(action: HomeAction) {
         when (action) {
@@ -186,3 +173,12 @@ class HomeViewModel @Inject constructor(
         super.onCleared()
     }
 }
+
+data class Sixfold<out A, out B, out C, out D, out E, out F>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+    val fifth: E,
+    val sixth: F
+)

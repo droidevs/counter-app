@@ -19,29 +19,49 @@ class CreateCategoryViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CreateCategoryUiState())
-    val uiState: StateFlow<CreateCategoryUiState> = _uiState.asStateFlow()
+    private val _name = MutableStateFlow("")
+    private val _selectedColor = MutableStateFlow(0)
+    private val _colors = MutableStateFlow<List<CategoryColor>>(emptyList())
+    private val _isSaving = MutableStateFlow(false)
 
-    private val _event = MutableSharedFlow<CreateCategoryEvent>()
+    private val _event = MutableSharedFlow<CreateCategoryEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
+
+    val uiState: StateFlow<CreateCategoryUiState> = combine(
+        _name,
+        _selectedColor,
+        _colors,
+        _isSaving
+    ) { name, selectedColor, colors, isSaving ->
+        CreateCategoryUiState(
+            name = name,
+            selectedColor = selectedColor,
+            colors = colors,
+            isSaving = isSaving
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CreateCategoryUiState()
+    )
 
     fun onAction(action: CreateCategoryAction) {
         when (action) {
             is CreateCategoryAction.NameChanged -> {
-                _uiState.update { it.copy(name = action.name) }
+                _name.value = action.name
             }
             is CreateCategoryAction.ColorSelected -> {
-                _uiState.update { it.copy(selectedColor = action.colorInt) }
+                _selectedColor.value = action.colorInt
             }
             CreateCategoryAction.CreateClicked -> saveCategory()
             is CreateCategoryAction.LoadPalette -> {
-                _uiState.update { it.copy(colors = action.colors) }
+                _colors.value = action.colors
             }
         }
     }
 
     private fun saveCategory() {
-        val name = _uiState.value.name.trim()
+        val name = _name.value.trim()
         if (name.isEmpty()) {
             viewModelScope.launch {
                 _event.emit(CreateCategoryEvent.ShowMessage("Category name is required"))
@@ -50,13 +70,13 @@ class CreateCategoryViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
+            _isSaving.value = true
             val category = Category(
                 name = name,
-                color = CategoryColor(colorInt = _uiState.value.selectedColor)
+                color = CategoryColor(colorInt = _selectedColor.value)
             )
             categoryUseCases.createCategory(CreateCategoryRequest.of(category))
-            _uiState.update { it.copy(isSaving = false) }
+            _isSaving.value = false
             _event.emit(CreateCategoryEvent.CategoryCreated(name))
             _event.emit(CreateCategoryEvent.NavigateBack)
         }

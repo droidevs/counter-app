@@ -7,6 +7,7 @@ import io.droidevs.counterapp.domain.usecases.preference.NotificationPreferenceU
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.NotificationPreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.toNotificationPreferenceUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,34 +17,23 @@ class NotificationsPreferencesViewModel @Inject constructor(
     private val useCases: NotificationPreferenceUseCases
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(NotificationPreferenceUiState())
-    val uiState: StateFlow<NotificationPreferenceUiState> = _uiState.asStateFlow()
-
-    private val _event = MutableSharedFlow<NotificationPreferenceEvent>()
+    private val _event = MutableSharedFlow<NotificationPreferenceEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<NotificationPreferenceEvent> = _event.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            useCases.getCounterLimitNotification().collectLatest { enabled ->
-                _uiState.update { it.copy(counterLimitNotification = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getDailySummaryNotification().collectLatest { enabled ->
-                _uiState.update { it.copy(dailySummaryNotification = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getNotificationSound().collectLatest { sound ->
-                _uiState.update { it.copy(notificationSound = sound) }
-            }
-        }
-        viewModelScope.launch {
-            useCases.getNotificationVibrationPattern().collectLatest { pattern ->
-                _uiState.update { it.copy(notificationVibrationPattern = pattern) }
-            }
-        }
+    val uiState: StateFlow<NotificationPreferenceUiState> = combine(
+        useCases.getCounterLimitNotification(),
+        useCases.getDailySummaryNotification(),
+        useCases.getNotificationSound(),
+        useCases.getNotificationVibrationPattern()
+    ) { limit, daily, sound, vibration ->
+        Quadruple(limit, daily, sound, vibration).toNotificationPreferenceUiState()
     }
+        .onStart { emit(NotificationPreferenceUiState()) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = NotificationPreferenceUiState()
+        )
 
     fun onAction(action: NotificationPreferenceAction) {
         when (action) {
