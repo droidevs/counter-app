@@ -28,39 +28,48 @@ class CounterEditViewModel @Inject constructor(
     private val _event = MutableSharedFlow<CounterEditEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
 
-    val uiState: StateFlow<CounterEditUiState> = flow {
-        val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
-            ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
-        emit(initialCounter)
+    private val _editableCounter = MutableStateFlow<CounterUiModel?>(null)
+    private val _isSaving = MutableStateFlow(false)
+
+    val uiState: StateFlow<CounterEditUiState> = combine(
+        _editableCounter,
+        _isSaving
+    ) { counter, isSaving ->
+        counter?.toEditUiState(isLoading = false, isSaving = isSaving) ?: CounterEditUiState(isLoading = true)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CounterEditUiState(isLoading = true)
+    )
+
+    init {
+        viewModelScope.launch {
+            val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
+                ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
+            _editableCounter.value = initialCounter
+        }
     }
-        .map { it.toEditUiState(isLoading = false) }
-        .onStart { emit(CounterEditUiState(isLoading = true)) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CounterEditUiState()
-        )
 
     fun onAction(action: CounterEditAction) {
         when (action) {
             is CounterEditAction.UpdateName -> {
-                _uiState.update { state ->
-                    state.copy(counter = state.counter?.copy(name = action.name, lastUpdatedAt = Instant.now()))
+                _editableCounter.update { currentCounter ->
+                    currentCounter?.copy(name = action.name, lastUpdatedAt = Instant.now())
                 }
             }
             is CounterEditAction.UpdateCurrentCount -> {
-                _uiState.update { state ->
-                    state.copy(counter = state.counter?.copy(currentCount = action.count, lastUpdatedAt = Instant.now()))
+                _editableCounter.update { currentCounter ->
+                    currentCounter?.copy(currentCount = action.count, lastUpdatedAt = Instant.now())
                 }
             }
             is CounterEditAction.SetCanIncrease -> {
-                _uiState.update { state ->
-                    state.copy(counter = state.counter?.copy(canIncrease = action.canIncrease, lastUpdatedAt = Instant.now()))
+                _editableCounter.update { currentCounter ->
+                    currentCounter?.copy(canIncrease = action.canIncrease, lastUpdatedAt = Instant.now())
                 }
             }
             is CounterEditAction.SetCanDecrease -> {
-                _uiState.update { state ->
-                    state.copy(counter = state.counter?.copy(canDecrease = action.canDecrease, lastUpdatedAt = Instant.now()))
+                _editableCounter.update { currentCounter ->
+                    currentCounter?.copy(canDecrease = action.canDecrease, lastUpdatedAt = Instant.now())
                 }
             }
             CounterEditAction.SaveClicked -> save()
@@ -68,18 +77,20 @@ class CounterEditViewModel @Inject constructor(
     }
 
     private fun save() {
-        val currentCounter = uiState.value.counter ?: return
+        val currentCounter = _editableCounter.value ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
+            _isSaving.value = true
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
                     currentCounter.id,
                     newName = currentCounter.name,
                     newCategoryId = currentCounter.categoryId,
-                    newCount = currentCounter.currentCount
+                    newCount = currentCounter.currentCount,
+                    canIncrease = currentCounter.canIncrease,
+                    canDecrease = currentCounter.canDecrease
                 )
             )
-            _uiState.update { it.copy(isSaving = false) }
+            _isSaving.value = false
             _event.emit(CounterEditEvent.CounterSaved)
         }
     }

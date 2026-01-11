@@ -45,11 +45,10 @@ class HomeViewModel @Inject constructor(
             .map { categories -> categories.map { it.toUiModel() } }
             .onStart { emit(emptyList()) },
         categoryUseCases.getTotalCategoriesCount()
-            .onStart { emit(0) },
-        MutableStateFlow(false).onStart { emit(true) }, // isLoadingCounters
-        MutableStateFlow(false).onStart { emit(true) } // isLoadingCategories
-    ) { recentCounters, countersCount, categories, categoriesCount, isLoadingCounters, isLoadingCategories ->
-        Sixfold(recentCounters, countersCount, categories, categoriesCount, isLoadingCounters, isLoadingCategories).toHomeUiState()
+            .onStart { emit(0) }
+    ) { recentCounters, countersCount, categories, categoriesCount ->
+        // The isLoading states are now derived from the presence of data, or can be managed within the mapper
+        Sixfold(recentCounters, countersCount, categories, categoriesCount, recentCounters.isEmpty(), categories.isEmpty()).toHomeUiState()
     }
         .onStart { emit(HomeUiState(isLoadingCounters = true, isLoadingCategories = true)) } // Initial loading state
         .stateIn(
@@ -132,16 +131,8 @@ class HomeViewModel @Inject constructor(
         activeCounter?.increment()
         val updatedCounter = activeCounter!!
 
-        // Optimistically update the UI state
-        _uiState.update { currentState ->
-            val updatedList = currentState.recentCounters.map { 
-                if (it.counter.id == updatedCounter.id) it.copy(counter = it.counter.copy(currentCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt)) else it
-            }
-            currentState.copy(recentCounters = updatedList)
-        }
-
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt))
         }
         scheduleInteractionEnd(updatedCounter)
     }
@@ -154,16 +145,8 @@ class HomeViewModel @Inject constructor(
         activeCounter?.decrement()
         val updatedCounter = activeCounter!!
 
-        // Optimistically update the UI state
-        _uiState.update { currentState ->
-            val updatedList = currentState.recentCounters.map { 
-                if (it.counter.id == updatedCounter.id) it.copy(counter = it.counter.copy(currentCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt)) else it
-            }
-            currentState.copy(recentCounters = updatedList)
-        }
-
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt))
         }
         scheduleInteractionEnd(updatedCounter)
     }

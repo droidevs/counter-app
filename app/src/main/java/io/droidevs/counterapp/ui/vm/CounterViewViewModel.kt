@@ -30,9 +30,13 @@ class CounterViewViewModel @Inject constructor(
     val event = _event.asSharedFlow()
 
     val uiState: StateFlow<CounterViewUiState> = flow {
-        val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
-            ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
-        emit(initialCounter)
+        val initialCounterId: String = savedStateHandle.get<CounterSnapshotParcelable>("counter")
+            ?.id ?: throw IllegalArgumentException("Counter argument is required")
+        // Fetch the counter from the database using its ID
+        counterUseCases.getCounter(initialCounterId)
+            .collect { domainCounter ->
+                domainCounter?.let { emit(it.toUiModel()) }
+            }
     }
         .map { it.toViewUiState(isLoading = false) }
         .onStart { emit(CounterViewUiState(isLoading = true)) } // Initial loading state
@@ -61,43 +65,38 @@ class CounterViewViewModel @Inject constructor(
     private fun increment() {
         val currentCounter = uiState.value.counter ?: return
         if (!currentCounter.canIncrease) return
-        
-        val updated = currentCounter.copy(
-            currentCount = currentCounter.currentCount + 1,
-            lastUpdatedAt = java.time.Instant.now()
-        )
-        _uiState.update { it.copy(counter = updated) }
-        save(updated)
+
+        viewModelScope.launch {
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = currentCounter.id,
+                    newCount = currentCounter.currentCount + 1
+                )
+            )
+        }
     }
 
     private fun decrement() {
         val currentCounter = uiState.value.counter ?: return
         if (!currentCounter.canDecrease) return
-        
-        val updated = currentCounter.copy(
-            currentCount = currentCounter.currentCount - 1,
-            lastUpdatedAt = java.time.Instant.now()
-        )
-        _uiState.update { it.copy(counter = updated) }
-        save(updated)
+
+        viewModelScope.launch {
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = currentCounter.id,
+                    newCount = currentCounter.currentCount - 1
+                )
+            )
+        }
     }
 
     private fun reset() {
         val currentCounter = uiState.value.counter ?: return
-        val updated = currentCounter.copy(
-            currentCount = 0,
-            lastUpdatedAt = java.time.Instant.now()
-        )
-        _uiState.update { it.copy(counter = updated) }
-        save(updated)
-    }
-
-    private fun save(counter: CounterUiModel) {
         viewModelScope.launch {
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    counterId = counter.id,
-                    newCount = counter.currentCount
+                    counterId = currentCounter.id,
+                    newCount = 0
                 )
             )
         }
