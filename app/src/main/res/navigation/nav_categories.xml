@@ -41,11 +41,7 @@
     <fragment
         android:id="@+id/createCategoryFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CreateCategoryFragment"
-        android:label="Create Category">
-        <argument
-            android:name="categoryId"
-            app:argType="string" />
-    </fragment>
+        android:label="Create Category"/>
 
 
 </navigation>

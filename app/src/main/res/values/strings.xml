@@ -92,6 +92,7 @@
         Create a counter in this category to begin tracking.
     </string>
     <string name="settings">Settings\n</string>
+    <string name="counters_count_label" />
 
 
 </resources>

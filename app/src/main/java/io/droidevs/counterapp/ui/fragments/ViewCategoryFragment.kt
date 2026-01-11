@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import io.droidevs.counterapp.NavRootDirections
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
@@ -69,9 +70,9 @@ class ViewCategoryFragment : Fragment() {
                     viewModel.uiState.collect { state ->
                         state.category?.let {
                             binding.tvCategoryName.text = it.name
-                            binding.tvCountersCount.text = getString(R.string.counters_count_label, it.countersCount)
+                            binding.tvCountersCount.text = it.countersCount.toString()
                         }
-                        
+
                         adapter.submitList(state.counters)
                         
                         if (state.showEmptyState) {
@@ -98,7 +99,10 @@ class ViewCategoryFragment : Fragment() {
                             }
                             is CategoryViewEvent.NavigateToCreateCounter -> {
                                 findNavController().navigate(
-                                    ViewCategoryFragmentDirections.actionCategoryViewToCounterCreate(
+                                    NavRootDirections.actionToCountersGraph()
+                                )
+                                findNavController().navigate(
+                                    CounterListFragmentDirections.actionCounterListToCounterCreate(
                                         event.categoryId
                                     )
                                 )
