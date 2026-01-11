@@ -2,6 +2,7 @@ package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
@@ -25,13 +26,20 @@ class CreateCounterViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
 
-    private val initialCategoryId: String? = savedStateHandle.get<String>("categoryId")
+    // Single model data class
+    data class EditModel(
+        val name: String = "",
+        val canIncrease: Boolean = true,
+        val canDecrease: Boolean = false,
+        val selectedCategoryId: String = "",
+        val isSaving: Boolean = false
+    )
 
-    private val _name = MutableStateFlow("")
-    private val _canIncrease = MutableStateFlow(true)
-    private val _canDecrease = MutableStateFlow(false)
-    private val _selectedCategoryId = MutableStateFlow(initialCategoryId)
-    private val _isSaving = MutableStateFlow(false)
+    private val initialCategoryId: String = savedStateHandle.get<String>("categoryId")
+        ?: ""
+
+    // Single MutableStateFlow for the entire model
+    private val _editModel = MutableStateFlow(EditModel(selectedCategoryId = initialCategoryId))
 
     private val _event = MutableSharedFlow<CreateCounterEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<CreateCounterEvent> = _event.asSharedFlow()
@@ -40,21 +48,15 @@ class CreateCounterViewModel @Inject constructor(
         .map { categories -> categories.map { it.toUiModel() } }
         .onStart { emit(emptyList()) } // Emit empty list initially
 
+    // Combine the single model state flow with categories
     val uiState: StateFlow<CreateCounterUiState> = combine(
-        _name,
-        _canIncrease,
-        _canDecrease,
-        _selectedCategoryId,
-        _categoriesFlow,
-        _isSaving
-    ) { name, canIncrease, canDecrease, categoryId, categories, isSaving ->
-        CreateCounterUiState(
-            name = name,
-            canIncrease = canIncrease,
-            canDecrease = canDecrease,
-            categoryId = categoryId,
+        _editModel,
+        _categoriesFlow
+    ) { editModel, categories ->
+        Triple(editModel.name, editModel.canIncrease, editModel.canDecrease).toCreateCounterUiState(
+            categoryId = editModel.selectedCategoryId,
             categories = categories,
-            isSaving = isSaving
+            isSaving = editModel.isSaving
         )
     }.stateIn(
         scope = viewModelScope,
@@ -65,16 +67,16 @@ class CreateCounterViewModel @Inject constructor(
     fun onAction(action: CreateCounterAction) {
         when (action) {
             is CreateCounterAction.NameChanged -> {
-                _name.value = action.name
+                _editModel.update { it.copy(name = action.name) }
             }
             is CreateCounterAction.CanIncreaseChanged -> {
-                _canIncrease.value = action.canIncrease
+                _editModel.update { it.copy(canIncrease = action.canIncrease) }
             }
             is CreateCounterAction.CanDecreaseChanged -> {
-                _canDecrease.value = action.canDecrease
+                _editModel.update { it.copy(canDecrease = action.canDecrease) }
             }
             is CreateCounterAction.CategorySelected -> {
-                _selectedCategoryId.value = action.categoryId
+                _editModel.update { it.copy(selectedCategoryId = action.categoryId.toString()) }
             }
             CreateCounterAction.SaveClicked -> saveCounter()
         }
@@ -92,7 +94,9 @@ class CreateCounterViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _isSaving.value = true
+            // Update isSaving in the model
+            _editModel.update { it.copy(isSaving = true) }
+
             val counter = Counter(
                 name = name,
                 currentCount = 0,
@@ -103,8 +107,12 @@ class CreateCounterViewModel @Inject constructor(
                 lastUpdatedAt = Instant.now(),
                 orderAnchorAt = Instant.now()
             )
+
             counterUseCases.createCounter(CreateCounterRequest.of(counter))
-            _isSaving.value = false
+
+            // Reset isSaving
+            _editModel.update { it.copy(isSaving = false) }
+
             _event.emit(CreateCounterEvent.CounterCreated(name))
             _event.emit(CreateCounterEvent.NavigateBack)
         }

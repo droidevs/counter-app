@@ -10,6 +10,7 @@ import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toCounterBehaviorPreferenceUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine

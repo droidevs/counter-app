@@ -26,7 +26,6 @@ class DisplayPreferencesViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val event: SharedFlow<DisplayPreferenceEvent> = _event.asSharedFlow()
-
     val uiState: StateFlow<DisplayPreferenceUiState> = combine(
         useCases.getTheme(),
         useCases.getHideControls(),

@@ -90,4 +90,8 @@ class CounterRepositoryImpl(
     override suspend fun updateSystemCounter(counterKey: String, count: Int) {
         dao.updateSystemCounter(counterKey, count)
     }
+
+    override suspend fun deleteAllCounters() {
+        dao.deleteAll()
+    }
 }

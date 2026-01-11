@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
-import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
@@ -87,7 +87,7 @@ class CounterEditViewModel @Inject constructor(
                     newName = currentCounter.name,
                     newCategoryId = currentCounter.categoryId,
                     newCount = currentCounter.currentCount,
-                    canIncrease = currentCouncilncrease,
+                    canIncrease = currentCounter.canIncrease,
                     canDecrease = currentCounter.canDecrease
                 )
             )

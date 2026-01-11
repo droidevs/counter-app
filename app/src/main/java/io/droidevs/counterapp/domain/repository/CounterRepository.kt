@@ -37,4 +37,6 @@ interface CounterRepository {
         count: Int
     )
 
+    suspend fun deleteAllCounters()
+
 }

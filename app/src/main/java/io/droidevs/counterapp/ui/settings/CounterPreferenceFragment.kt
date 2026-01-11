@@ -7,13 +7,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
+import com.google.android.material.snackbar.Snackbar
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.CounterPreferencesViewModel
+import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
 import kotlinx.coroutines.launch
 
 class CounterPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: CounterPreferencesViewModel by viewModels()
+    private var isInitializing = true
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.counter_preferences, rootKey)
@@ -23,61 +27,74 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
         val minPref = findPreference<EditTextPreference>("minimum_value")
         val maxPref = findPreference<EditTextPreference>("maximum_value")
 
-        // Observe ViewModel → update UI
+        // Observe ViewModel UI State → update UI
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.incrementStep.collect { value ->
-                    incrementPref?.text = value.toString()
+                viewModel.uiState.collect { state ->
+                    if (isInitializing) {
+                        // Set initial values without triggering listeners
+                        incrementPref?.text = state.counterIncrementStep.toString()
+                        defaultPref?.text = state.defaultCounterValue.toString()
+                        minPref?.text = state.minimumCounterValue?.toString() ?: ""
+                        maxPref?.text = state.maximumCounterValue?.toString() ?: ""
+                        isInitializing = false
+                    }
                 }
             }
         }
 
+        // Observe events for showing messages
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.defaultValue.collect { value ->
-                    defaultPref?.text = value.toString()
+                viewModel.event.collect { event ->
+                    when (event) {
+                        is CounterBehaviorPreferenceEvent.ShowMessage -> {
+                            // Show snackbar or toast
+                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.minimumValue.collect { value ->
-                    minPref?.text = value?.toString() ?: ""
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.maximumValue.collect { value ->
-                    maxPref?.text = value?.toString() ?: ""
-                }
-            }
-        }
-
-        // User changes → send to ViewModel
+        // User changes → send to ViewModel via onAction
         incrementPref?.setOnPreferenceChangeListener { _, newValue ->
-            val step = (newValue as? String)?.toIntOrNull() ?: 1
-            viewModel.setIncrementStep(step.coerceAtLeast(1))
+            if (!isInitializing) {
+                val step = (newValue as? String)?.toIntOrNull() ?: 1
+                viewModel.onAction(
+                    CounterBehaviorPreferenceAction.SetCounterIncrementStep(step.coerceAtLeast(1))
+                )
+            }
             true
         }
 
         defaultPref?.setOnPreferenceChangeListener { _, newValue ->
-            val value = (newValue as? String)?.toIntOrNull() ?: 0
-            viewModel.setDefaultValue(value)
+            if (!isInitializing) {
+                val value = (newValue as? String)?.toIntOrNull() ?: 0
+                viewModel.onAction(
+                    CounterBehaviorPreferenceAction.SetDefaultCounterValue(value)
+                )
+            }
             true
         }
 
         minPref?.setOnPreferenceChangeListener { _, newValue ->
-            val min = (newValue as? String)?.toIntOrNull()
-            viewModel.setMinimumValue(min)
+            if (!isInitializing) {
+                val min = (newValue as? String)?.toIntOrNull()
+                viewModel.onAction(
+                    CounterBehaviorPreferenceAction.SetMinimumCounterValue(min)
+                )
+            }
             true
         }
 
         maxPref?.setOnPreferenceChangeListener { _, newValue ->
-            val max = (newValue as? String)?.toIntOrNull()
-            viewModel.setMaximumValue(max)
+            if (!isInitializing) {
+                val max = (newValue as? String)?.toIntOrNull()
+                viewModel.onAction(
+                    CounterBehaviorPreferenceAction.SetMaximumCounterValue(max)
+                )
+            }
             true
         }
     }

@@ -7,5 +7,7 @@ sealed class CounterListAction {
     data class DecrementCounter(val counter: CounterUiModel) : CounterListAction()
     data class VisibleItemsChanged(val items: Set<CounterUiModel>) : CounterListAction()
     object AddCounterClicked : CounterListAction()
+
+    data class CounterClicked(val counter: CounterUiModel) : CounterListAction()
     object FlushAllPendingReorders : CounterListAction()
 }

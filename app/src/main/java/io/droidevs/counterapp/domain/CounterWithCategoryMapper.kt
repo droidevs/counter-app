@@ -31,7 +31,7 @@ fun CounterWithCategoryUiModel.toDomain() : CounterWithCategory {
 
 fun CounterWithCategory.toUiModel() : CounterWithCategoryUiModel {
     return CounterWithCategoryUiModel(
-        counter = counter.toSnapshot(),
+        counter = counter.toUiModel(),
         category = category?.toUiModel()
     )
 }

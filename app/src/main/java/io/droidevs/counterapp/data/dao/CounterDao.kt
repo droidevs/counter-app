@@ -48,6 +48,9 @@ interface CounterDao {
     @Delete
     suspend fun delete(counter: CounterEntity)
 
+    @Query("DELETE FROM counters")
+    suspend fun deleteAll()
+
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY order_anchor_at DESC")
     fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
 

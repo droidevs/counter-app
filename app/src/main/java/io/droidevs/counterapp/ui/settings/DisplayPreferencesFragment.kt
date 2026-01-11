@@ -8,14 +8,18 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.snackbar.Snackbar
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.ui.vm.DisplayPreferencesViewModel
+import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import kotlinx.coroutines.launch
 
 class DisplayPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: DisplayPreferencesViewModel by viewModels()
+    private var isInitializing = true
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.display_preferences, rootKey)
@@ -26,78 +30,77 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         val keepScreenOnPref = findPreference<SwitchPreferenceCompat>("keep_screen_on")
         val showLabelsPref = findPreference<SwitchPreferenceCompat>("show_labels")
 
-        // Observe ViewModel → UI (two-way binding)
+        // Observe ViewModel UI State → update UI
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.theme.collect { theme ->
-                    themePref?.value = when (theme) {
-                        Theme.SYSTEM -> "system"
-                        Theme.LIGHT  -> "light"
-                        Theme.DARK   -> "dark"
-                        Theme.AUTO -> "auto"
+                viewModel.uiState.collect { state ->
+                    if (isInitializing) {
+                        // Set initial values without triggering listeners
+                        themePref?.value = when (state.theme) {
+                            Theme.SYSTEM -> "system"
+                            Theme.LIGHT  -> "light"
+                            Theme.DARK   -> "dark"
+                            Theme.AUTO -> "auto"
+                        }
+                        hideControlsPref?.isChecked = state.hideControls
+                        hideLastUpdatePref?.isChecked = state.hideLastUpdate
+                        keepScreenOnPref?.isChecked = state.keepScreenOn
+                        showLabelsPref?.isChecked = state.showLabels
+                        isInitializing = false
                     }
                 }
             }
         }
 
+        // Observe events for showing messages
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.hideControls.collect { hide ->
-                    hideControlsPref?.isChecked = hide
+                viewModel.event.collect { event ->
+                    when (event) {
+                        is DisplayPreferenceEvent.ShowMessage -> {
+                            // Show snackbar or toast
+                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.hideLastUpdate.collect { hide ->
-                    hideLastUpdatePref?.isChecked = hide
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.keepScreenOn.collect { keep ->
-                    keepScreenOnPref?.isChecked = keep
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.showLabels.collect { show ->
-                    showLabelsPref?.isChecked = show
-                }
-            }
-        }
-
-        // User changes → ViewModel
+        // User changes → send to ViewModel via onAction
         themePref?.setOnPreferenceChangeListener { _, newValue ->
-            val themeString = newValue as String
-
-            val theme = Theme.getCurrent(id = themeString) ?: Theme.SYSTEM
-            viewModel.setTheme(theme)
+            if (!isInitializing) {
+                val themeString = newValue as String
+                val theme = Theme.getCurrent(id = themeString) ?: Theme.SYSTEM
+                viewModel.onAction(DisplayPreferenceAction.SetTheme(theme))
+            }
             true
         }
 
         hideControlsPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setHideControls(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(DisplayPreferenceAction.SetHideControls(newValue as Boolean))
+            }
             true
         }
 
         hideLastUpdatePref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setHideLastUpdate(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(DisplayPreferenceAction.SetHideLastUpdate(newValue as Boolean))
+            }
             true
         }
 
         keepScreenOnPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setKeepScreenOn(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(DisplayPreferenceAction.SetKeepScreenOn(newValue as Boolean))
+            }
             true
         }
 
         showLabelsPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setShowLabels(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(DisplayPreferenceAction.SetShowLabels(newValue as Boolean))
+            }
             true
         }
     }

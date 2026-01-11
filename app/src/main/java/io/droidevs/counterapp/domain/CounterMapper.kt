@@ -4,7 +4,7 @@ import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.ui.models.CounterUiModel
 
 
-fun Counter.toSnapshot(): CounterUiModel {
+fun Counter.toUiModel(): CounterUiModel {
     return CounterUiModel(
         id = id,
         name = name,

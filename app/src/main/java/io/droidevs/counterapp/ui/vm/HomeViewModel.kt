@@ -13,6 +13,7 @@ import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
+import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import io.droidevs.counterapp.ui.vm.states.HomeUiState
 import io.droidevs.counterapp.ui.vm.mappers.toHomeUiState
 import kotlinx.coroutines.Job
@@ -47,7 +48,10 @@ class HomeViewModel @Inject constructor(
             .onStart { emit(0) }
     ) { recentCounters, countersCount, categories, categoriesCount ->
         // The isLoading states are now derived from the presence of data, or can be managed within the mapper
-        Sixfold(recentCounters, countersCount, categories, categoriesCount, recentCounters.isEmpty(), categories.isEmpty()).toHomeUiState()
+        Quadruple(countersCount, categoriesCount, recentCounters.isEmpty(), categories.isEmpty()).toHomeUiState(
+            recentCounters = recentCounters,
+            categories = categories
+        )
     }
         .onStart { emit(HomeUiState(isLoadingCounters = true, isLoadingCategories = true)) } // Initial loading state
         .stateIn(
@@ -104,20 +108,17 @@ class HomeViewModel @Inject constructor(
 
     private fun finishInteraction(counter: Counter) {
         Log.i("HomeViewModel", "finishInteraction: ${counter.currentCount}")
-        val updatedCounter = counter.copy(
-            orderAnchorAt = Instant.now()
-        )
+
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, orderAnchorAt = updatedCounter.orderAnchorAt))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counter.id, newCount = counter.currentCount, orderAnchorAt = Instant.now()))
         }
         activeCounter = null
     }
 
     private fun flushInteraction(counter: Counter) {
         interactionJob?.cancel()
-        val updatedCounter = counter.copy(orderAnchorAt = Instant.now())
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, orderAnchorAt = updatedCounter.orderAnchorAt))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counter.id, newCount = counter.currentCount, orderAnchorAt = Instant.now()))
         }
     }
 

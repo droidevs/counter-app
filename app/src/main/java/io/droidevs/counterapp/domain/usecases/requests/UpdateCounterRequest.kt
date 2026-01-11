@@ -8,6 +8,8 @@ data class UpdateCounterRequest(
     val newName: String? = null,
     val newCategoryId: String? = null,
     val newCount: Int? = null,
+    val canIncrease: Boolean? = null,
+    val canDecrease: Boolean? = null,
     val lastUpdatedAt: Instant? = null,
     val orderAnchorAt: Instant? = null
 ) {
@@ -17,8 +19,10 @@ data class UpdateCounterRequest(
             newName: String? = null,
             newCategoryId: String? = null,
             newCount: Int? = null,
+            canDecrease: Boolean? = null,
+            canIncrease: Boolean? = null,
             lastUpdatedAt: Instant? = null,
             orderAnchorAt: Instant? = null
-        ) = UpdateCounterRequest(counterId, newName, newCategoryId, newCount, lastUpdatedAt, orderAnchorAt)
+        ) = UpdateCounterRequest(counterId, newName, newCategoryId, newCount, canIncrease, canDecrease, lastUpdatedAt, orderAnchorAt)
     }
 }

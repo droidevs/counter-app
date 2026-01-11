@@ -124,4 +124,18 @@
     <string name="settings_homepage_title">Homepage</string>
     <string name="unknown_version">Unknown</string>
     <string name="settings_version_title">Version</string>
+
+    <string name="remove_counters">Remove Counters</string>
+    <string name="remove_counters_confirmation">This will permanently delete all your counters. This action cannot be undone.</string>
+    <string name="remove">Remove</string>
+
+    <string name="empty_categories_title">No categories yet</string>
+    <string name="empty_categories_message">Create your first category to organize counters</string>
+    <string name="action_create_category">Create category</string>
+
+    <string name="empty_category_counters_title">No counters in this category</string>
+    <string name="empty_category_counters_message">Add counters to this category to start tracking</string>
+
+    <string name="action_create_counter">Create counter</string>
+    <string name="loading">Loading...</string>
 </resources>

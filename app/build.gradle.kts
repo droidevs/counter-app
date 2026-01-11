@@ -84,4 +84,6 @@ dependencies {
     ksp(libs.dagger.compiler)
     implementation("com.google.dagger:hilt-android:2.57.2")
     ksp("com.google.dagger:hilt-compiler:2.57.2")
+
+    implementation("com.google.code.gson:gson:2.10.1")
 }

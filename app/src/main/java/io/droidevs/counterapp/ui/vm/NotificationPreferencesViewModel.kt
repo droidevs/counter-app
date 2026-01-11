@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.NotificationPreferenceUseCases
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
+import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import io.droidevs.counterapp.ui.vm.states.NotificationPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toNotificationPreferenceUiState
 import kotlinx.coroutines.flow.*

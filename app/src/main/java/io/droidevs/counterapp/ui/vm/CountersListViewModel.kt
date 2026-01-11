@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.domain.toParcelable
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
@@ -51,6 +50,11 @@ class CountersListViewModel @Inject constructor(
             CounterListAction.AddCounterClicked -> {
                 viewModelScope.launch {
                     _event.emit(CounterListEvent.NavigateToCreateCounter)
+                }
+            }
+            is CounterListAction.CounterClicked -> {
+                viewModelScope.launch {
+                    _event.emit(CounterListEvent.NavigateToCounterView(action.counter.id))
                 }
             }
             CounterListAction.FlushAllPendingReorders -> flushAllPendingReorders()

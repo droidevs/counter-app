@@ -8,13 +8,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.snackbar.Snackbar
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.NotificationsPreferencesViewModel
+import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import kotlinx.coroutines.launch
 
 class NotificationPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: NotificationsPreferencesViewModel by viewModels()
+    private var isInitializing = true
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.notification_preferences, rootKey)
@@ -24,57 +28,70 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
         val soundPref = findPreference<ListPreference>("notification_sound")
         val vibrationPref = findPreference<ListPreference>("vibration_pattern")
 
-        // Observe ViewModel → UI (two-way binding)
+        // Observe ViewModel UI State → update UI
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.counterLimitNotification.collect { enabled ->
-                    limitNotifPref?.isChecked = enabled
+                viewModel.uiState.collect { state ->
+                    if (isInitializing) {
+                        // Set initial values without triggering listeners
+                        limitNotifPref?.isChecked = state.counterLimitNotification
+                        dailySummaryPref?.isChecked = state.dailySummaryNotification
+                        soundPref?.value = state.notificationSound
+                        vibrationPref?.value = state.notificationVibrationPattern
+                        isInitializing = false
+                    }
                 }
             }
         }
 
+        // Observe events for showing messages
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dailySummaryNotification.collect { enabled ->
-                    dailySummaryPref?.isChecked = enabled
+                viewModel.event.collect { event ->
+                    when (event) {
+                        is NotificationPreferenceEvent.ShowMessage -> {
+                            // Show snackbar or toast
+                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.notificationSound.collect { sound ->
-                    soundPref?.value = sound
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.vibrationPattern.collect { pattern ->
-                    vibrationPref?.value = pattern
-                }
-            }
-        }
-
-        // User changes → ViewModel
+        // User changes → send to ViewModel via onAction
         limitNotifPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setCounterLimitNotification(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(
+                    NotificationPreferenceAction.SetCounterLimitNotification(newValue as Boolean)
+                )
+            }
             true
         }
 
         dailySummaryPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setDailySummaryNotification(newValue as Boolean)
+            if (!isInitializing) {
+                viewModel.onAction(
+                    NotificationPreferenceAction.SetDailySummaryNotification(newValue as Boolean)
+                )
+            }
             true
         }
 
         soundPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setNotificationSound(newValue as String)
+            if (!isInitializing) {
+                viewModel.onAction(
+                    NotificationPreferenceAction.SetNotificationSound(newValue as String)
+                )
+            }
             true
         }
 
         vibrationPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setNotificationVibrationPattern(newValue as String)
+            if (!isInitializing) {
+                viewModel.onAction(
+                    NotificationPreferenceAction.SetNotificationVibrationPattern(newValue as String)
+                )
+            }
             true
         }
     }

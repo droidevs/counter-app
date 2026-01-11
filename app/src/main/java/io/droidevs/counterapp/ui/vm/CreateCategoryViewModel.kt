@@ -71,11 +71,7 @@ class CreateCategoryViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isSaving.value = true
-            val category = Category(
-                name = name,
-                color = CategoryColor(colorInt = _selectedColor.value)
-            )
-            categoryUseCases.createCategory(CreateCategoryRequest.of(category))
+            categoryUseCases.createCategory(CreateCategoryRequest.of(name = name, color = _selectedColor.value))
             _isSaving.value = false
             _event.emit(CreateCategoryEvent.CategoryCreated(name))
             _event.emit(CreateCategoryEvent.NavigateBack)

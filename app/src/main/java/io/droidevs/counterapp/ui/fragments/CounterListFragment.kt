@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,7 +22,6 @@ import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
-import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
@@ -98,7 +98,7 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
 
     private fun observeUiState() {
         viewModel.uiState.onEach { uiState ->
-            binding.progress.isVisible = uiState.isLoading
+            // todo : binding.progressBar.isVisible = uiState.isLoading
             if (!uiState.isLoading) {
                 if (uiState.counters.isEmpty()) {
                     binding.rvCounters.isVisible = false
@@ -123,6 +123,17 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
             when (event) {
                 is CounterListEvent.NavigateToCreateCounter -> {
                     findNavController().navigate(R.id.action_counterList_to_counterCreate)
+                }
+
+                is CounterListEvent.NavigateToCounterView -> {
+                    findNavController().navigate(
+                        CounterListFragmentDirections.actionCounterListToCounterView(
+                            event.counterId
+                        )
+                    )
+                }
+                is CounterListEvent.ShowMessage -> {
+                    Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
@@ -153,19 +164,11 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_main, menu)
         menu.findItem(R.id.menu_settings)?.isVisible = true
-        menu.findItem(R.id.menu_delete)?.isVisible = false
-        menu.findItem(R.id.menu_edit)?.isVisible = false
-        menu.findItem(R.id.menu_save)?.isVisible = false
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onCounterClick(counter: CounterUiModel) {
-        findNavController().navigate(
-            CounterListFragmentDirections.actionCounterListToCounterView(
-                counter.toParcelable()
-            )
-        )
+        viewModel.onAction(CounterListAction.CounterClicked(counter))
     }
 }

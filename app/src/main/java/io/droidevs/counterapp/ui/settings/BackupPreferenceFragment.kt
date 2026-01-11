@@ -9,8 +9,11 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.snackbar.Snackbar
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.BackupPreferenceViewModel
+import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
 import kotlinx.coroutines.launch
 
 class BackupPreferencesFragment : PreferenceFragmentCompat() {
@@ -24,38 +27,48 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
         val intervalPref = findPreference<ListPreference>("backup_interval")
         val exportPref = findPreference<Preference>("manual_export")
 
-        // Observe ViewModel → UI
+        // Observe ViewModel UI State
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.autoBackup.collect { enabled ->
-                    autoBackupPref?.isChecked = enabled
+                viewModel.uiState.collect { state ->
+                    // Update preferences based on state
+                    autoBackupPref?.isChecked = state.autoBackup
+                    intervalPref?.value = state.backupInterval.toString()
                 }
             }
         }
 
+        // Observe events
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.backupInterval.collect { hours ->
-                    intervalPref?.value = hours.toString()
+                viewModel.event.collect { event ->
+                    when (event) {
+                        is BackupPreferenceEvent.ShowMessage -> {
+                            // Show snackbar or toast
+                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
+                        }
+                        BackupPreferenceEvent.ExportTriggered -> {
+                            // Handle export
+                        }
+                    }
                 }
             }
         }
 
         // User changes → ViewModel
         autoBackupPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setAutoBackup(newValue as Boolean)
+            viewModel.onAction(BackupPreferenceAction.SetAutoBackup(newValue as Boolean))
             true
         }
 
         intervalPref?.setOnPreferenceChangeListener { _, newValue ->
             val hours = (newValue as? String)?.toLongOrNull() ?: 24L
-            viewModel.setBackupInterval(hours)
+            viewModel.onAction(BackupPreferenceAction.SetBackupInterval(hours))
             true
         }
 
-        // Optional manual export
         exportPref?.setOnPreferenceClickListener {
-            viewModel.triggerManualExport()
+            viewModel.onAction(BackupPreferenceAction.TriggerManualExport)
             true
         }
     }
