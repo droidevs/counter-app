@@ -27,6 +27,9 @@
     <string name="settings_keep_on_title">Keep the screen on</string>
     <string name="settings_keep_on_summary">Keep the screen on while app is active</string>
     <string name="settings_controls">Controls</string>
+    <string name="settings_counter">Counter</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_backup">Backup</string>
     <string name="settings_hide_controls_title">Hide the buttons</string>
     <string name="settings_hide_controls_summary">You might want to turn on volume buttons use or the tap to increment option</string>
     <string name="settings_sounds_title">Turn on sounds</string>

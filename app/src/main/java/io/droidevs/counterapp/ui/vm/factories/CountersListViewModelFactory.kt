@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 
+@Deprecated("Use Hilt injection with @HiltViewModel instead")
 class CountersListViewModelFactory(
     private val counterUseCases: CounterUseCases
 ) : ViewModelProvider.Factory {

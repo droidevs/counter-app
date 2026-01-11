@@ -74,7 +74,10 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
 
         // User changes → ViewModel
         themePref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.setTheme(Theme.valueOf(newValue as String))
+            val themeString = newValue as String
+
+            val theme = Theme.getCurrent(id = themeString) ?: Theme.SYSTEM
+            viewModel.setTheme(theme)
             true
         }
 

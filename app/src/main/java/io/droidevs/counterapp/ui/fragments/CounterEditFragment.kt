@@ -11,42 +11,27 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.toParcelable
-import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
-import io.droidevs.counterapp.ui.vm.factories.CounterEditViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CounterEditFragment : Fragment() {
 
     lateinit var binding : FragmentCounterEditBinding
 
-    private lateinit var viewModel : CounterEditViewModel
-
+    private val viewModel : CounterEditViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val counter = requireArguments()
-            .getParcelable<CounterSnapshotParcelable>(ARG_COUNTER)!!
-            .toUiModel()
-
-        viewModel = ViewModelProvider(
-            this,
-            CounterEditViewModelFactory(
-                initialCounter = counter,
-                counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases
-            )
-        )[CounterEditViewModel::class.java]
-
         setHasOptionsMenu(true)
     }
 

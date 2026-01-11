@@ -3,6 +3,7 @@ package io.droidevs.counterapp.ui.vm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
@@ -16,8 +17,10 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.time.Instant
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import javax.inject.Inject
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {

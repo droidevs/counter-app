@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.adapter.HomeCategoryAdapter
 import io.droidevs.counterapp.ui.adapter.HomeCounterAdapter
@@ -21,20 +20,15 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.toParcelable
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.ui.vm.HomeViewModel
-import io.droidevs.counterapp.ui.vm.factories.HomeViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-
-    private val viewModel: HomeViewModel by viewModels {
-        HomeViewModelFactory(
-            counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases,
-            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
-        )
-    }
+    private val viewModel: HomeViewModel by viewModels()
 
     lateinit var binding : FragmentHomeBinding
 

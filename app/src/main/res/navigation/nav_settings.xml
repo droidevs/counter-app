@@ -8,5 +8,61 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="io.droidevs.counterapp.ui.SettingsFragment"
-        android:label="Settings" />
+        android:label="Settings">
+        
+        <action
+            android:id="@+id/action_to_hardware_preferences"
+            app:destination="@id/hardwarePreferencesFragment" />
+        
+        <action
+            android:id="@+id/action_to_display_preferences"
+            app:destination="@id/displayPreferencesFragment" />
+        
+        <action
+            android:id="@+id/action_to_counter_preferences"
+            app:destination="@id/counterPreferencesFragment" />
+        
+        <action
+            android:id="@+id/action_to_notification_preferences"
+            app:destination="@id/notificationPreferencesFragment" />
+        
+        <action
+            android:id="@+id/action_to_backup_preferences"
+            app:destination="@id/backupPreferencesFragment" />
+        
+        <action
+            android:id="@+id/action_to_other_preferences"
+            app:destination="@id/otherPreferencesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hardwarePreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.HardwarePreferencesFragment"
+        android:label="@string/settings_controls" />
+
+    <fragment
+        android:id="@+id/displayPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.DisplayPreferencesFragment"
+        android:label="@string/settings_display" />
+
+    <fragment
+        android:id="@+id/counterPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.CounterPreferencesFragment"
+        android:label="@string/settings_counter" />
+
+    <fragment
+        android:id="@+id/notificationPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.NotificationPreferencesFragment"
+        android:label="@string/settings_notifications" />
+
+    <fragment
+        android:id="@+id/backupPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.BackupPreferencesFragment"
+        android:label="@string/settings_backup" />
+
+    <fragment
+        android:id="@+id/otherPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.OtherPreferencesFragment"
+        android:label="@string/settings_other" />
+
 </navigation>

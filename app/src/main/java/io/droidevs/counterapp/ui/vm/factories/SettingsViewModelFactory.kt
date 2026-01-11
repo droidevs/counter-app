@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.repository.SettingsRepository
 import io.droidevs.counterapp.ui.vm.SettingsViewModel
 
+@Deprecated("Use Hilt injection with @HiltViewModel instead")
 class SettingsViewModelFactory(
     private val repo: SettingsRepository
 ) : ViewModelProvider.Factory {

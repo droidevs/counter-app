@@ -10,39 +10,28 @@ import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
-import io.droidevs.counterapp.ui.vm.factories.CategoryViewViewModelFactory
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ViewCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentViewCategoryBinding
     private lateinit var adapter: CategoryCountersAdapter
 
-    private lateinit var viewModel : CategoryViewViewModel
+    private val viewModel : CategoryViewViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val categoryId = requireArguments().getString(ARG_CATEGORY_ID)!!
-
-        viewModel = ViewModelProvider(
-            this,
-            factory = CategoryViewViewModelFactory(
-                categoryId = categoryId,
-                repository = (requireActivity().application as CounterApp).categoryRepository
-            )
-        )[CategoryViewViewModel::class.java]
-
         setHasOptionsMenu(true)
     }
     override fun onCreateView(

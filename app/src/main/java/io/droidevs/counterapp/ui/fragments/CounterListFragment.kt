@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
@@ -26,18 +26,14 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
-import io.droidevs.counterapp.ui.vm.factories.CountersListViewModelFactory
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CounterListFragment : Fragment() , OnCounterClickListener {
 
     lateinit var binding: FragmentCounterListBinding
 
-    private val viewModel : CountersListViewModel by viewModels {
-        CountersListViewModelFactory(
-            (requireActivity().application as CounterApp).useCases.counterUseCases
-        )
-    }
+    private val viewModel : CountersListViewModel by viewModels()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAdd: FloatingActionButton

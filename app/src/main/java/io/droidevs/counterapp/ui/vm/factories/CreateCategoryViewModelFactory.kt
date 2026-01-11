@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 
+@Deprecated("Use Hilt injection with @HiltViewModel instead")
 class CreateCategoryViewModelFactory(
     private val categoryUseCases: CategoryUseCases
 ) : ViewModelProvider.Factory {

@@ -13,40 +13,28 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.toParcelable
-import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
-import io.droidevs.counterapp.ui.vm.factories.CounterViewModelFactory
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
     lateinit var binding : FragmentCounterViewBinding
-    private lateinit var viewModel: CounterViewViewModel
+    private val viewModel: CounterViewViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val counter = (arguments?.getParcelable<CounterSnapshotParcelable>(ARG_COUNTER) as CounterSnapshotParcelable)
-            .toUiModel()
-        viewModel = ViewModelProvider(
-            this,
-            CounterViewModelFactory(
-                counter = counter,
-                counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases
-            )
-        )[CounterViewViewModel::class.java]
-
         setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way
-
     }
 
     override fun onCreateView(

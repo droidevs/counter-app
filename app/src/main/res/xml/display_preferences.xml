@@ -11,19 +11,19 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_brightness"
-            android:key="keepScreenOn"
+            android:key="keep_screen_on"
             android:summary="@string/settings_keep_on_summary"
             android:title="@string/settings_keep_on_title" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_display"
-            android:key="hideControls"
+            android:key="hide_controls"
             android:summary="@string/settings_hide_controls_summary"
             android:title="@string/settings_hide_controls_title" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_time"
-            android:key="hideLastUpdate"
+            android:key="hide_last_update"
             android:title="@string/settings_hide_last_update_title" />
 
         <SwitchPreferenceCompat

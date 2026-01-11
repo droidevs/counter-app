@@ -1,12 +1,15 @@
 package io.droidevs.counterapp.ui.vm
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.data.SettingKeys
 import io.droidevs.counterapp.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class SettingsViewModel(
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
     private val repo: SettingsRepository
 ) : ViewModel() {
 

@@ -1,18 +1,25 @@
 package io.droidevs.counterapp.ui.vm
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
 import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithCountersRequest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CategoryViewViewModel(
-    val categoryId: String,
+@HiltViewModel
+class CategoryViewViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val categoryUseCases: CategoryUseCases
 ) : ViewModel() {
+
+    val categoryId: String = savedStateHandle.get<String>("categoryId")
+        ?: throw IllegalArgumentException("CategoryId argument is required")
 
     val category = categoryUseCases.getCategoryWithCounters(
         GetCategoryWithCountersRequest(categoryId = categoryId)

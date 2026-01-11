@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
@@ -19,20 +19,16 @@ import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CA
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CategoryListViewModel
-import io.droidevs.counterapp.ui.vm.factories.CategoryListViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CategoryListFragment : Fragment() {
 
     private lateinit var binding: FragmentCategoryListBinding
     private lateinit var adapter: CategoryListAdapter
 
-    private val viewModel : CategoryListViewModel by viewModels {
-        CategoryListViewModelFactory(
-            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
-        )
-    }
+    private val viewModel : CategoryListViewModel by viewModels()
 
     private var isSystem = false
 

@@ -6,6 +6,7 @@ import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 
+@Deprecated("Use Hilt injection with @HiltViewModel instead")
 class HomeViewModelFactory(
     private val counterUseCases: CounterUseCases,
     private val categoryUseCases: CategoryUseCases

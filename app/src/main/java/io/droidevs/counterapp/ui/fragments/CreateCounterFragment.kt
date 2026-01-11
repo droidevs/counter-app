@@ -11,28 +11,23 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
-import io.droidevs.counterapp.ui.vm.factories.CreateCounterViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
 
+@AndroidEntryPoint
 class CreateCounterFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCounterBinding
 
-    private val viewModel : CreateCounterViewModel by viewModels {
-        CreateCounterViewModelFactory(
-            counterUseCases = (requireActivity().application as CounterApp).useCases.counterUseCases,
-            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
-        )
-    }
+    private val viewModel : CreateCounterViewModel by viewModels()
 
     private var categoryId : String? = null
     private var categories: List<CategoryUiModel> = emptyList()

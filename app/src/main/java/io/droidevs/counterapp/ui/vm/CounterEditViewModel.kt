@@ -1,32 +1,41 @@
 package io.droidevs.counterapp.ui.vm
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.models.CounterUiModel
+import io.droidevs.counterapp.ui.toUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
+import javax.inject.Inject
 
-class CounterEditViewModel(
-    initialCounter: CounterUiModel,
+@HiltViewModel
+class CounterEditViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
+    private val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
+        ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
+
     // Backing state
-    private val _counter = MutableStateFlow<Counter>(initialCounter.toDomain())
+    private val _counter = MutableStateFlow<Counter>(this.initialCounter.toDomain())
     val counter = _counter
         .asStateFlow()
         .map { counter ->
             counter.toSnapshot()
         }
-    val _editedCounter = MutableStateFlow<Counter>(initialCounter.toDomain())
+    val _editedCounter = MutableStateFlow<Counter>(this.initialCounter.toDomain())
     val editedCounter = _editedCounter
         .asStateFlow()
 

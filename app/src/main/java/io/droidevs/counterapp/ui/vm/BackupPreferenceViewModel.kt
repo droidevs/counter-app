@@ -23,13 +23,13 @@ class BackupPreferenceViewModel @Inject constructor(
 
     fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
-            setAutoBackup(enabled)
+            backup.setAutoBackup(enabled)
         }
     }
 
     fun setBackupInterval(hours: Long) {
         viewModelScope.launch {
-            setBackupInterval(hours.coerceIn(1L..720L)) // reasonable limits
+            backup.setBackupInterval(hours.coerceIn(1L..720L)) // reasonable limits
         }
     }
 

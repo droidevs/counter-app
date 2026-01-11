@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import io.droidevs.counterapp.CounterApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.data.repository.CategoryColorProvider
@@ -18,18 +18,13 @@ import io.droidevs.counterapp.domain.model.CategoryColor
 import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
-import io.droidevs.counterapp.ui.vm.factories.CreateCategoryViewModelFactory
 import java.util.UUID
 
-
+@AndroidEntryPoint
 class CreateCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCategoryBinding
-    private val viewModel: CreateCategoryViewModel by viewModels {
-        CreateCategoryViewModelFactory(
-            categoryUseCases = (requireActivity().application as CounterApp).useCases.categoryUseCases
-        )
-    }
+    private val viewModel: CreateCategoryViewModel by viewModels()
 
     private lateinit var adapter: CategoryColorAdapter
     private lateinit var colors: MutableList<CategoryColor>
