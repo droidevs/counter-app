@@ -20,6 +20,8 @@ import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
+import io.droidevs.counterapp.ui.fragments.ViewCategoryFragmentArgs
+import io.droidevs.counterapp.ui.fragments.ViewCategoryFragmentDirections
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -61,10 +63,9 @@ class ViewCategoryFragment : Fragment() {
                     binding.stateContainer.visibility = VISIBLE
                     showEmptyState {
                         findNavController().navigate(
-                            R.id.action_categoryView_to_counterCreate,
-                            Bundle().apply {
-                                putString(ARG_CATEGORY_ID, viewModel.categoryId)
-                            }
+                            ViewCategoryFragmentDirections.actionCategoryViewToCounterCreate(
+                                viewModel.categoryId
+                            )
                         )
                     }
 
@@ -78,10 +79,9 @@ class ViewCategoryFragment : Fragment() {
         }
         binding.fabAddCounter.setOnClickListener {
             findNavController().navigate(
-                R.id.action_categoryView_to_counterCreate,
-                Bundle().apply {
-                    putString(ARG_CATEGORY_ID, viewModel.categoryId)
-                }
+                ViewCategoryFragmentDirections.actionCategoryViewToCounterCreate(
+                    viewModel.categoryId
+                )
             )
         }
     }
@@ -121,7 +121,4 @@ class ViewCategoryFragment : Fragment() {
         binding.root.isVisible = true
     }
 
-    companion object {
-        const val ARG_CATEGORY_ID = "categoryId"
-    }
 }

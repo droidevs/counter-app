@@ -30,6 +30,9 @@
         android:id="@+id/counterViewFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CounterViewFragment"
         android:label="Counter View">
+        <argument
+            android:name="counter"
+            app:argType="io.droidevs.counterapp.ui.CounterSnapshotParcelable" />
 
         <action
             android:id="@+id/action_counterView_to_counterEdit"
@@ -40,11 +43,20 @@
     <fragment
         android:id="@+id/editCounterFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CounterEditFragment"
-        android:label="Edit Counter" />
+        android:label="Edit Counter">
+        <argument
+            android:name="counter"
+            app:argType="io.droidevs.counterapp.ui.CounterSnapshotParcelable" />
+    </fragment>
 
     <fragment
         android:id="@+id/counterCreateFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CreateCounterFragment"
-        android:label="Create Counter" />
+        android:label="Create Counter">
+        <argument
+            android:name="categoryId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 
 </navigation>

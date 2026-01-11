@@ -6,8 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import androidx.appcompat.app.ActionBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,6 +24,7 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
+import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -156,14 +155,10 @@ class CounterListFragment : Fragment() , OnCounterClickListener {
 
     override fun onCounterClick(counter: CounterUiModel) {
         // Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
-
-        val bundle = Bundle().apply {
-            putParcelable(CounterViewFragment.Companion.ARG_COUNTER, counter.toParcelable())
-        }
-
         findNavController().navigate(
-            R.id.action_counterList_to_counterView,
-            bundle
+            CounterListFragmentDirections.actionCounterListToCounterView(
+                counter.toParcelable()
+            )
         )
     }
 

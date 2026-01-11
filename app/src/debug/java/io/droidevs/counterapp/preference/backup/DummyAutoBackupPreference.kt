@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.backup
 
-// 1. AutoBackupPreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
+
 import io.droidevs.counterapp.domain.preference.buckup.AutoBackupPreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyAutoBackupPreference(

@@ -22,6 +22,8 @@ import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.toParcelable
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.ui.vm.HomeViewModel
+import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
+import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -95,10 +97,9 @@ class HomeFragment : Fragment() {
                     //Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_to_counters_graph)
                     findNavController().navigate(
-                        R.id.action_counterList_to_counterView,
-                        Bundle().apply {
-                            putParcelable(CounterViewFragment.ARG_COUNTER, counter.toParcelable())
-                        }
+                        CounterListFragmentDirections.actionCounterListToCounterView(
+                            counter.toParcelable()
+                        )
                     )
                 }
             },
@@ -121,10 +122,9 @@ class HomeFragment : Fragment() {
                     //Toast.makeText(requireContext(), "Category clicked: ${category.name}", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_to_categories_graph)
                     findNavController().navigate(
-                        R.id.action_categoryList_to_categoryView,
-                        Bundle().apply {
-                            putString(ViewCategoryFragment.ARG_CATEGORY_ID, category.id)
-                        }
+                        CategoryListFragmentDirections.actionCategoryListToCategoryView(
+                            category.id
+                        )
                     )
                 }
             },

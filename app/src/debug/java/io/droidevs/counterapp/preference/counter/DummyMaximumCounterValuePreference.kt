@@ -1,8 +1,7 @@
 package io.droidevs.counterapp.preference.counter
 
-// 3. MaximumCounterValuePreference (nullable Int)
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
 import io.droidevs.counterapp.domain.preference.counter.MaximumCounterValuePreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyMaximumCounterValuePreference(

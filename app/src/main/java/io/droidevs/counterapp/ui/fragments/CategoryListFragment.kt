@@ -15,7 +15,8 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
-import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
+import io.droidevs.counterapp.ui.fragments.CategoryListFragmentArgs
+import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CategoryListViewModel
@@ -44,7 +45,7 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        isSystem = arguments?.getBoolean("isSystem") == true
+        isSystem = arguments?.let { CategoryListFragmentArgs.fromBundle(it).isSystem } ?: false
 
         setupRecyclerView()
         loadCategories()
@@ -56,10 +57,9 @@ class CategoryListFragment : Fragment() {
                 override fun onCategoryClick(category: CategoryUiModel) {
                     findNavController().navigate(R.id.action_to_categories_graph)
                     findNavController().navigate(
-                        R.id.action_categoryList_to_categoryView,
-                        Bundle().apply {
-                            putString(ARG_CATEGORY_ID, category.id.toString())
-                        }
+                        CategoryListFragmentDirections.actionCategoryListToCategoryView(
+                            category.id
+                        )
                     )
                 }
             }
@@ -124,7 +124,4 @@ class CategoryListFragment : Fragment() {
         binding.stateContainer.visibility = View.GONE
     }
 
-    companion object {
-        const val IS_SYSTEM_CATEGORY = "isSystem"
-    }
 }

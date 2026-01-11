@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
-import io.droidevs.counterapp.ui.fragments.ViewCategoryFragment.Companion.ARG_CATEGORY_ID
+import io.droidevs.counterapp.ui.fragments.CreateCounterFragmentArgs
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
@@ -37,7 +37,7 @@ class CreateCounterFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        categoryId = arguments?.getString(ARG_CATEGORY_ID)
+        categoryId = arguments?.let { CreateCounterFragmentArgs.fromBundle(it).categoryId }
     }
 
     override fun onCreateView(

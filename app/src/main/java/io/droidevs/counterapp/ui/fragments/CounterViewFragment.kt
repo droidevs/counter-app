@@ -20,10 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
-import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
+import io.droidevs.counterapp.ui.fragments.CounterViewFragmentArgs
+import io.droidevs.counterapp.ui.fragments.CounterViewFragmentDirections
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -105,12 +106,13 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
         return when(item.itemId) {
             R.id.menu_edit -> {
                 //Toast.makeText(requireContext(), "Edit", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(
-                    R.id.action_counterView_to_counterEdit,
-                    Bundle().apply {
-                        putParcelable(CounterEditFragment.ARG_COUNTER, viewModel.getCounter()!!.toParcelable())
-                    }
-                )
+                viewModel.getCounter()?.let { counter ->
+                    findNavController().navigate(
+                        CounterViewFragmentDirections.actionCounterViewToCounterEdit(
+                            counter.toParcelable()
+                        )
+                    )
+                }
                 true
             }
             R.id.menu_reset -> {
@@ -151,17 +153,4 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
         return true
     }
 
-    companion object {
-
-        internal const val ARG_COUNTER = "counter"
-
-        @JvmStatic
-        fun newInstance(counter: CounterUiModel) : CounterViewFragment {
-            val fragment = CounterViewFragment()
-            val bundle = Bundle()
-            bundle.putParcelable(ARG_COUNTER, counter.toParcelable())
-            fragment.arguments = bundle
-            return fragment
-        }
-    }
 }

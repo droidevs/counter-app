@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.counter
 
 // 4. MinimumCounterValuePreference (nullable Int)
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
 import io.droidevs.counterapp.domain.preference.counter.MinimumCounterValuePreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyMinimumCounterValuePreference(

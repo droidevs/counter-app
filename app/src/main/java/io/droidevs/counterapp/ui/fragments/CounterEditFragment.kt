@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,9 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
-import io.droidevs.counterapp.ui.models.CounterUiModel
-import io.droidevs.counterapp.ui.CounterSnapshotParcelable
-import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -80,6 +76,7 @@ class CounterEditFragment : Fragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.findItem(R.id.menuSettings).isVisible = false
         inflater.inflate(R.menu.edit_menu, menu)
@@ -102,13 +99,4 @@ class CounterEditFragment : Fragment() {
         }
     }
 
-    companion object {
-
-        internal const val ARG_COUNTER = "counter"
-        @JvmStatic
-        fun newInstance(counter: CounterUiModel) =
-            CounterEditFragment().apply {
-                arguments = bundleOf(ARG_COUNTER to counter.toParcelable())
-            }
-    }
 }

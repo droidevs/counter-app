@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.counter
 
-// 1. CounterIncrementStepPreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
+
 import io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyCounterIncrementStepPreference(

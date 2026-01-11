@@ -19,7 +19,7 @@ class FakeCounterRepository(
 ) : CounterRepository {
 
     private val countersFlow: Flow<List<Counter>> =
-        DummyData.countersFlow.asStateFlow()
+        dummyData.countersFlow.asStateFlow()
             .map { counters ->
                 counters.map {
                     it.toDomain()
@@ -42,37 +42,37 @@ class FakeCounterRepository(
     }
 
     override suspend fun saveCounter(counter: Counter) {
-        val index = DummyData.counters.indexOfFirst { it.id == counter.id }
+        val index = dummyData.counters.indexOfFirst { it.id == counter.id }
         if (index != -1) {
-            DummyData.counters[index] = counter.toEntity()
-            DummyData.emitCounterUpdate()
+            dummyData.counters[index] = counter.toEntity()
+            dummyData.emitCounterUpdate()
         }
     }
 
     override suspend fun createCounter(counter: Counter) {
-        DummyData.counters.add(counter.toEntity())
-        val indexCategory = DummyData.categories.indexOfFirst { it.id == counter.categoryId }
-        val category = DummyData.categories[indexCategory]
+        dummyData.counters.add(counter.toEntity())
+        val indexCategory = dummyData.categories.indexOfFirst { it.id == counter.categoryId }
+        val category = dummyData.categories[indexCategory]
         val newCategory = category.copy(
             countersCount = category.countersCount + 1
         )
-        DummyData.categories[indexCategory] = newCategory
-        DummyData.emitCounterUpdate()
-        DummyData.emitCategoryUpdate()
+        dummyData.categories[indexCategory] = newCategory
+        dummyData.emitCounterUpdate()
+        dummyData.emitCategoryUpdate()
     }
 
     override suspend fun deleteCounter(counter: Counter) {
-        DummyData.counters.removeIf { it.id == counter.id }
+        dummyData.counters.removeIf { it.id == counter.id }
         Log.i("FakeCounterRepository", "Counter deleted: $counter")
         Log.i("Category id : ", "${counter.categoryId}")
-        val indexCategory = DummyData.categories.indexOfFirst { it.id == counter.categoryId }
-        val category = DummyData.categories[indexCategory]
+        val indexCategory = dummyData.categories.indexOfFirst { it.id == counter.categoryId }
+        val category = dummyData.categories[indexCategory]
         val newCategory = category.copy(
             countersCount = category.countersCount - 1
         )
-        DummyData.categories[indexCategory] = newCategory
-        DummyData.emitCounterUpdate()
-        DummyData.emitCategoryUpdate()
+        dummyData.categories[indexCategory] = newCategory
+        dummyData.emitCounterUpdate()
+        dummyData.emitCategoryUpdate()
     }
 
     override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
@@ -81,7 +81,7 @@ class FakeCounterRepository(
                 !it.isSystem
             }.sortedByDescending { it.orderAnchorAt }
                 .map { counter ->
-                val category = DummyData.categories.find { category ->
+                val category = dummyData.categories.find { category ->
                     category.id == counter.categoryId
                 }
                     CounterWithCategory(
@@ -98,7 +98,7 @@ class FakeCounterRepository(
                 .sortedByDescending { it.orderAnchorAt }
                 .take(limit)
 
-            val categoriesMap = DummyData.categories.filter { !it.isSystem }
+            val categoriesMap = dummyData.categories.filter { !it.isSystem }
                 .associateBy { it.id }
 
             counters.map { counter ->
@@ -113,11 +113,11 @@ class FakeCounterRepository(
     }
 
     override suspend fun seedDefaults() {
-        DummyData.counters.addAll(
+        dummyData.counters.addAll(
             DefaultData.buildCounters(
                 existing = emptyMap(),
                 // generate the list from categories dummy data that has kay != null
-                categoryIdMap = DummyData.categories
+                categoryIdMap = dummyData.categories
                     .filter { it.kay != null }                    // Skip null kay
                 .associate { category ->                       // Build the map
                     SystemCategory.valueOf(category.kay!!) to category.id
@@ -133,7 +133,7 @@ class FakeCounterRepository(
     }
 
     override suspend fun incrementSystemCounter(counterKey: String) {
-        DummyData.counters.indexOfFirst {
+        dummyData.counters.indexOfFirst {
             it.kay == counterKey
         }.let { index ->
             if (index != -1) {
@@ -141,14 +141,14 @@ class FakeCounterRepository(
                 val newCounter = counter.copy(
                     currentCount = counter.currentCount + 1
                 )
-                DummyData.counters[index] = newCounter
-                DummyData.emitCounterUpdate()
+                dummyData.counters[index] = newCounter
+                dummyData.emitCounterUpdate()
             }
         }
     }
 
     override suspend fun updateSystemCounter(counterKey: String, count: Int) {
-        DummyData.counters.indexOfFirst {
+        dummyData.counters.indexOfFirst {
             it.kay == counterKey
         }.let { index ->
             if (index != -1) {
@@ -156,8 +156,8 @@ class FakeCounterRepository(
                 val newCounter = counter.copy(
                     currentCount = count
                 )
-                DummyData.counters[index] = newCounter
-                DummyData.emitCounterUpdate()
+                dummyData.counters[index] = newCounter
+                dummyData.emitCounterUpdate()
             }
         }
     }

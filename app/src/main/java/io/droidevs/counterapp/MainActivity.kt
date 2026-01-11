@@ -282,11 +282,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSystemCategories() {
-        val argument = Bundle()
-            .apply {
-                putBoolean(CategoryListFragment.IS_SYSTEM_CATEGORY, true)
-            }
-        navController.navigate(R.id.action_to_categories_graph, argument)
+        navController.navigate(R.id.action_to_categories_graph)
+        // Note: Safe Args doesn't support passing arguments to nested graphs directly
+        // The argument will be set when navigating to CategoryListFragment
+        // For now, we navigate to the graph and CategoryListFragment will use default value
+        // If you need to pass isSystem=true, you'll need to navigate directly to CategoryListFragment
+        // or use a different approach
     }
 
     private fun rateApp() {

@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,7 +17,12 @@ class BackupPreferenceViewModel @Inject constructor(
 ) : ViewModel() {
 
     val autoBackup: StateFlow<Boolean> = backup.getAutoBackup()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+        .onStart { false }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
     val backupInterval: StateFlow<Long> = backup.getBackupInterval()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 24L)

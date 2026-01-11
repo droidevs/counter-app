@@ -178,255 +178,189 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetCounterIncrementStepUseCase(pref: io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference): GetCounterIncrementStepUseCase =
+    fun provideGetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference): GetCounterIncrementStepUseCase =
         GetCounterIncrementStepUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetCounterIncrementStepUseCase(pref: io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference): SetCounterIncrementStepUseCase =
+    fun provideSetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference): SetCounterIncrementStepUseCase =
         SetCounterIncrementStepUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetDefaultCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference): GetDefaultCounterValueUseCase =
+    fun provideGetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference): GetDefaultCounterValueUseCase =
         GetDefaultCounterValueUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetDefaultCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference): SetDefaultCounterValueUseCase =
+    fun provideSetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference): SetDefaultCounterValueUseCase =
         SetDefaultCounterValueUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetMinimumCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.MinimumCounterValuePreference): GetMinimumCounterValueUseCase =
+    fun provideGetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference): GetMinimumCounterValueUseCase =
         GetMinimumCounterValueUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetMinimumCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.MinimumCounterValuePreference): SetMinimumCounterValueUseCase =
+    fun provideSetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference): SetMinimumCounterValueUseCase =
         SetMinimumCounterValueUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetMaximumCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.MaximumCounterValuePreference): GetMaximumCounterValueUseCase =
+    fun provideGetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference): GetMaximumCounterValueUseCase =
         GetMaximumCounterValueUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetMaximumCounterValueUseCase(pref: io.droidevs.counterapp.domain.preference.counter.MaximumCounterValuePreference): SetMaximumCounterValueUseCase =
+    fun provideSetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference): SetMaximumCounterValueUseCase =
         SetMaximumCounterValueUseCase(pref)
 
     // controle
     @Provides
     @Singleton
-    fun provideGetHardwareButtonControlUseCase(pref: io.droidevs.counterapp.domain.preference.controle.HardwareButtonControlPreference): GetHardwareButtonControlUseCase =
+    fun provideGetHardwareButtonControlUseCase(pref: HardwareButtonControlPreference): GetHardwareButtonControlUseCase =
         GetHardwareButtonControlUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetHardwareButtonControlUseCase(pref: io.droidevs.counterapp.domain.preference.controle.HardwareButtonControlPreference): SetHardwareButtonControlUseCase =
+    fun provideSetHardwareButtonControlUseCase(pref: HardwareButtonControlPreference): SetHardwareButtonControlUseCase =
         SetHardwareButtonControlUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetSoundsOnUseCase(pref: io.droidevs.counterapp.domain.preference.controle.SoundsOnPreference): GetSoundsOnUseCase =
+    fun provideGetSoundsOnUseCase(pref: SoundsOnPreference): GetSoundsOnUseCase =
         GetSoundsOnUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetSoundsOnUseCase(pref: io.droidevs.counterapp.domain.preference.controle.SoundsOnPreference): SetSoundsOnUseCase =
+    fun provideSetSoundsOnUseCase(pref: SoundsOnPreference): SetSoundsOnUseCase =
         SetSoundsOnUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetVibrationOnUseCase(pref: io.droidevs.counterapp.domain.preference.controle.VibrationOnPreference): GetVibrationOnUseCase =
+    fun provideGetVibrationOnUseCase(pref: VibrationOnPreference): GetVibrationOnUseCase =
         GetVibrationOnUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetVibrationOnUseCase(pref: io.droidevs.counterapp.domain.preference.controle.VibrationOnPreference): SetVibrationOnUseCase =
+    fun provideSetVibrationOnUseCase(pref: VibrationOnPreference): SetVibrationOnUseCase =
         SetVibrationOnUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetLabelControlUseCase(pref: io.droidevs.counterapp.domain.preference.controle.LabelControlPreference): GetLabelControlUseCase =
+    fun provideGetLabelControlUseCase(pref: LabelControlPreference): GetLabelControlUseCase =
         GetLabelControlUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetLabelControlUseCase(pref: io.droidevs.counterapp.domain.preference.controle.LabelControlPreference): SetLabelControlUseCase =
+    fun provideSetLabelControlUseCase(pref: LabelControlPreference): SetLabelControlUseCase =
         SetLabelControlUseCase(pref)
 
     // display
     @Provides
     @Singleton
-    fun provideGetThemeUseCase(pref: io.droidevs.counterapp.domain.preference.display.ThemePreference): GetThemeUseCase = GetThemeUseCase(pref)
+    fun provideGetThemeUseCase(pref: ThemePreference): GetThemeUseCase = GetThemeUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetThemeUseCase(pref: io.droidevs.counterapp.domain.preference.display.ThemePreference): SetThemeUseCase = SetThemeUseCase(pref)
+    fun provideSetThemeUseCase(pref: ThemePreference): SetThemeUseCase = SetThemeUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetHideControlsUseCase(pref: io.droidevs.counterapp.domain.preference.display.HideControlsPreference): GetHideControlsUseCase = GetHideControlsUseCase(pref)
+    fun provideGetHideControlsUseCase(pref: HideControlsPreference): GetHideControlsUseCase = GetHideControlsUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetHideControlsUseCase(pref: io.droidevs.counterapp.domain.preference.display.HideControlsPreference): SetHideControlsUseCase = SetHideControlsUseCase(pref)
+    fun provideSetHideControlsUseCase(pref: HideControlsPreference): SetHideControlsUseCase = SetHideControlsUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetHideLastUpdateUseCase(pref: io.droidevs.counterapp.domain.preference.display.HideLastUpdatePreference): GetHideLastUpdateUseCase = GetHideLastUpdateUseCase(pref)
+    fun provideGetHideLastUpdateUseCase(pref: HideLastUpdatePreference): GetHideLastUpdateUseCase = GetHideLastUpdateUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetHideLastUpdateUseCase(pref: io.droidevs.counterapp.domain.preference.display.HideLastUpdatePreference): SetHideLastUpdateUseCase = SetHideLastUpdateUseCase(pref)
+    fun provideSetHideLastUpdateUseCase(pref: HideLastUpdatePreference): SetHideLastUpdateUseCase = SetHideLastUpdateUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetKeepScreenOnUseCase(pref: io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference): GetKeepScreenOnUseCase = GetKeepScreenOnUseCase(pref)
+    fun provideGetKeepScreenOnUseCase(pref: KeepScreenOnPreference): GetKeepScreenOnUseCase = GetKeepScreenOnUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetKeepScreenOnUseCase(pref: io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference): SetKeepScreenOnUseCase = SetKeepScreenOnUseCase(pref)
+    fun provideSetKeepScreenOnUseCase(pref: KeepScreenOnPreference): SetKeepScreenOnUseCase = SetKeepScreenOnUseCase(pref)
 
     // notification
     @Provides
     @Singleton
-    fun provideGetCounterLimitNotificationUseCase(pref: io.droidevs.counterapp.domain.preference.notification.CounterLimitNotificationPreference): GetCounterLimitNotificationUseCase = GetCounterLimitNotificationUseCase(pref)
+    fun provideGetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference): GetCounterLimitNotificationUseCase = GetCounterLimitNotificationUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetCounterLimitNotificationUseCase(pref: io.droidevs.counterapp.domain.preference.notification.CounterLimitNotificationPreference): SetCounterLimitNotificationUseCase = SetCounterLimitNotificationUseCase(pref)
+    fun provideSetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference): SetCounterLimitNotificationUseCase = SetCounterLimitNotificationUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetDailySummaryNotificationUseCase(pref: io.droidevs.counterapp.domain.preference.notification.DailySummaryNotificationPreference): GetDailySummaryNotificationUseCase = GetDailySummaryNotificationUseCase(pref)
+    fun provideGetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference): GetDailySummaryNotificationUseCase = GetDailySummaryNotificationUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetDailySummaryNotificationUseCase(pref: io.droidevs.counterapp.domain.preference.notification.DailySummaryNotificationPreference): SetDailySummaryNotificationUseCase = SetDailySummaryNotificationUseCase(pref)
+    fun provideSetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference): SetDailySummaryNotificationUseCase = SetDailySummaryNotificationUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetNotificationSoundUseCase(pref: io.droidevs.counterapp.domain.preference.notification.NotificationSoundPreference): GetNotificationSoundUseCase = GetNotificationSoundUseCase(pref)
+    fun provideGetNotificationSoundUseCase(pref: NotificationSoundPreference): GetNotificationSoundUseCase = GetNotificationSoundUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetNotificationSoundUseCase(pref: io.droidevs.counterapp.domain.preference.notification.NotificationSoundPreference): SetNotificationSoundUseCase = SetNotificationSoundUseCase(pref)
+    fun provideSetNotificationSoundUseCase(pref: NotificationSoundPreference): SetNotificationSoundUseCase = SetNotificationSoundUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetNotificationVibrationPatternUseCase(pref: io.droidevs.counterapp.domain.preference.notification.NotificationVibrationPatternPreference): GetNotificationVibrationPatternUseCase = GetNotificationVibrationPatternUseCase(pref)
+    fun provideGetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference): GetNotificationVibrationPatternUseCase = GetNotificationVibrationPatternUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetNotificationVibrationPatternUseCase(pref: io.droidevs.counterapp.domain.preference.notification.NotificationVibrationPatternPreference): SetNotificationVibrationPatternUseCase = SetNotificationVibrationPatternUseCase(pref)
+    fun provideSetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference): SetNotificationVibrationPatternUseCase = SetNotificationVibrationPatternUseCase(pref)
 
     // backup
     @Provides
     @Singleton
-    fun provideGetAutoBackupUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.AutoBackupPreference): GetAutoBackupUseCase = GetAutoBackupUseCase(pref)
+    fun provideGetAutoBackupUseCase(pref: AutoBackupPreference): GetAutoBackupUseCase = GetAutoBackupUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetAutoBackupUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.AutoBackupPreference): SetAutoBackupUseCase = SetAutoBackupUseCase(pref)
+    fun provideSetAutoBackupUseCase(pref: AutoBackupPreference): SetAutoBackupUseCase = SetAutoBackupUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetBackupIntervalUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.BackupIntervalPreference): GetBackupIntervalUseCase = GetBackupIntervalUseCase(pref)
+    fun provideGetBackupIntervalUseCase(pref: BackupIntervalPreference): GetBackupIntervalUseCase = GetBackupIntervalUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetBackupIntervalUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.BackupIntervalPreference): SetBackupIntervalUseCase = SetBackupIntervalUseCase(pref)
+    fun provideSetBackupIntervalUseCase(pref: BackupIntervalPreference): SetBackupIntervalUseCase = SetBackupIntervalUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideGetBackupLocationUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference): GetBackupLocationUseCase = GetBackupLocationUseCase(pref)
+    fun provideGetBackupLocationUseCase(pref: BackupLocationPreference): GetBackupLocationUseCase = GetBackupLocationUseCase(pref)
 
     @Provides
     @Singleton
-    fun provideSetBackupLocationUseCase(pref: io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference): SetBackupLocationUseCase = SetBackupLocationUseCase(pref)
+    fun provideSetBackupLocationUseCase(pref: BackupLocationPreference): SetBackupLocationUseCase = SetBackupLocationUseCase(pref)
 
     @Provides
     @Singleton
     fun providePreferenceUseCases(
-        getCounterIncrementStep: GetCounterIncrementStepUseCase,
-        setCounterIncrementStep: SetCounterIncrementStepUseCase,
-        getDefaultCounterValue: GetDefaultCounterValueUseCase,
-        setDefaultCounterValue: SetDefaultCounterValueUseCase,
-        getMinimumCounterValue: GetMinimumCounterValueUseCase,
-        setMinimumCounterValue: SetMinimumCounterValueUseCase,
-        getMaximumCounterValue: GetMaximumCounterValueUseCase,
-        setMaximumCounterValue: SetMaximumCounterValueUseCase,
-        getHardwareButtonControl: GetHardwareButtonControlUseCase,
-        setHardwareButtonControl: SetHardwareButtonControlUseCase,
-        getSoundsOn: GetSoundsOnUseCase,
-        setSoundsOn: SetSoundsOnUseCase,
-        getVibrationOn: GetVibrationOnUseCase,
-        setVibrationOn: SetVibrationOnUseCase,
-        getLabelControl: GetLabelControlUseCase,
-        setLabelControl: SetLabelControlUseCase,
-        getTheme: GetThemeUseCase,
-        setTheme: SetThemeUseCase,
-        getHideControls: GetHideControlsUseCase,
-        setHideControls: SetHideControlsUseCase,
-        getHideLastUpdate: GetHideLastUpdateUseCase,
-        setHideLastUpdate: SetHideLastUpdateUseCase,
-        getKeepScreenOn: GetKeepScreenOnUseCase,
-        setKeepScreenOn: SetKeepScreenOnUseCase,
-        getCounterLimitNotification: GetCounterLimitNotificationUseCase,
-        setCounterLimitNotification: SetCounterLimitNotificationUseCase,
-        getDailySummaryNotification: GetDailySummaryNotificationUseCase,
-        setDailySummaryNotification: SetDailySummaryNotificationUseCase,
-        getNotificationSound: GetNotificationSoundUseCase,
-        setNotificationSound: SetNotificationSoundUseCase,
-        getNotificationVibrationPattern: GetNotificationVibrationPatternUseCase,
-        setNotificationVibrationPattern: SetNotificationVibrationPatternUseCase,
-        getAutoBackup: GetAutoBackupUseCase,
-        setAutoBackup: SetAutoBackupUseCase,
-        getBackupInterval: GetBackupIntervalUseCase,
-        setBackupInterval: SetBackupIntervalUseCase,
-        getBackupLocation: GetBackupLocationUseCase,
-        setBackupLocation: SetBackupLocationUseCase
+        getCounterUseCases: CounterPreferenceUseCases,
+        getHardwarePreferenceUseCases: HardwarePreferenceUseCases,
+        getDisplayPreferenceUseCases: DisplayPreferenceUseCases,
+        getNotificationPreferenceUseCases: NotificationPreferenceUseCases,
+        getBackupPreferenceUseCases: BackupPreferenceUseCases
     ): PreferenceUseCases = PreferenceUseCases(
-        getCounterIncrementStep,
-        setCounterIncrementStep,
-        getDefaultCounterValue,
-        setDefaultCounterValue,
-        getMinimumCounterValue,
-        setMinimumCounterValue,
-        getMaximumCounterValue,
-        setMaximumCounterValue,
-        getHardwareButtonControl,
-        setHardwareButtonControl,
-        getSoundsOn,
-        setSoundsOn,
-        getVibrationOn,
-        setVibrationOn,
-        getLabelControl,
-        setLabelControl,
-        getTheme,
-        setTheme,
-        getHideControls,
-        setHideControls,
-        getHideLastUpdate,
-        setHideLastUpdate,
-        getKeepScreenOn,
-        setKeepScreenOn,
-        getCounterLimitNotification,
-        setCounterLimitNotification,
-        getDailySummaryNotification,
-        setDailySummaryNotification,
-        getNotificationSound,
-        setNotificationSound,
-        getNotificationVibrationPattern,
-        setNotificationVibrationPattern,
-        getAutoBackup,
-        setAutoBackup,
-        getBackupInterval,
-        setBackupInterval,
-        getBackupLocation,
-        setBackupLocation
+        counterUseCases = getCounterUseCases,
+        hardwareUseCases = getHardwarePreferenceUseCases,
+        displayUseCases = getDisplayPreferenceUseCases,
+        notificationUseCases = getNotificationPreferenceUseCases,
+        backupUseCases = getBackupPreferenceUseCases
     )
 }

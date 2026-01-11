@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.backup
 
-// 3. BackupLocationPreference (String-based)
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
+
 import io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyBackupLocationPreference(

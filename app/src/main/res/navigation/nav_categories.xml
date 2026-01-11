@@ -9,6 +9,11 @@
         android:id="@+id/categoryListFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CategoryListFragment"
         android:label="Categories">
+        <argument
+            android:name="isSystem"
+            app:argType="boolean"
+            android:defaultValue="false" />
+
         <action
             android:id="@+id/action_categoryList_to_categoryView"
             app:destination="@id/categoryViewFragment" />
@@ -23,6 +28,9 @@
         android:id="@+id/categoryViewFragment"
         android:name="io.droidevs.counterapp.ui.fragments.ViewCategoryFragment"
         android:label="Category View" >
+        <argument
+            android:name="categoryId"
+            app:argType="string" />
 
         <action
             android:id="@+id/action_categoryView_to_counterCreate"
@@ -33,7 +41,11 @@
     <fragment
         android:id="@+id/createCategoryFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CreateCategoryFragment"
-        android:label="Create Category" />
+        android:label="Create Category">
+        <argument
+            android:name="categoryId"
+            app:argType="string" />
+    </fragment>
 
 
 </navigation>

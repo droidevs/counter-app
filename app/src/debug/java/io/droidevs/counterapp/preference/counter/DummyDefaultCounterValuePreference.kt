@@ -1,8 +1,8 @@
 package io.droidevs.counterapp.preference.counter
 
-// 2. DefaultCounterValuePreference
-import io.droidevs.counterapp.data.preference.dummy.DummyPreferenceDelegates
+
 import io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference
+import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
 
 class DummyDefaultCounterValuePreference(
