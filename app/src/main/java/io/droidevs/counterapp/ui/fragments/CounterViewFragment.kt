@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -22,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
-import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
@@ -85,7 +83,7 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                             is CounterViewEvent.NavigateToCounterEdit -> {
                                 findNavController().navigate(
                                     CounterViewFragmentDirections.actionCounterViewToCounterEdit(
-                                        event.counter
+                                        event.counterId
                                     )
                                 )
                             }

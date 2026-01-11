@@ -19,153 +19,153 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
-import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
-import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
-import kotlinx.coroutines.launch
+import io.droidevs.counterapp.ui.vm.actions.CounterListAction
+import io.droidevs.counterapp.ui.vm.events.CounterListEvent
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-class CounterListFragment : Fragment() , OnCounterClickListener {
+class CounterListFragment : Fragment(), OnCounterClickListener {
 
-    lateinit var binding: FragmentCounterListBinding
+    private var _binding: FragmentCounterListBinding? = null
+    private val binding get() = _binding!!
 
-    private val viewModel : CountersListViewModel by viewModels()
+    private val viewModel: CountersListViewModel by viewModels()
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var fabAdd: FloatingActionButton
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setHasOptionsMenu(true)
-    }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        recyclerView = binding.rvCounters
-        fabAdd = binding.fabAddCounter
-
-        recyclerView.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-
-        val adapter = ListCounterAdapter(
-            listener = this,
-            onIncrement = {
-                viewModel.increment(it)
-            },
-            onDecrement = {
-                viewModel.decrement(it)
-            }
-        )
-        recyclerView.adapter = adapter
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                val layoutManager = rv.layoutManager as LinearLayoutManager
-
-                val first = layoutManager.findFirstVisibleItemPosition()
-                val last = layoutManager.findLastVisibleItemPosition()
-
-                val visibleKeys = mutableSetOf<CounterUiModel>()
-
-                for (i in first..last) {
-                    val item = adapter.counters.getOrNull(i) ?: continue
-                    visibleKeys += item.counter
-                }
-
-                viewModel.onVisibleItemsChanged(visibleKeys)
-            }
-        })
-
-        lifecycleScope.launch {
-            viewModel.counters.collect { counters->
-                if (counters.isEmpty()) {
-                    binding.rvCounters.visibility = View.GONE
-                    binding.fabAddCounter.visibility = View.GONE
-                    binding.stateContainer.visibility = View.VISIBLE
-                    showEmptyState {
-                        findNavController().navigate(
-                            R.id.action_counterList_to_counterCreate
-                        )
-                    }
-                } else {
-                    binding.rvCounters.visibility = View.VISIBLE
-                    binding.fabAddCounter.visibility = View.VISIBLE
-                    binding.stateContainer.removeAllViews()
-                    binding.stateContainer.visibility = View.GONE
-                    var adapter = recyclerView.adapter as ListCounterAdapter
-                    adapter.updateCounters(counters)
-                }
-            }
-        }
-
-        fabAdd.setOnClickListener {
-            //Toast.makeText(requireContext(), "Add Counter clicked", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(
-                R.id.action_counterList_to_counterCreate
-            )
-        }
-    }
-
-    private fun showEmptyState(
-        onAction: () -> Unit,
-    ) {
-        val binding = EmptyStateLayoutBinding.inflate(
-            layoutInflater,
-            this.binding.stateContainer,
-            false
-        )
-//        this.binding.stateContainer.removeAllViews()
-        this.binding.stateContainer.addView(binding.root)
-        binding.icon.setImageResource(R.drawable.ic_counter)
-        binding.titleText.setText(R.string.empty_counters_title)
-        binding.subtitleText.setText(R.string.empty_counters_message)
-        binding.createButton.setText(R.string.action_create_counter)
-
-        binding.createButton.setOnClickListener { onAction() }
-        binding.root.isVisible = true
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.flushAllPendingReorders()
-    }
+    private lateinit var listAdapter: ListCounterAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentCounterListBinding.inflate(inflater, container, false)
+    ): View {
+        _binding = FragmentCounterListBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupRecyclerView()
+        setupFab()
+        observeUiState()
+        observeEvents()
+    }
+
+    private fun setupRecyclerView() {
+        listAdapter = ListCounterAdapter(
+            listener = this,
+            onIncrement = { counter ->
+                viewModel.onAction(CounterListAction.IncrementCounter(counter))
+            },
+            onDecrement = { counter ->
+                viewModel.onAction(CounterListAction.DecrementCounter(counter))
+            }
+        )
+
+        binding.rvCounters.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = listAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                    val layoutManager = rv.layoutManager as LinearLayoutManager
+                    val first = layoutManager.findFirstVisibleItemPosition()
+                    val last = layoutManager.findLastVisibleItemPosition()
+
+                    if (first == -1 || last == -1) return
+
+                    val visibleItems = (first..last).mapNotNull {
+                        listAdapter.counters.getOrNull(it)?.counter
+                    }.toSet()
+
+                    if (visibleItems.isNotEmpty()) {
+                        viewModel.onAction(CounterListAction.VisibleItemsChanged(visibleItems))
+                    }
+                }
+            })
+        }
+    }
+
+    private fun setupFab() {
+        binding.fabAddCounter.setOnClickListener {
+            viewModel.onAction(CounterListAction.AddCounterClicked)
+        }
+    }
+
+    private fun observeUiState() {
+        viewModel.uiState.onEach { uiState ->
+            binding.progress.isVisible = uiState.isLoading
+            if (!uiState.isLoading) {
+                if (uiState.counters.isEmpty()) {
+                    binding.rvCounters.isVisible = false
+                    binding.fabAddCounter.isVisible = false
+                    binding.stateContainer.isVisible = true
+                    showEmptyState {
+                        viewModel.onAction(CounterListAction.AddCounterClicked)
+                    }
+                } else {
+                    binding.rvCounters.isVisible = true
+                    binding.fabAddCounter.isVisible = true
+                    binding.stateContainer.removeAllViews()
+                    binding.stateContainer.isVisible = false
+                    listAdapter.updateCounters(uiState.counters)
+                }
+            }
+        }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun observeEvents() {
+        viewModel.event.onEach { event ->
+            when (event) {
+                is CounterListEvent.NavigateToCreateCounter -> {
+                    findNavController().navigate(R.id.action_counterList_to_counterCreate)
+                }
+            }
+        }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun showEmptyState(onAction: () -> Unit) {
+        binding.stateContainer.removeAllViews()
+        val emptyStateBinding = EmptyStateLayoutBinding.inflate(
+            layoutInflater,
+            binding.stateContainer,
+            true
+        )
+        emptyStateBinding.icon.setImageResource(R.drawable.ic_counter)
+        emptyStateBinding.titleText.setText(R.string.no_counters_message)
+        emptyStateBinding.subtitleText.setText(R.string.counter_notes_hint)
+        emptyStateBinding.createButton.setText(R.string.create_counter_title)
+        emptyStateBinding.createButton.setOnClickListener { onAction() }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.onAction(CounterListAction.FlushAllPendingReorders)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.menu_settings)?.isVisible = true
+        menu.findItem(R.id.menu_delete)?.isVisible = false
+        menu.findItem(R.id.menu_edit)?.isVisible = false
+        menu.findItem(R.id.menu_save)?.isVisible = false
         super.onCreateOptionsMenu(menu, inflater)
-        menu.findItem(R.id.menuSettings)?.isVisible = false // hack fix todo : implement a custom menu for the list page
     }
 
     override fun onCounterClick(counter: CounterUiModel) {
-        // Toast.makeText(requireContext(), "Counter clicked: ${counter.name}", Toast.LENGTH_SHORT).show()
         findNavController().navigate(
             CounterListFragmentDirections.actionCounterListToCounterView(
                 counter.toParcelable()
             )
         )
-    }
-
-    companion object {
-
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CounterListFragment()
     }
 }

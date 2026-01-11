@@ -8,6 +8,7 @@ import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toHardwarePreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,10 +73,3 @@ class HardwarePreferencesViewModel @Inject constructor(
         }
     }
 }
-
-data class Quadruple<out A, out B, out C, out D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)

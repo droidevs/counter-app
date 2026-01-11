@@ -14,6 +14,8 @@ class UpdateCounterUseCase(private val repository: CounterRepository) {
             name = request.newName ?: existing.name
             categoryId = request.newCategoryId ?: existing.categoryId
             currentCount = request.newCount ?: existing.currentCount
+            lastUpdatedAt = request.lastUpdatedAt ?: existing.lastUpdatedAt
+            orderAnchorAt = request.orderAnchorAt ?: existing.orderAnchorAt
         }
         repository.saveCounter(updated?: return)
     }

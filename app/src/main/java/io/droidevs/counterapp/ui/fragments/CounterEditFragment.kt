@@ -20,7 +20,6 @@ import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

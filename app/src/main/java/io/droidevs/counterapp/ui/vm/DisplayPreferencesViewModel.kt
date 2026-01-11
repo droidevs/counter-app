@@ -9,6 +9,7 @@ import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toDisplayPreferenceUiState
+import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -87,10 +88,3 @@ class DisplayPreferencesViewModel @Inject constructor(
         }
     }
 }
-
-data class Quadruple<out A, out B, out C, out D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)

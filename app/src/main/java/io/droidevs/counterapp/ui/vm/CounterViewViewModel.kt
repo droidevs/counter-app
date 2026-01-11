@@ -4,13 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.domain.toParcelable
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
-import io.droidevs.counterapp.ui.CounterSnapshotParcelable
-import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
@@ -26,24 +22,22 @@ class CounterViewViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
+    private val counterId: String = savedStateHandle.get<String>("counterId")
+        ?: throw IllegalArgumentException("Counter ID is required")
+
     private val _event = MutableSharedFlow<CounterViewEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
 
-    val uiState: StateFlow<CounterViewUiState> = flow {
-        val initialCounterId: String = savedStateHandle.get<CounterSnapshotParcelable>("counter")
-            ?.id ?: throw IllegalArgumentException("Counter argument is required")
-        // Fetch the counter from the database using its ID
-        counterUseCases.getCounter(initialCounterId)
-            .collect { domainCounter ->
-                domainCounter?.let { emit(it.toUiModel()) }
-            }
-    }
-        .map { it.toViewUiState(isLoading = false) }
+    val uiState: StateFlow<CounterViewUiState> = counterUseCases.getCounter(counterId)
+        .map { counter ->
+            counter?.toUiModel()?.toViewUiState(isLoading = false)
+                ?: CounterViewUiState(isLoading = false) // Or handle error state
+        }
         .onStart { emit(CounterViewUiState(isLoading = true)) } // Initial loading state
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CounterViewUiState() // Default empty state
+            initialValue = CounterViewUiState()
         )
 
     fun onAction(action: CounterViewAction) {
@@ -53,10 +47,8 @@ class CounterViewViewModel @Inject constructor(
             CounterViewAction.ResetCounter -> reset()
             CounterViewAction.DeleteCounter -> delete()
             CounterViewAction.EditCounterClicked -> {
-                uiState.value.counter?.let {
-                    viewModelScope.launch {
-                        _event.emit(CounterViewEvent.NavigateToCounterEdit(it.toParcelable()))
-                    }
+                viewModelScope.launch {
+                    _event.emit(CounterViewEvent.NavigateToCounterEdit(counterId))
                 }
             }
         }
@@ -69,7 +61,7 @@ class CounterViewViewModel @Inject constructor(
         viewModelScope.launch {
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    counterId = currentCounter.id,
+                    counterId = counterId,
                     newCount = currentCounter.currentCount + 1
                 )
             )
@@ -83,7 +75,7 @@ class CounterViewViewModel @Inject constructor(
         viewModelScope.launch {
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    counterId = currentCounter.id,
+                    counterId = counterId,
                     newCount = currentCounter.currentCount - 1
                 )
             )
@@ -91,11 +83,10 @@ class CounterViewViewModel @Inject constructor(
     }
 
     private fun reset() {
-        val currentCounter = uiState.value.counter ?: return
         viewModelScope.launch {
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    counterId = currentCounter.id,
+                    counterId = counterId,
                     newCount = 0
                 )
             )
@@ -103,9 +94,8 @@ class CounterViewViewModel @Inject constructor(
     }
 
     private fun delete() {
-        val currentCounter = uiState.value.counter ?: return
         viewModelScope.launch {
-            counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = currentCounter.id))
+            counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
             _event.emit(CounterViewEvent.NavigateBack)
         }
     }

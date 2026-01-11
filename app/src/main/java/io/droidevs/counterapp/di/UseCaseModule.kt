@@ -108,6 +108,11 @@ object UseCaseModule {
 
     @Provides
     @Singleton
+    fun provideGetCounterUseCase(repository: CounterRepository): GetCounterUseCase =
+        GetCounterUseCase(repository)
+
+    @Provides
+    @Singleton
     fun provideGetCountersWithCategoriesUseCase(repository: CounterRepository): GetCountersWithCategoriesUseCase =
         GetCountersWithCategoriesUseCase(repository)
 
@@ -152,6 +157,7 @@ object UseCaseModule {
         createCounter: CreateCounterUseCase,
         deleteCounter: DeleteCounterUseCase,
         getAllCounters: GetAllCountersUseCase,
+        getCounter: GetCounterUseCase,
         getCountersWithCategories: GetCountersWithCategoriesUseCase,
         getLimitCounters: GetLimitCountersUseCase,
         getLimitCountersWithCategory: GetLimitCountersWithCategoryUseCase,
@@ -164,6 +170,7 @@ object UseCaseModule {
         createCounter,
         deleteCounter,
         getAllCounters,
+        getCounter,
         getCountersWithCategories,
         getLimitCounters,
         getLimitCountersWithCategory,

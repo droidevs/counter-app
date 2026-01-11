@@ -1,98 +1,92 @@
 <resources>
-    <string name="app_name">CounterApp</string>
-
-    <!-- Menu -->
-    <string name="menu_counters_list">Open the list of counters</string>
-    <string name="menu_reset">Reset counter</string>
-    <string name="menu_edit">Edit counter</string>
-    <string name="menu_delete">Delete counter</string>
-    <string name="menu_settings">Settings</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="view_all_counters">View All counters</string>
-    <string name="total_counters_0">Total counters: 0</string>
-    <string name="create_new_counter">Create new counter</string>
-    <string name="add_counter">Add Counter</string>
-
-
-    <!-- Settings -->
+    <string name="app_name">Counter</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="edit_counter_title">Editing counter</string>
+    <string name="create_counter_title">New counter</string>
+    <string name="counter_title_label">Title</string>
+    <string name="counter_title_hint">e.g. Push-ups</string>
+    <string name="counter_notes_label">Notes</string>
+    <string name="counter_notes_hint">e.g. Every day before breakfast</string>
+    <string name="counter_category_label">Category</string>
+    <string name="save_label">Save</string>
+    <string name="delete_label">Delete</string>
+    <string name="sort_label">Sort</string>
+    <string name="search_label">Search</string>
+    <string name="no_counters_message">No counters yet</string>
+    <string name="no_categories_message">No categories yet</string>
+    <string name="default_category_name">Default</string>
+    <string name="edit_label">Edit</string>
+    <string name="reset_label">Reset</string>
+    <string name="created_at_label">"Created: "</string>
+    <string name="last_updated_label">"Last update: "</string>
+    <string name="never_updated_message">Never</string>
+    <string name="saved_message">Saved</string>
+    <string name="deleted_message">Counter deleted</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_display">Display</string>
-    <string name="settings_theme">Theme</string>
-    <string name="settings_theme_light">Light</string>
-    <string name="settings_theme_dark">Dark</string>
-    <string name="settings_theme_auto_battery">Set by Battery Saver</string>
-    <string name="settings_theme_system">Use system default</string>
-
-    <string name="settings_keep_on_title">Keep the screen on</string>
-    <string name="settings_keep_on_summary">Keep the screen on while app is active</string>
-    <string name="settings_controls">Controls</string>
-    <string name="settings_counter">Counter</string>
-    <string name="settings_notifications">Notifications</string>
-    <string name="settings_backup">Backup</string>
-    <string name="settings_hide_controls_title">Hide the buttons</string>
-    <string name="settings_hide_controls_summary">You might want to turn on volume buttons use or the tap to increment option</string>
-    <string name="settings_sounds_title">Turn on sounds</string>
-    <string name="settings_sounds_summary">Play sounds when changing values</string>
-    <string name="settings_vibration_title">Turn on vibration</string>
-    <string name="settings_vibration_summary">Vibrate on value changes</string>
-    <string name="settings_hard_title">Use hardware buttons</string>
-    <string name="settings_hard_summary">Change counter value using volume buttons</string>
-    <string name="settings_label_increment_title">Tap value to increment</string>
-    <string name="settings_label_increment_summary">Increment a counter by tapping the current value</string>
-    <string name="settings_hide_last_update_title">Hide the last change timestamp</string>
-    <string name="settings_other">Other</string>
-    <string name="settings_version_title">Version</string>
-    <string name="settings_wipe_title">Remove all counters</string>
-    <string name="settings_export_title">Export counters</string>
-    <string name="settings_export_summary">Export all counters in CSV format</string>
-    <string name="settings_tip_title">Buy me a coffee</string>
-    <string name="settings_tip_summary">Support the creator of this app</string>
-    <string name="settings_homepage_title">Homepage</string>
-    <string name="settings_homepage_summary">App info and the source code</string>
-    <string name="settings_wipe_confirmation">Do you really want to remove all counters?</string>
-    <string name="settings_wipe_confirmation_yes">Remove all</string>
-
-    <string name="default_counter_name">First counter</string>
-    <string name="unknown_version" translatable="false">Unknown</string>
-    <string name="save">Save</string>
-    <string name="view_categories">View Categories</string>
-    <string name="create_category">Create Category</string>
-    <string name="total_categories_0">TotalCategories: 0</string>
-    <string name="minus">Minus\n</string>
-    <string name="plus">Plus</string>
-    <string name="navigation_drawer_open">Open Drawer</string>
-    <string name="navigation_drawer_close">Close Drawer</string>
-
-
-
-    <!-- Generic Actions -->
-    <string name="action_create">Create</string>
-    <string name="action_add">Add</string>
-    <string name="action_retry">Retry</string>
-
-    <string name="action_create_category">Create Category</string>
-    <string name="action_create_counter">Create Counter</string>
-
-    <!-- Empty Categories -->
-    <string name="empty_categories_title">No categories yet</string>
-    <string name="empty_categories_message">
-        Create your first category to organize your counters.
-    </string>
-
-    <!-- Empty Counters (Global) -->
-    <string name="empty_counters_title">No counters yet</string>
-    <string name="empty_counters_message">
-        Start tracking by creating your first counter.
-    </string>
-
-    <!-- Empty Counters (Inside Category) -->
-    <string name="empty_category_counters_title">No counters in this category</string>
-    <string name="empty_category_counters_message">
-        Create a counter in this category to begin tracking.
-    </string>
-    <string name="settings">Settings\n</string>
-    <string name="counters_count_label" />
-
-
+    <string name="display_category_title">Display</string>
+    <string name="counter_category_title">Counter</string>
+    <string name="category_category_title">Category</string>
+    <string name="notifications_category_title">Notifications</string>
+    <string name="other_category_title">Other</string>
+    <string name="theme_setting_title">Theme</string>
+    <string name="light_theme_name">Light</string>
+    <string name="dark_theme_name">Dark</string>
+    <string name="auto_theme_name">Auto (follow system)</string>
+    <string name="hide_controls_setting_title">Hide controls</string>
+    <string name="hide_controls_setting_summary">Hide increment and decrement buttons</string>
+    <string name="increment_step_setting_title">Increment step</string>
+    <string name="default_value_setting_title">Default value</string>
+    <string name="counter_limit_notification_setting_title">Counter limit notification</string>
+    <string name="counter_limit_notification_setting_summary">Notify when a counter reaches its minimum or maximum value</string>
+    <string name="daily_summary_notification_setting_title">Daily summary notification</string>
+    <string name="daily_summary_notification_setting_summary">Show a summary of updated counters every day</string>
+    <string name="notification_sound_setting_title">Sound</string>
+    <string name="vibration_setting_title">Vibration pattern</string>
+    <string name="export_counters_setting_title">Export counters</string>
+    <string name="export_counters_setting_summary">Export all counters to a file</string>
+    <string name="import_counters_setting_title">Import counters</string>
+    <string name="import_counters_setting_summary">Import all counters from a file</string>
+    <string name="feedback_setting_title">Send feedback</string>
+    <string name="feedback_setting_summary">Report a bug or suggest a new feature</string>
+    <string name="about_setting_title">About</string>
+    <string name="title_hint">Title</string>
+    <string name="title_label">Title</string>
+    <string name="category_name_label">Name</string>
+    <string name="category_name_hint">e.g. Sports</string>
+    <string name="create_category_title">New category</string>
+    <string name="category_created_message">Category created</string>
+    <string name="category_updated_message">Category updated</string>
+    <string name="category_deleted_message">Category deleted</string>
+    <string name="edit_category_title">Edit category</string>
+    <string name="add_category_to_counter_title">Select category</string>
+    <string name="no_category_option">No category</string>
+    <string name="view_category_counters_title">Counters in this category</string>
+    <string name="uncategorized_category_name">Uncategorized</string>
+    <string name="minimum_value_setting_title">Minimum value</string>
+    <string name="maximum_value_setting_title">Maximum value</string>
+    <string name="none_value">None</string>
+    <string name="hide_last_update_setting_title">Hide last update timestamp</string>
+    <string name="hide_last_update_setting_summary">Hide the 'last update' timestamp from the counter screen</string>
+    <string name="keep_screen_on_setting_title">Keep screen on</string>
+    <string name="keep_screen_on_setting_summary">Keep the screen on while you're on the counter screen</string>
+    <string name="hardware_buttons_category_title">Hardware buttons</string>
+    <string name="hardware_button_control_setting_title">Hardware button control</string>
+    <string name="hardware_button_control_setting_summary">Use volume buttons to increment or decrement the counter</string>
+    <string name="sounds_setting_title">Sounds</string>
+    <string name="sounds_setting_summary">Play a sound when incrementing or decrementing</string>
+    <string name="vibration_setting_summary">Vibrate when incrementing or decrementing</string>
+    <string name="show_labels_setting_title">Show labels</string>
+    <string name="show_labels_setting_summary">Show labels on the main screen's navigation bar</string>
+    <string name="backup_category_title">Backup</string>
+    <string name="auto_backup_setting_title">Auto backup</string>
+    <string name="auto_backup_setting_summary">Automatically back up counters to your Google account</string>
+    <string name="backup_interval_setting_title">Backup interval</string>
+    <string name="backup_now_setting_title">Back up now</string>
+    <string name="backup_now_setting_summary">Manually trigger a backup</string>
+    <string name="restore_backup_setting_title">Restore backup</string>
+    <string name="restore_backup_setting_summary">Restore counters from your Google account</string>
+    <string name="backup_status_setting_title">Backup status</string>
+    <string name="last_backup_time_local_title">Last local backup</string>
+    <string name="last_backup_time_cloud_title">Last cloud backup</string>
 </resources>

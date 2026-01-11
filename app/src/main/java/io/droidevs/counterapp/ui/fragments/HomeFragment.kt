@@ -21,7 +21,6 @@ import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
-import io.droidevs.counterapp.ui.toParcelable
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
@@ -126,7 +125,7 @@ class HomeFragment : Fragment() {
                                 findNavController().navigate(R.id.action_to_counters_graph)
                                 findNavController().navigate(
                                     CounterListFragmentDirections.actionCounterListToCounterView(
-                                        event.counter
+                                        event.counterId
                                     )
                                 )
                             }

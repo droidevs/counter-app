@@ -4,10 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
-import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
@@ -24,6 +22,9 @@ class CounterEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
+
+    private val counterId: String = savedStateHandle.get<String>("counterId")
+        ?: throw IllegalArgumentException("Counter ID is required")
 
     private val _event = MutableSharedFlow<CounterEditEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
@@ -44,9 +45,9 @@ class CounterEditViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
-                ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
-            _editableCounter.value = initialCounter
+            counterUseCases.getCounter(counterId).collectLatest { counter ->
+                _editableCounter.value = counter?.toUiModel()
+            }
         }
     }
 
@@ -82,11 +83,11 @@ class CounterEditViewModel @Inject constructor(
             _isSaving.value = true
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    currentCounter.id,
+                    counterId,
                     newName = currentCounter.name,
                     newCategoryId = currentCounter.categoryId,
                     newCount = currentCounter.currentCount,
-                    canIncrease = currentCounter.canIncrease,
+                    canIncrease = currentCouncilncrease,
                     canDecrease = currentCounter.canDecrease
                 )
             )

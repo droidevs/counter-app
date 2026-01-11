@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.domain.toParcelable
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
@@ -63,7 +62,7 @@ class HomeViewModel @Inject constructor(
             is HomeAction.DecrementCounter -> decrementCounter(action.counter)
             is HomeAction.CounterClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCounterView(action.counter.toParcelable()))
+                    _event.emit(HomeEvent.NavigateToCounterView(action.counter.id))
                 }
             }
             HomeAction.AddCounterClicked -> {

@@ -4,6 +4,7 @@ data class CounterUseCases(
     val createCounter: CreateCounterUseCase,
     val deleteCounter: DeleteCounterUseCase,
     val getAllCounters: GetAllCountersUseCase,
+    val getCounter: GetCounterUseCase,
     val getCountersWithCategories: GetCountersWithCategoriesUseCase,
     val getLimitCounters: GetLimitCountersUseCase,
     val getLimitCountersWithCategory: GetLimitCountersWithCategoryUseCase,

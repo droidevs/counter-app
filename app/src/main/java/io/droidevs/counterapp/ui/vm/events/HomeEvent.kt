@@ -1,9 +1,7 @@
 package io.droidevs.counterapp.ui.vm.events
 
-import io.droidevs.counterapp.ui.CounterSnapshotParcelable
-
 sealed class HomeEvent {
-    data class NavigateToCounterView(val counter: CounterSnapshotParcelable) : HomeEvent()
+    data class NavigateToCounterView(val counterId: String) : HomeEvent()
     object NavigateToCreateCounter : HomeEvent()
     data class NavigateToCategoryView(val categoryId: String) : HomeEvent()
     object NavigateToCreateCategory : HomeEvent()
