@@ -12,7 +12,7 @@ class SettingsViewModelFactory(
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java))
-            return SettingsViewModel(repo) as T
+            return SettingsViewModel(/*repo*/) as T
 
         throw IllegalArgumentException("Unknown ViewModel class")
     }

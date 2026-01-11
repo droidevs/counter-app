@@ -67,9 +67,9 @@
     <string name="maximum_value_setting_title">Maximum value</string>
     <string name="none_value">None</string>
     <string name="hide_last_update_setting_title">Hide last update timestamp</string>
-    <string name="hide_last_update_setting_summary">Hide the 'last update' timestamp from the counter screen</string>
+    <string name="hide_last_update_setting_summary">Hide the \'last update\' timestamp from the counter screen</string>
     <string name="keep_screen_on_setting_title">Keep screen on</string>
-    <string name="keep_screen_on_setting_summary">Keep the screen on while you're on the counter screen</string>
+    <string name="keep_screen_on_setting_summary">Keep the screen on while you\'re on the counter screen</string>
     <string name="hardware_buttons_category_title">Hardware buttons</string>
     <string name="hardware_button_control_setting_title">Hardware button control</string>
     <string name="hardware_button_control_setting_summary">Use volume buttons to increment or decrement the counter</string>
@@ -77,7 +77,7 @@
     <string name="sounds_setting_summary">Play a sound when incrementing or decrementing</string>
     <string name="vibration_setting_summary">Vibrate when incrementing or decrementing</string>
     <string name="show_labels_setting_title">Show labels</string>
-    <string name="show_labels_setting_summary">Show labels on the main screen's navigation bar</string>
+    <string name="show_labels_setting_summary">Show labels on the main screen\'s navigation bar</string>
     <string name="backup_category_title">Backup</string>
     <string name="auto_backup_setting_title">Auto backup</string>
     <string name="auto_backup_setting_summary">Automatically back up counters to your Google account</string>
