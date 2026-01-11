@@ -89,4 +89,9 @@
     <string name="backup_status_setting_title">Backup status</string>
     <string name="last_backup_time_local_title">Last local backup</string>
     <string name="last_backup_time_cloud_title">Last cloud backup</string>
+
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_auto_battery">Auto (battery)</string>
 </resources>
