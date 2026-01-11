@@ -114,4 +114,14 @@
     <string name="settings_keep_on_title">Keep screen on</string>
     <string name="settings_hide_controls_summary">Hide increment and decrement buttons</string>
     <string name="settings_hide_controls_title">Hide controls</string>
+
+    <string name="settings_wipe_title">Wipe all data</string>
+    <string name="settings_export_summary">Export all counters to a file</string>
+    <string name="settings_export_title">Export counters</string>
+    <string name="settings_tip_summary">Support the development of this app</string>
+    <string name="settings_tip_title">Buy me a coffee</string>
+    <string name="settings_homepage_summary">Check out the app\'s homepage</string>
+    <string name="settings_homepage_title">Homepage</string>
+    <string name="unknown_version">Unknown</string>
+    <string name="settings_version_title">Version</string>
 </resources>
