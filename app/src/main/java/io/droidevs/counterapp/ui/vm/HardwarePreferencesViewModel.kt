@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCases
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
+import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
+import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,56 +16,69 @@ class HardwarePreferencesViewModel @Inject constructor(
     private val useCases: HardwarePreferenceUseCases
 ) : ViewModel() {
 
-    val hardwareButtonControl: StateFlow<Boolean> = useCases.getHardwareButtonControl()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    private val _uiState = MutableStateFlow(HardwarePreferenceUiState())
+    val uiState: StateFlow<HardwarePreferenceUiState> = _uiState.asStateFlow()
 
-    val soundsOn: StateFlow<Boolean> = useCases.getSoundsOn()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    private val _event = MutableSharedFlow<HardwarePreferenceEvent>()
+    val event: SharedFlow<HardwarePreferenceEvent> = _event.asSharedFlow()
 
-    val vibrationOn: StateFlow<Boolean> = useCases.getVibrationOn()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    init {
+        viewModelScope.launch {
+            useCases.getHardwareButtonControl().collectLatest { enabled ->
+                _uiState.update { it.copy(hardwareButtonControl = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getSoundsOn().collectLatest { enabled ->
+                _uiState.update { it.copy(soundsOn = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getVibrationOn().collectLatest { enabled ->
+                _uiState.update { it.copy(vibrationOn = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getLabelControl().collectLatest { show ->
+                _uiState.update { it.copy(showLabels = show) }
+            }
+        }
+    }
 
-    val showLabels: StateFlow<Boolean> = useCases.getLabelControl()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    fun onAction(action: HardwarePreferenceAction) {
+        when (action) {
+            is HardwarePreferenceAction.SetHardwareButtonControl -> setHardwareButtonControl(action.enabled)
+            is HardwarePreferenceAction.SetSoundsOn -> setSoundsOn(action.enabled)
+            is HardwarePreferenceAction.SetVibrationOn -> setVibrationOn(action.enabled)
+            is HardwarePreferenceAction.SetShowLabels -> setShowLabels(action.show)
+        }
+    }
 
-    // Update functions
-    fun setHardwareButtonControl(enabled: Boolean) {
+    private fun setHardwareButtonControl(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setHardwareButtonControl(enabled)
+            _event.emit(HardwarePreferenceEvent.ShowMessage("Hardware button control updated"))
         }
     }
 
-    fun setSoundsOn(enabled: Boolean) {
+    private fun setSoundsOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setSoundsOn(enabled)
+            _event.emit(HardwarePreferenceEvent.ShowMessage("Sounds updated"))
         }
     }
 
-    fun setVibrationOn(enabled: Boolean) {
+    private fun setVibrationOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setVibrationOn(enabled)
+            _event.emit(HardwarePreferenceEvent.ShowMessage("Vibration updated"))
         }
     }
 
-    fun setShowLabels(show: Boolean) {
+    private fun setShowLabels(show: Boolean) {
         viewModelScope.launch {
             useCases.setLabelControl(show)
+            _event.emit(HardwarePreferenceEvent.ShowMessage("Labels visibility updated"))
         }
     }
 }

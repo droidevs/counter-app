@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.domain.usecases.preference.DisplayPreferenceUseCases
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
+import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,69 +17,82 @@ class DisplayPreferencesViewModel @Inject constructor(
     private val useCases: DisplayPreferenceUseCases
 ) : ViewModel() {
 
-    val theme: StateFlow<Theme> = useCases.getTheme()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = Theme.SYSTEM
-        )
+    private val _uiState = MutableStateFlow(DisplayPreferenceUiState())
+    val uiState: StateFlow<DisplayPreferenceUiState> = _uiState.asStateFlow()
 
-    val hideControls: StateFlow<Boolean> = useCases.getHideControls()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    private val _event = MutableSharedFlow<DisplayPreferenceEvent>()
+    val event: SharedFlow<DisplayPreferenceEvent> = _event.asSharedFlow()
 
-    val hideLastUpdate: StateFlow<Boolean> = useCases.getHideLastUpdate()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    init {
+        viewModelScope.launch {
+            useCases.getTheme().collectLatest { theme ->
+                _uiState.update { it.copy(theme = theme) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getHideControls().collectLatest { hide ->
+                _uiState.update { it.copy(hideControls = hide) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getHideLastUpdate().collectLatest { hide ->
+                _uiState.update { it.copy(hideLastUpdate = hide) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getKeepScreenOn().collectLatest { keep ->
+                _uiState.update { it.copy(keepScreenOn = keep) }
+            }
+        }
+        viewModelScope.launch {
+            useCases.getLabelControl().collectLatest { show ->
+                _uiState.update { it.copy(showLabels = show) }
+            }
+        }
+    }
 
-    val keepScreenOn: StateFlow<Boolean> = useCases.getKeepScreenOn()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    fun onAction(action: DisplayPreferenceAction) {
+        when (action) {
+            is DisplayPreferenceAction.SetTheme -> setTheme(action.theme)
+            is DisplayPreferenceAction.SetHideControls -> setHideControls(action.hide)
+            is DisplayPreferenceAction.SetHideLastUpdate -> setHideLastUpdate(action.hide)
+            is DisplayPreferenceAction.SetKeepScreenOn -> setKeepScreenOn(action.keep)
+            is DisplayPreferenceAction.SetShowLabels -> setShowLabels(action.show)
+        }
+    }
 
-    val showLabels: StateFlow<Boolean> = useCases.getLabelControl()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
-
-    // Update methods
-    fun setTheme(value: Theme) {
+    private fun setTheme(value: Theme) {
         viewModelScope.launch {
             useCases.setTheme(value)
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Theme updated"))
         }
     }
 
-    fun setHideControls(hide: Boolean) {
+    private fun setHideControls(hide: Boolean) {
         viewModelScope.launch {
             useCases.setHideControls(hide)
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Controls visibility updated"))
         }
     }
 
-    fun setHideLastUpdate(hide: Boolean) {
+    private fun setHideLastUpdate(hide: Boolean) {
         viewModelScope.launch {
             useCases.setHideLastUpdate(hide)
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Last update visibility updated"))
         }
     }
 
-    fun setKeepScreenOn(keep: Boolean) {
+    private fun setKeepScreenOn(keep: Boolean) {
         viewModelScope.launch {
             useCases.setKeepScreenOn(keep)
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated"))
         }
     }
 
-    fun setShowLabels(show: Boolean) {
+    private fun setShowLabels(show: Boolean) {
         viewModelScope.launch {
             useCases.setLabelControl(show)
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Labels visibility updated"))
         }
     }
 }

@@ -14,17 +14,18 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
-import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.toParcelable
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
-import io.droidevs.counterapp.ui.fragments.CounterViewFragmentArgs
-import io.droidevs.counterapp.ui.fragments.CounterViewFragmentDirections
+import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
+import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -35,14 +36,13 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true) // this is depricated todo : i will do it later the modern way
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentCounterViewBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -50,49 +50,65 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvName = binding.tvCounterName
-        val tvCount = binding.tvCurrentCount
-        val tvCreatedAt = binding.tvCreatedAt
-        val tvLastUpdatedAt = binding.tvLastUpdatedAt
+        binding.ivIncrement.setOnClickListener {
+            viewModel.onAction(CounterViewAction.IncrementCounter)
+        }
 
-        val btnIncrease = binding.ivIncrement
-        val btnDecrease = binding.ivDecrement
+        binding.ivDecrement.setOnClickListener {
+            viewModel.onAction(CounterViewAction.DecrementCounter)
+        }
 
-        lifecycleScope.launch {
-            viewModel.counter.collect { counter ->
-                Log.i("CounterViewFragment", "Counter: $counter")
-                counter?.name?.let { name ->
-                    (activity as? AppCompatActivity)?.supportActionBar?.title = name
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        state.counter?.let { c ->
+                            (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
+                            binding.tvCounterName.text = c.name
+                            updateCount(binding.tvCurrentCount, c.currentCount)
+                            binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdAt.toString())
+                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.lastUpdatedAt.toString())
+
+                            binding.ivIncrement.isEnabled = c.canIncrease
+                            binding.ivDecrement.isEnabled = c.canDecrease
+                        }
+                    }
                 }
 
-                counter?.let { c ->
-                    tvName.text = c.name
-                    updateCount(tvCount,c.currentCount)
-                    tvCreatedAt.text = "Created at: ${c.createdAt}"
-                    tvLastUpdatedAt.text = "Last updated: ${c.lastUpdatedAt}"
-
-                    btnIncrease.isEnabled = c.canIncrease
-                    btnDecrease.isEnabled = c.canDecrease
+                launch {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is CounterViewEvent.NavigateToCounterEdit -> {
+                                findNavController().navigate(
+                                    CounterViewFragmentDirections.actionCounterViewToCounterEdit(
+                                        event.counter
+                                    )
+                                )
+                            }
+                            CounterViewEvent.NavigateBack -> {
+                                findNavController().popBackStack()
+                            }
+                            is CounterViewEvent.ShowMessage -> {
+                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        btnIncrease.setOnClickListener {
-            //Toast.makeText(requireContext(), "Increment", Toast.LENGTH_SHORT).show()
-            viewModel.increment()
-        }
-
-        btnDecrease.setOnClickListener {
-            //Toast.makeText(requireContext(), "Decrement", Toast.LENGTH_SHORT).show()
-            viewModel.decrement()
-        }
     }
 
-    fun updateCount(textView: TextView, value: Int) {
-        textView.text = value.toString()
-        textView.startAnimation(
-            AnimationUtils.loadAnimation(textView.context, R.anim.count_change)
-        )
+    private fun updateCount(textView: TextView, value: Int) {
+        if (textView.text != value.toString()) {
+            textView.text = value.toString()
+            textView.startAnimation(
+                AnimationUtils.loadAnimation(textView.context, R.anim.count_change)
+            )
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -105,26 +121,15 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.menu_edit -> {
-                //Toast.makeText(requireContext(), "Edit", Toast.LENGTH_SHORT).show()
-                viewModel.getCounter()?.let { counter ->
-                    findNavController().navigate(
-                        CounterViewFragmentDirections.actionCounterViewToCounterEdit(
-                            counter.toParcelable()
-                        )
-                    )
-                }
+                viewModel.onAction(CounterViewAction.EditCounterClicked)
                 true
             }
             R.id.menu_reset -> {
-                //Toast.makeText(requireContext(), "Reset", Toast.LENGTH_SHORT).show()
-                viewModel.reset()
+                viewModel.onAction(CounterViewAction.ResetCounter)
                 true
             }
             R.id.menu_delete -> {
-                viewModel.delete()
-                Toast.makeText(requireContext(), "Counter Deleted", Toast.LENGTH_SHORT).show()
-
-                findNavController().popBackStack()
+                viewModel.onAction(CounterViewAction.DeleteCounter)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,25 +137,12 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     }
 
     override fun onVolumeUp(): Boolean {
-//        Toast.makeText(
-//            requireContext(),
-//            "Volume up",
-//            Toast.LENGTH_SHORT
-//        ).show()
-        // todo : add a flag that is in the settings
-        viewModel.increment()
+        viewModel.onAction(CounterViewAction.IncrementCounter)
         return true
     }
 
     override fun onVolumeDown(): Boolean {
-//        Toast.makeText(
-//            requireContext(),
-//            "Volume down",
-//            Toast.LENGTH_SHORT
-//        ).show()
-        // todo : add a flag that is in the settings
-        viewModel.decrement()
+        viewModel.onAction(CounterViewAction.DecrementCounter)
         return true
     }
-
 }

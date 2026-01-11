@@ -4,17 +4,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toDomain
-import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.toUiModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
+import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
+import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -28,87 +27,52 @@ class CounterEditViewModel @Inject constructor(
     private val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
         ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
 
-    // Backing state
-    private val _counter = MutableStateFlow<Counter>(this.initialCounter.toDomain())
-    val counter = _counter
-        .asStateFlow()
-        .map { counter ->
-            counter.toSnapshot()
+    private val _uiState = MutableStateFlow(CounterEditUiState(counter = initialCounter))
+    val uiState: StateFlow<CounterEditUiState> = _uiState.asStateFlow()
+
+    private val _event = MutableSharedFlow<CounterEditEvent>()
+    val event = _event.asSharedFlow()
+
+    fun onAction(action: CounterEditAction) {
+        when (action) {
+            is CounterEditAction.UpdateName -> {
+                _uiState.update { state ->
+                    state.copy(counter = state.counter?.copy(name = action.name, lastUpdatedAt = Instant.now()))
+                }
+            }
+            is CounterEditAction.UpdateCurrentCount -> {
+                _uiState.update { state ->
+                    state.copy(counter = state.counter?.copy(currentCount = action.count, lastUpdatedAt = Instant.now()))
+                }
+            }
+            is CounterEditAction.SetCanIncrease -> {
+                _uiState.update { state ->
+                    state.copy(counter = state.counter?.copy(canIncrease = action.canIncrease, lastUpdatedAt = Instant.now()))
+                }
+            }
+            is CounterEditAction.SetCanDecrease -> {
+                _uiState.update { state ->
+                    state.copy(counter = state.counter?.copy(canDecrease = action.canDecrease, lastUpdatedAt = Instant.now()))
+                }
+            }
+            CounterEditAction.SaveClicked -> save()
         }
-    val _editedCounter = MutableStateFlow<Counter>(this.initialCounter.toDomain())
-    val editedCounter = _editedCounter
-        .asStateFlow()
-
-
-    // Update name
-    fun updateName(name: String) {
-        val c = _counter.value
-        _editedCounter.value = Counter(
-            id = c.id,
-            name = name,
-            currentCount = c.currentCount,
-            canIncrease = c.canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = Instant.now()
-        )
     }
 
-    // Update current count
-    fun updateCurrentCount(count: Int) {
-        val c = _counter.value
-        _editedCounter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = count,
-            canIncrease = c.canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = Instant.now()
-        )
-    }
-
-    // Update flags
-    fun setCanIncrease(canIncrease: Boolean) {
-        val c = _counter.value
-        _editedCounter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = c.currentCount,
-            canIncrease = canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = Instant.now()
-        )
-    }
-
-    fun setCanDecrease(canDecrease: Boolean) {
-        val c = _counter.value
-        _editedCounter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = c.currentCount,
-            canIncrease = c.canIncrease,
-            canDecrease = canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = Instant.now()
-        )
-    }
-
-    // Save logic (to repository or database)
-    fun save(onSaved: (() -> Unit)? = null) {
+    private fun save() {
+        val currentCounter = _uiState.value.counter ?: return
         viewModelScope.launch {
-            // Build an UpdateCounterRequest using the edited counter fields
-            val edited = _editedCounter.value
+            _uiState.update { it.copy(isSaving = true) }
             counterUseCases.updateCounter(
                 UpdateCounterRequest.of(
-                    edited.id,
-                    newName = edited.name,
-                    newCategoryId = edited.categoryId,
-                    newCount = edited.currentCount
+                    currentCounter.id,
+                    newName = currentCounter.name,
+                    newCategoryId = currentCounter.categoryId,
+                    newCount = currentCounter.currentCount
                 )
             )
-            onSaved?.invoke()
+            _uiState.update { it.copy(isSaving = false) }
+            _event.emit(CounterEditEvent.CounterSaved)
         }
     }
 }

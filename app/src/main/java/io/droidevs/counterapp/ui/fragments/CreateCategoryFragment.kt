@@ -8,17 +8,21 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.data.repository.CategoryColorProvider
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
-import io.droidevs.counterapp.domain.model.CategoryColor
 import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
-import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
-import java.util.UUID
+import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
+import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateCategoryFragment : Fragment() {
@@ -27,9 +31,6 @@ class CreateCategoryFragment : Fragment() {
     private val viewModel: CreateCategoryViewModel by viewModels()
 
     private lateinit var adapter: CategoryColorAdapter
-    private lateinit var colors: MutableList<CategoryColor>
-    private var selectedColor: Int = 0
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,94 +44,86 @@ class CreateCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val previewCard = binding.cardPreview
-        val previewName = binding.tvPreviewName
-        val editName = binding.etCategoryName
-        val recycler = binding.recyclerColors
-        val createBtn = binding.btnCreateCategory
+        setupRecyclerView()
+        setupListeners()
+        observeViewModel()
 
-
-        colors = CategoryColorProvider.generatePalette(
-            context = requireContext(),
-            numColors = 8
-        ) as MutableList<CategoryColor>
-
-
-        val suggested = CategoryColorProvider.generateColorForCategory(
-            context = requireContext(),
-            categoryName = binding.etCategoryName.text.toString().trim()
-        )
-
-        selectedColor = suggested.colorInt
-
-        previewCard.setCardBackgroundColor(selectedColor)
-
-        adapter = CategoryColorAdapter(colors) { color ->
-            selectedColor = color
-            previewCard.setCardBackgroundColor(color)
-        }
-
-        recycler.layoutManager = GridLayoutManager(requireContext(), 5)
-        recycler.adapter = adapter
-        recycler.addItemDecoration(
-            GridSpacingItemDecoration(resources.getDimensionPixelSize(R.dimen.color_spacing))
-        )
-
-
-        editName.doAfterTextChanged {
-            previewName.text = it?.toString().orEmpty()
+        if (viewModel.uiState.value.colors.isEmpty()) {
+            val colors = CategoryColorProvider.generatePalette(
+                context = requireContext(),
+                numColors = 8
+            )
+            viewModel.onAction(CreateCategoryAction.LoadPalette(colors))
+            
             val suggested = CategoryColorProvider.generateColorForCategory(
                 context = requireContext(),
-                categoryName = it.toString().trim()
+                categoryName = ""
             )
-
-            selectedColor = suggested.colorInt
-            previewCard.setCardBackgroundColor(selectedColor)
-        }
-
-        createBtn.setOnClickListener {
-            val name = editName.text?.toString()?.trim()
-
-            if (name.isNullOrEmpty()) {
-                editName.error = "Category name required"
-                return@setOnClickListener
-            }
-
-            saveCategory()
+            viewModel.onAction(CreateCategoryAction.ColorSelected(suggested.colorInt))
         }
     }
 
-
-    private fun saveCategory() {
-        val name = binding.etCategoryName.text.toString().trim()
-
-        if (name.isEmpty()) {
-            binding.etCategoryName.error = "Category name is required"
-            return
+    private fun setupRecyclerView() {
+        adapter = CategoryColorAdapter(mutableListOf()) { color ->
+            viewModel.onAction(CreateCategoryAction.ColorSelected(color))
         }
 
-        // Dummy category creation
-        val category = CategoryUiModel(
-            id = UUID.randomUUID().toString(),
-            name = name,
-            color = CategoryColor(colorInt = selectedColor),
-            countersCount = 0
+        binding.recyclerColors.layoutManager = GridLayoutManager(requireContext(), 5)
+        binding.recyclerColors.adapter = adapter
+        binding.recyclerColors.addItemDecoration(
+            GridSpacingItemDecoration(resources.getDimensionPixelSize(R.dimen.color_spacing))
         )
-
-        viewModel.saveCategory(
-            category = category,
-            onSuccess = {
-                Toast.makeText(
-                    requireContext(),
-                    "Category \"${category.name}\" created",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        )
-
     }
 
-    companion object {
-        fun newInstance() = CreateCategoryFragment()
+    private fun setupListeners() {
+        binding.etCategoryName.doAfterTextChanged {
+            val name = it?.toString().orEmpty()
+            viewModel.onAction(CreateCategoryAction.NameChanged(name))
+            
+            val suggested = CategoryColorProvider.generateColorForCategory(
+                context = requireContext(),
+                categoryName = name.trim()
+            )
+            viewModel.onAction(CreateCategoryAction.ColorSelected(suggested.colorInt))
+        }
+
+        binding.btnCreateCategory.setOnClickListener {
+            viewModel.onAction(CreateCategoryAction.CreateClicked)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        binding.tvPreviewName.text = state.name
+                        binding.cardPreview.setCardBackgroundColor(state.selectedColor)
+                        adapter.updateColors(state.colors)
+                        binding.btnCreateCategory.isEnabled = !state.isSaving
+                    }
+                }
+
+                launch {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is CreateCategoryEvent.CategoryCreated -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.category_created_message, event.name),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            is CreateCategoryEvent.ShowMessage -> {
+                                binding.etCategoryName.error = event.message
+                            }
+                            CreateCategoryEvent.NavigateBack -> {
+                                findNavController().popBackStack()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

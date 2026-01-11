@@ -11,11 +11,15 @@ import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
+import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
+import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -35,43 +39,72 @@ class CounterEditFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentCounterEditBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            viewModel.counter.collectLatest { counter ->
-                with(binding) {
-                    etName.setText(counter.name)
-                    etCurrentCount.setText(counter.currentCount.toString())
-                    switchCanIncrease.isChecked = counter.canIncrease
-                    switchCanDecrease.isChecked = counter.canDecrease
+        setupListeners()
+        observeViewModel()
+    }
 
-                    tvCreatedAt.text = "Created at: ${counter.createdAt}"
-                    tvLastUpdatedAt.text = "Last updated: ${counter.lastUpdatedAt}"
-                }
-            }
-        }
-        with(binding){
+    private fun setupListeners() {
+        with(binding) {
             etName.doAfterTextChanged {
-                viewModel.updateName(it.toString())
+                viewModel.onAction(CounterEditAction.UpdateName(it.toString()))
             }
 
             etCurrentCount.doAfterTextChanged {
-                it.toString().toIntOrNull()?.let { count -> viewModel.updateCurrentCount(count) }
+                it.toString().toIntOrNull()?.let { count -> 
+                    viewModel.onAction(CounterEditAction.UpdateCurrentCount(count))
+                }
             }
 
-            switchCanIncrease.setOnCheckedChangeListener { _,checked ->
-                viewModel.setCanIncrease(checked)
+            switchCanIncrease.setOnCheckedChangeListener { _, checked ->
+                viewModel.onAction(CounterEditAction.SetCanIncrease(checked))
             }
 
-            switchCanDecrease.setOnCheckedChangeListener { _,checked ->
-                viewModel.setCanDecrease(checked)
+            switchCanDecrease.setOnCheckedChangeListener { _, checked ->
+                viewModel.onAction(CounterEditAction.SetCanDecrease(checked))
+            }
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        state.counter?.let { counter ->
+                            if (binding.etName.text.toString() != counter.name) {
+                                binding.etName.setText(counter.name)
+                            }
+                            if (binding.etCurrentCount.text.toString() != counter.currentCount.toString()) {
+                                binding.etCurrentCount.setText(counter.currentCount.toString())
+                            }
+                            binding.switchCanIncrease.isChecked = counter.canIncrease
+                            binding.switchCanDecrease.isChecked = counter.canDecrease
+
+                            binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdAt.toString())
+                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.lastUpdatedAt.toString())
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            CounterEditEvent.CounterSaved -> {
+                                Toast.makeText(requireContext(), R.string.saved_message, Toast.LENGTH_SHORT).show()
+                            }
+                            is CounterEditEvent.ShowMessage -> {
+                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -86,17 +119,10 @@ class CounterEditFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.action_save -> {
-                save()
+                viewModel.onAction(CounterEditAction.SaveClicked)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    fun save() {
-        viewModel.save {
-            Toast.makeText(requireContext(), "Saved!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
 }

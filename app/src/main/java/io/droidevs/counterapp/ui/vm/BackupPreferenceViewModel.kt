@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
+import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
+import io.droidevs.counterapp.ui.vm.states.BackupPreferenceUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,33 +16,57 @@ class BackupPreferenceViewModel @Inject constructor(
     private val backup : BackupPreferenceUseCases
 ) : ViewModel() {
 
-    val autoBackup: StateFlow<Boolean> = backup.getAutoBackup()
-        .onStart { false }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    private val _uiState = MutableStateFlow(BackupPreferenceUiState())
+    val uiState: StateFlow<BackupPreferenceUiState> = _uiState.asStateFlow()
 
-    val backupInterval: StateFlow<Long> = backup.getBackupInterval()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 24L)
+    private val _event = MutableSharedFlow<BackupPreferenceEvent>()
+    val event: SharedFlow<BackupPreferenceEvent> = _event.asSharedFlow()
 
-    fun setAutoBackup(enabled: Boolean) {
+    init {
+        viewModelScope.launch {
+            backup.getAutoBackup()
+                .onStart { emit(false) } // Default initial value
+                .collect { value ->
+                    _uiState.update { it.copy(autoBackup = value) }
+                }
+        }
+
+        viewModelScope.launch {
+            backup.getBackupInterval()
+                .onStart { emit(24L) } // Default initial value
+                .collect { value ->
+                    _uiState.update { it.copy(backupInterval = value) }
+                }
+        }
+    }
+
+    fun onAction(action: BackupPreferenceAction) {
+        when (action) {
+            is BackupPreferenceAction.SetAutoBackup -> setAutoBackup(action.enabled)
+            is BackupPreferenceAction.SetBackupInterval -> setBackupInterval(action.hours)
+            BackupPreferenceAction.TriggerManualExport -> triggerManualExport()
+        }
+    }
+
+    private fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
             backup.setAutoBackup(enabled)
+            _uiState.update { it.copy(autoBackup = enabled) }
         }
     }
 
-    fun setBackupInterval(hours: Long) {
+    private fun setBackupInterval(hours: Long) {
         viewModelScope.launch {
-            backup.setBackupInterval(hours.coerceIn(1L..720L)) // reasonable limits
+            val coercedHours = hours.coerceIn(1L..720L)
+            backup.setBackupInterval(coercedHours)
+            _uiState.update { it.copy(backupInterval = coercedHours) }
         }
     }
 
-    fun triggerManualExport() {
-        // Implement export logic (e.g. create JSON/zip → SAF share sheet)
+    private fun triggerManualExport() {
         viewModelScope.launch {
-            // ... your export code ...
+            _event.emit(BackupPreferenceEvent.ExportTriggered)
+            _event.emit(BackupPreferenceEvent.ShowMessage("Manual export triggered (implementation pending)"))
         }
     }
 }

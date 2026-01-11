@@ -8,19 +8,21 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.fragments.CreateCounterFragmentArgs
 import io.droidevs.counterapp.ui.models.CategoryUiModel
-import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
-import kotlinx.coroutines.flow.collectLatest
+import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
+import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.util.UUID
 
 @AndroidEntryPoint
 class CreateCounterFragment : Fragment() {
@@ -29,22 +31,16 @@ class CreateCounterFragment : Fragment() {
 
     private val viewModel : CreateCounterViewModel by viewModels()
 
-    private var categoryId : String? = null
-    private var categories: List<CategoryUiModel> = emptyList()
-
-    private var adapter: ArrayAdapter<String>? = null
+    private var categoryAdapter: ArrayAdapter<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        categoryId = arguments?.let { CreateCounterFragmentArgs.fromBundle(it).categoryId }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentCreateCounterBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -52,89 +48,97 @@ class CreateCounterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (categoryId == null) {
-            setupCategorySpinner()
-            // Dummy categories
-            lifecycleScope.launch {
-                viewModel.categories.collectLatest { categories ->
-                    this@CreateCounterFragment.categories = categories
-                    adapter?.clear()
-                    adapter?.addAll(categories.map { it.name })
-                    adapter?.notifyDataSetChanged()
-                }
-            }
-        }
-        else
-            binding.spinnerCategory.isVisible = false
-
-        binding.btnSave.setOnClickListener { v->
-            saveCounter()
-        }
-
+        setupCategorySpinner()
+        setupListeners()
+        observeViewModel()
     }
 
-    fun setupCategorySpinner() {
-
-        adapter = ArrayAdapter(
+    private fun setupCategorySpinner() {
+        categoryAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
             mutableListOf()
         )
 
-
-        adapter?.setDropDownViewResource(
+        categoryAdapter?.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item
         )
 
-        binding.spinnerCategory.adapter = adapter
+        binding.spinnerCategory.adapter = categoryAdapter
 
         binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                categoryId = categories.find { it.name == binding.spinnerCategory.adapter.getItem(position) as String }?.id
+                val selectedCategoryName = binding.spinnerCategory.adapter.getItem(position) as String
+                val selectedCategory = viewModel.uiState.value.categories.find { it.name == selectedCategoryName }
+                viewModel.onAction(CreateCounterAction.CategorySelected(selectedCategory?.id))
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
-                categoryId = null
+                viewModel.onAction(CreateCounterAction.CategorySelected(null))
             }
         }
     }
 
-    fun saveCounter() {
-        val name = binding.etCounterName.text.toString()
-
-        if (name.isEmpty()) {
-            binding.etCounterName.error = "Name is required"
-            return
+    private fun setupListeners() {
+        binding.etCounterName.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.NameChanged(it.toString()))
         }
 
-        val canIncrease = binding.switchCanIncrease.isChecked
-        val canDecrease = binding.switchCanDecrease.isChecked
+        binding.switchCanIncrease.setOnCheckedChangeListener { _, checked ->
+            viewModel.onAction(CreateCounterAction.CanIncreaseChanged(checked))
+        }
 
-        val counter = CounterUiModel(
-            id = UUID.randomUUID().toString(),
-            name = name,
-            currentCount = 0,
-            categoryId = categoryId,
-            canIncrease = canIncrease,
-            canDecrease = canDecrease,
-            createdAt = Instant.now(),
-            lastUpdatedAt = Instant.now(),
-            orderAnchorAt = Instant.now()
-        )
+        binding.switchCanDecrease.setOnCheckedChangeListener { _, checked ->
+            viewModel.onAction(CreateCounterAction.CanDecreaseChanged(checked))
+        }
 
-        viewModel.saveCounter(
-            counter = counter,
-            onCounterSaved = {
-                Toast.makeText(requireContext(), "Counter saved", Toast.LENGTH_SHORT).show()
-            }
-        )
+        binding.btnSave.setOnClickListener {
+            viewModel.onAction(CreateCounterAction.SaveClicked)
+        }
     }
 
-    companion object {
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        binding.etCounterName.setText(state.name)
+                        binding.switchCanIncrease.isChecked = state.canIncrease
+                        binding.switchCanDecrease.isChecked = state.canDecrease
 
-        @JvmStatic
-        fun newInstance() =
-            CreateCounterFragment()
+                        binding.spinnerCategory.isVisible = state.categoryId == null
+                        categoryAdapter?.clear()
+                        categoryAdapter?.addAll(state.categories.map { it.name })
+                        categoryAdapter?.notifyDataSetChanged()
+
+                        state.categoryId?.let { id ->
+                            val selectedCategory = state.categories.find { it.id == id }
+                            val position = state.categories.indexOf(selectedCategory)
+                            if (position != -1 && binding.spinnerCategory.selectedItemPosition != position) {
+                                binding.spinnerCategory.setSelection(position)
+                            }
+                        }
+                        binding.btnSave.isEnabled = !state.isSaving
+                    }
+                }
+
+                launch {
+                    viewModel.event.collect { event ->
+                        when (event) {
+                            is CreateCounterEvent.CounterCreated -> {
+                                Toast.makeText(requireContext(), "Counter \"${event.name}\" saved", Toast.LENGTH_SHORT).show()
+                            }
+                            is CreateCounterEvent.ShowMessage -> {
+                                binding.etCounterName.error = event.message
+                            }
+                            CreateCounterEvent.NavigateBack -> {
+                                findNavController().popBackStack()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

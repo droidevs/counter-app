@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toDomain
+import io.droidevs.counterapp.domain.toParcelable
 import io.droidevs.counterapp.domain.toSnapshot
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
@@ -13,9 +14,10 @@ import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.CounterSnapshotParcelable
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.toUiModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
+import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
+import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,75 +30,78 @@ class CounterViewViewModel @Inject constructor(
     private val initialCounter: CounterUiModel = savedStateHandle.get<CounterSnapshotParcelable>("counter")
         ?.toUiModel() ?: throw IllegalArgumentException("Counter argument is required")
 
-    // modern approch better than live data
-    private val _counter = MutableStateFlow<Counter?>(this.initialCounter.toDomain())
+    private val _uiState = MutableStateFlow(CounterViewUiState(counter = initialCounter))
+    val uiState: StateFlow<CounterViewUiState> = _uiState.asStateFlow()
 
-    val counter = _counter
-        .asStateFlow()
-        .map { counter ->
-            counter?.toSnapshot()
-        }
+    private val _event = MutableSharedFlow<CounterViewEvent>()
+    val event = _event.asSharedFlow()
 
-    fun getCounter() = _counter.value?.toSnapshot()
-
-    fun increment() {
-        val c = _counter.value ?: return
-        c.increment()
-        _counter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = c.currentCount,
-            canIncrease = c.canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
-        )
-        save()
-    }
-
-    fun decrement() {
-        val c = _counter.value ?: return
-        c.decrement()
-        _counter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = c.currentCount,
-            canIncrease = c.canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
-        )
-        save()
-    }
-
-    fun reset() {
-        val c = _counter.value ?: return
-        c.reset()
-        _counter.value = Counter(
-            id = c.id,
-            name = c.name,
-            currentCount = c.currentCount,
-            canIncrease = c.canIncrease,
-            canDecrease = c.canDecrease,
-            createdAt = c.createdAt,
-            lastUpdatedAt = c.lastUpdatedAt
-        )
-        save()
-    }
-
-    fun save() {
-        viewModelScope.launch {
-            _counter.value?.let {
-                counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = it.id, newCount = it.currentCount))
+    fun onAction(action: CounterViewAction) {
+        when (action) {
+            CounterViewAction.IncrementCounter -> increment()
+            CounterViewAction.DecrementCounter -> decrement()
+            CounterViewAction.ResetCounter -> reset()
+            CounterViewAction.DeleteCounter -> delete()
+            CounterViewAction.EditCounterClicked -> {
+                _uiState.value.counter?.let {
+                    viewModelScope.launch {
+                        _event.emit(CounterViewEvent.NavigateToCounterEdit(it.toParcelable()))
+                    }
+                }
             }
         }
     }
 
-    fun delete() {
+    private fun increment() {
+        val currentCounter = _uiState.value.counter ?: return
+        if (!currentCounter.canIncrease) return
+        
+        val updated = currentCounter.copy(
+            currentCount = currentCounter.currentCount + 1,
+            lastUpdatedAt = java.time.Instant.now()
+        )
+        _uiState.update { it.copy(counter = updated) }
+        save(updated)
+    }
+
+    private fun decrement() {
+        val currentCounter = _uiState.value.counter ?: return
+        if (!currentCounter.canDecrease) return
+        
+        val updated = currentCounter.copy(
+            currentCount = currentCounter.currentCount - 1,
+            lastUpdatedAt = java.time.Instant.now()
+        )
+        _uiState.update { it.copy(counter = updated) }
+        save(updated)
+    }
+
+    private fun reset() {
+        val currentCounter = _uiState.value.counter ?: return
+        val updated = currentCounter.copy(
+            currentCount = 0,
+            lastUpdatedAt = java.time.Instant.now()
+        )
+        _uiState.update { it.copy(counter = updated) }
+        save(updated)
+    }
+
+    private fun save(counter: CounterUiModel) {
         viewModelScope.launch {
-            _counter.value?.let {
-                counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = it.id))
-            }
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = counter.id,
+                    newCount = counter.currentCount
+                )
+            )
+        }
+    }
+
+    private fun delete() {
+        val currentCounter = _uiState.value.counter ?: return
+        viewModelScope.launch {
+            counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = currentCounter.id))
+            _event.emit(CounterViewEvent.NavigateBack)
         }
     }
 }
