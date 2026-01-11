@@ -24,7 +24,7 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_time"
             android:key="hide_last_update"
-            android:title="@string/settings_hide_last_update_title" />
+            android:title="@string/hide_last_update_setting_title" />
 
         <SwitchPreferenceCompat
             android:key="show_labels"
