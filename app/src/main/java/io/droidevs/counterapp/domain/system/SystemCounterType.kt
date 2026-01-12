@@ -219,6 +219,16 @@ enum class SystemCounterType(
         nature = CounterNature.EVENT
     ),
 
+    DEVICE_SHUTDOWNS(
+        key = "DEVICE_SHUTDOWNS",
+        displayName = "Device Shutdowns",
+        category = SystemCategory.BATTERY_POWER,
+        unit = CounterUnit.TIMES,
+        updateMode = UpdateMode.INCREMENT,
+        nature = CounterNature.EVENT
+    ),
+
+
     // ───────────── System Events ─────────────
     ALARMS_SET(
         key = "ALARMS_SET",
@@ -238,4 +248,3 @@ enum class SystemCounterType(
         nature = CounterNature.EVENT
     );
 }
-

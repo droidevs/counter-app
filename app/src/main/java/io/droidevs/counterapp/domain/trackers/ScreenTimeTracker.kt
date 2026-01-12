@@ -1,5 +1,5 @@
 package io.droidevs.counterapp.domain.trackers
 
-interface DeviceUsageTracker {
+interface ScreenTimeTracker {
     fun getScreenTime(): Int
 }

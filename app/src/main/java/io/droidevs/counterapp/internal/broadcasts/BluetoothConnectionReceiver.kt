@@ -1,9 +1,9 @@
 package io.droidevs.counterapp.internal.broadcasts
 
+import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -12,16 +12,16 @@ import io.droidevs.counterapp.domain.system.SystemCounterType
 import io.droidevs.counterapp.internal.worker.SystemEventWorker
 
 @AndroidEntryPoint
-class ConnectivityReceiver : BroadcastReceiver() {
+class BluetoothConnectionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ConnectivityManager.CONNECTIVITY_ACTION) {
-            val networkType = intent.getIntExtra(ConnectivityManager.EXTRA_NETWORK_TYPE, -1)
-            if (networkType == ConnectivityManager.TYPE_WIFI) {
+        if (intent.action == BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED) {
+            val connectionState = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, -1)
+            if (connectionState == BluetoothAdapter.STATE_CONNECTED) {
                 val work = OneTimeWorkRequestBuilder<SystemEventWorker>()
                     .setInputData(
                         workDataOf(
-                            SystemEventWorker.COUNTER_KEY to SystemCounterType.WIFI_CONNECTIONS.key
+                            SystemEventWorker.COUNTER_KEY to SystemCounterType.BLUETOOTH_CONNECTIONS.key
                         )
                     )
                     .build()
