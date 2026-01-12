@@ -163,7 +163,8 @@ class FakeCounterRepository(
     }
 
     override suspend fun deleteAllCounters() {
-        TODO("Not yet implemented")
+        dummyData.counters.clear();
+        dummyData.emitCounterUpdate()
     }
 
     override fun getCounter(id: String): Flow<Counter?> {

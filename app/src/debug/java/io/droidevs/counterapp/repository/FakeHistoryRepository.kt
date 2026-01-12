@@ -1,5 +1,8 @@
 package io.droidevs.counterapp.repository
 
+
+import io.droidevs.counterapp.data.entities.HistoryEventEntity
+import io.droidevs.counterapp.data.entities.HistoryEventWithCounter
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.repository.HistoryRepository
@@ -18,7 +21,10 @@ class FakeHistoryRepository(
                 val counters = dummyData.counters.associateBy { it.id }
                 historyEvents.mapNotNull { historyEvent ->
                     counters[historyEvent.counterId]?.let {
-                        historyEvent.toDomain(it.name)
+                        HistoryEventWithCounter(
+                            historyEvent = historyEvent,
+                            counter = it
+                        ).toDomain()
                     }
                 }
             }
