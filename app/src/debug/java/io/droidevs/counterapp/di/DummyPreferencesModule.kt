@@ -11,6 +11,7 @@ import io.droidevs.counterapp.domain.preference.controle.HardwareButtonControlPr
 import io.droidevs.counterapp.domain.preference.controle.LabelControlPreference
 import io.droidevs.counterapp.domain.preference.controle.SoundsOnPreference
 import io.droidevs.counterapp.domain.preference.controle.VibrationOnPreference
+import io.droidevs.counterapp.domain.preference.counter.CounterDecrementStepPreference
 import io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference
 import io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference
 import io.droidevs.counterapp.domain.preference.counter.MaximumCounterValuePreference
@@ -30,6 +31,7 @@ import io.droidevs.counterapp.preference.controle.DummyHardwareButtonControlPref
 import io.droidevs.counterapp.preference.controle.DummyLabelControlPreference
 import io.droidevs.counterapp.preference.controle.DummySoundsOnPreference
 import io.droidevs.counterapp.preference.controle.DummyVibrationOnPreference
+import io.droidevs.counterapp.preference.counter.DummyCounterDecrementStepPreference
 import io.droidevs.counterapp.preference.counter.DummyCounterIncrementStepPreference
 import io.droidevs.counterapp.preference.counter.DummyDefaultCounterValuePreference
 import io.droidevs.counterapp.preference.counter.DummyMaximumCounterValuePreference
@@ -87,6 +89,11 @@ object DummyPreferencesModule {
     @Singleton
     fun provideCounterIncrementStepPreference(): CounterIncrementStepPreference =
         DummyCounterIncrementStepPreference()
+
+    @Provides
+    @Singleton
+    fun provideCounterDecrementStepPreference(): CounterDecrementStepPreference =
+        DummyCounterDecrementStepPreference()
 
     @Provides
     @Singleton

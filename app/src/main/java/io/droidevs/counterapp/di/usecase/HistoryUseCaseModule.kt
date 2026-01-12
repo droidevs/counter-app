@@ -8,6 +8,7 @@ import io.droidevs.counterapp.domain.repository.HistoryRepository
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.history.ClearHistoryUseCase
 import io.droidevs.counterapp.domain.usecases.history.GetHistoryUseCase
+import io.droidevs.counterapp.domain.usecases.history.HistoryUseCases
 import javax.inject.Singleton
 
 @Module
@@ -25,4 +26,9 @@ object HistoryUseCaseModule {
     @Provides
     @Singleton
     fun provideClearHistoryUseCase(repository: HistoryRepository): ClearHistoryUseCase = ClearHistoryUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideHistoryUseCases(getHistoryUseCase: GetHistoryUseCase, addHistoryEventUseCase: AddHistoryEventUseCase, clearHistoryUseCase: ClearHistoryUseCase): HistoryUseCases =
+        HistoryUseCases(getHistoryUseCase, addHistoryEventUseCase, clearHistoryUseCase)
 }

@@ -1,9 +1,9 @@
 package io.droidevs.counterapp.data.repository
 
 import io.droidevs.counterapp.data.dao.HistoryEventDao
+import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.repository.HistoryRepository
-import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,7 +14,7 @@ class HistoryRepositoryImpl @Inject constructor(
 ) : HistoryRepository {
 
     override fun getHistory(): Flow<List<HistoryEvent>> {
-        return historyEventDao.getAllEvents().map { list ->
+        return historyEventDao.getAllEventsWithCounter().map { list ->
             list.map { it.toDomain() }
         }
     }
