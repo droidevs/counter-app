@@ -1,5 +1,4 @@
-package io.droidevs.counterapp.di
-
+package io.droidevs.counterapp.di.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

@@ -30,11 +30,12 @@ class CounterPreferencesViewModel @Inject constructor(
 
     val uiState: StateFlow<CounterBehaviorPreferenceUiState> = combine(
         useCases.getCounterIncrementStep(),
+        useCases.getCounterDecrementStep(),
         useCases.getDefaultCounterValue(),
         useCases.getMinimumCounterValue().onStart { emit(null) }, // Provide a default null for initial combine
         useCases.getMaximumCounterValue().onStart { emit(null) }
-    ) { incrementStep, defaultValue, minimumValue, maximumValue ->
-        Triple(incrementStep, defaultValue, Pair(minimumValue, maximumValue)).toCounterBehaviorPreferenceUiState()
+    ) { incrementStep, decrementStep, defaultValue, minimumValue, maximumValue ->
+        Quintuple(incrementStep, decrementStep, defaultValue, minimumValue, maximumValue).toCounterBehaviorPreferenceUiState()
     }
         .onStart { emit(CounterBehaviorPreferenceUiState()) } // Initial default state
         .stateIn(
@@ -46,6 +47,7 @@ class CounterPreferencesViewModel @Inject constructor(
     fun onAction(action: CounterBehaviorPreferenceAction) {
         when (action) {
             is CounterBehaviorPreferenceAction.SetCounterIncrementStep -> setIncrementStep(action.step)
+            is CounterBehaviorPreferenceAction.SetCounterDecrementStep -> setDecrementStep(action.step)
             is CounterBehaviorPreferenceAction.SetDefaultCounterValue -> setDefaultValue(action.value)
             is CounterBehaviorPreferenceAction.SetMaximumCounterValue -> setMaximumValue(action.value)
             is CounterBehaviorPreferenceAction.SetMinimumCounterValue -> setMinimumValue(action.value)
@@ -56,6 +58,13 @@ class CounterPreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.setCounterIncrementStep(value.coerceAtLeast(1))
             _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Increment step updated"))
+        }
+    }
+
+    private fun setDecrementStep(value: Int) {
+        viewModelScope.launch {
+            useCases.setCounterDecrementStep(value.coerceAtLeast(1))
+            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Decrement step updated"))
         }
     }
 

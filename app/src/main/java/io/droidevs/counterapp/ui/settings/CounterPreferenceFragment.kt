@@ -23,6 +23,7 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.counter_preferences, rootKey)
 
         val incrementPref = findPreference<EditTextPreference>("increment_step")
+        val decrementPref = findPreference<EditTextPreference>("decrement_step")
         val defaultPref = findPreference<EditTextPreference>("default_value")
         val minPref = findPreference<EditTextPreference>("minimum_value")
         val maxPref = findPreference<EditTextPreference>("maximum_value")
@@ -34,6 +35,7 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
                     if (isInitializing) {
                         // Set initial values without triggering listeners
                         incrementPref?.text = state.counterIncrementStep.toString()
+                        decrementPref?.text = state.counterDecrementStep.toString()
                         defaultPref?.text = state.defaultCounterValue.toString()
                         minPref?.text = state.minimumCounterValue?.toString() ?: ""
                         maxPref?.text = state.maximumCounterValue?.toString() ?: ""
@@ -63,6 +65,16 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
                 val step = (newValue as? String)?.toIntOrNull() ?: 1
                 viewModel.onAction(
                     CounterBehaviorPreferenceAction.SetCounterIncrementStep(step.coerceAtLeast(1))
+                )
+            }
+            true
+        }
+
+        decrementPref?.setOnPreferenceChangeListener { _, newValue ->
+            if (!isInitializing) {
+                val step = (newValue as? String)?.toIntOrNull() ?: 1
+                viewModel.onAction(
+                    CounterBehaviorPreferenceAction.SetCounterDecrementStep(step.coerceAtLeast(1))
                 )
             }
             true

@@ -5,7 +5,14 @@
     <EditTextPreference
         android:key="increment_step"
         android:title="Increment step"
-        android:summary="How much the counter increases/decreases per tap"
+        android:summary="How much the counter increases per tap"
+        android:inputType="number"
+        android:defaultValue="1" />
+
+    <EditTextPreference
+        android:key="decrement_step"
+        android:title="Decrement step"
+        android:summary="How much the counter decreases per tap"
         android:inputType="number"
         android:defaultValue="1" />
 
