@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCases
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
+import io.droidevs.counterapp.ui.vm.mappers.Quintuple
 import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toCounterBehaviorPreferenceUiState
 import kotlinx.coroutines.flow.MutableSharedFlow

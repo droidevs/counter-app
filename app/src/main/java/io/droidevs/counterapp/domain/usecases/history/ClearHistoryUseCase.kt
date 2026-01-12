@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.domain.usecase.history
+package io.droidevs.counterapp.domain.usecases.history
 
 import io.droidevs.counterapp.domain.repository.HistoryRepository
 import javax.inject.Inject

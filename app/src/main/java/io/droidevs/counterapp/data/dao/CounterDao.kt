@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import io.droidevs.counterapp.data.entities.CounterEntity
 import io.droidevs.counterapp.data.entities.CounterWithCategoryEntity
@@ -51,9 +52,11 @@ interface CounterDao {
     @Query("DELETE FROM counters")
     suspend fun deleteAll()
 
+    @Transaction
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY order_anchor_at DESC")
     fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
 
+    @Transaction
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
     fun getCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
 

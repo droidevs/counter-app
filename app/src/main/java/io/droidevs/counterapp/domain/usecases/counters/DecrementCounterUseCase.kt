@@ -1,9 +1,8 @@
-package io.droidevs.counterapp.domain.usecase
+package io.droidevs.counterapp.domain.usecases.counters
 
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.HistoryEvent
-import io.droidevs.counterapp.domain.usecase.history.AddHistoryEventUseCase
-import io.droidevs.counterapp.domain.usecases.counters.UpdateCounterUseCase
+import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import kotlinx.coroutines.flow.first
@@ -15,7 +14,7 @@ class DecrementCounterUseCase @Inject constructor(
     private val addHistoryEventUseCase: AddHistoryEventUseCase
 ) {
     suspend operator fun invoke(counter: Counter) {
-        val oldValue = counter.value
+        val oldValue = counter.currentCount
         val decrementStep = getCounterDecrementStepUseCase().first()
         val newValue = oldValue - decrementStep
         updateCounterUseCase(

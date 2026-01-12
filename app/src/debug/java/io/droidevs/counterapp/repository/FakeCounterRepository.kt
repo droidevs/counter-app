@@ -162,6 +162,10 @@ class FakeCounterRepository(
         }
     }
 
+    override suspend fun deleteAllCounters() {
+        TODO("Not yet implemented")
+    }
+
     override fun getCounter(id: String): Flow<Counter?> {
         return countersFlow.map { list ->
             list.firstOrNull { it.id == id }

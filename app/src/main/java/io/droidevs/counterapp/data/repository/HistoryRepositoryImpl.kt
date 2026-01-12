@@ -14,16 +14,16 @@ class HistoryRepositoryImpl @Inject constructor(
 ) : HistoryRepository {
 
     override fun getHistory(): Flow<List<HistoryEvent>> {
-        return historyEventDao.getHistory().map { list ->
+        return historyEventDao.getAllEvents().map { list ->
             list.map { it.toDomain() }
         }
     }
 
     override suspend fun clearHistory() {
-        historyEventDao.clearHistory()
+        historyEventDao.clearAllEvents()
     }
 
     override suspend fun addHistoryEvent(event: HistoryEvent) {
-        historyEventDao.addHistoryEvent(event.toEntity())
+        historyEventDao.insertEvent(event.toEntity())
     }
 }
