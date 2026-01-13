@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun openHistory() {
-        // Navigate to history fragment
+        navController.navigate(R.id.action_to_history_graph)
     }
 
     private fun openSystemCategories() {
@@ -295,10 +295,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openAbout() {
-        // About screen
+        navController.navigate(R.id.action_to_about_graph)
     }
 
     private fun openSettings() {
-        // Settings screen
+        navController.navigate(R.id.action_to_settings_graph)
     }
 }

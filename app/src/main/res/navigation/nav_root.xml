@@ -8,6 +8,8 @@
     <include app:graph="@navigation/nav_settings"/>
     <include app:graph="@navigation/nav_counters"/>
     <include app:graph="@navigation/nav_categories"/>
+    <include app:graph="@navigation/nav_history"/>
+    <include app:graph="@navigation/nav_about"/>
 
     <action
         android:id="@+id/action_to_settings_graph"
@@ -36,6 +38,22 @@
     <action
         android:id="@+id/action_to_home_graph"
         app:destination="@id/home_graph"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true"/>
+
+    <action
+        android:id="@+id/action_to_history_graph"
+        app:destination="@id/nav_history"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true"/>
+
+    <action
+        android:id="@+id/action_to_about_graph"
+        app:destination="@id/nav_about"
         app:launchSingleTop="true"
         app:popUpTo="@id/nav_root"
         app:popUpToInclusive="false"
