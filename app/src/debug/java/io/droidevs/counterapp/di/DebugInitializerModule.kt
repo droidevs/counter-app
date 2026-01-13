@@ -9,8 +9,9 @@ import io.droidevs.counterapp.initializer.FakeDataInitializer
 import io.droidevs.counterapp.repository.DummyData
 import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
+@Deprecated("This module is no longer used. The fake implementations are now provided in the main source set for debug builds.")
+//@Module
+//@InstallIn(SingletonComponent::class)
 object DebugInitializerModule {
 
     @Provides

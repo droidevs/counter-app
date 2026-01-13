@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.di
 
 import android.content.Context
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
@@ -12,11 +11,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.data.service.FileExportServiceImpl
 import io.droidevs.counterapp.domain.services.FileExportService
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 
 @Module
@@ -29,7 +27,16 @@ object ExportModule {
         @ApplicationContext context: Context,
         gson: Gson
     ): FileExportService {
-        return FileExportServiceImpl(context, gson)
+        return if (BuildConfig.DEBUG) {
+            object : FileExportService {
+                // Fake export service for debug builds
+                override suspend fun exportToFile(fileName: String, content: String) {
+                    // No-op for debug
+                }
+            }
+        } else {
+            FileExportServiceImpl(context, gson)
+        }
     }
 
     @Provides

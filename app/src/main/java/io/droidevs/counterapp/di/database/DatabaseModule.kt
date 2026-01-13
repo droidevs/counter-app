@@ -9,8 +9,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.data.AppDatabase
 import io.droidevs.counterapp.domain.repository.DataInitializer
+import io.droidevs.counterapp.repository.DummyData
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,5 +42,14 @@ object DatabaseModule {
                 }
             }
         }).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDummyData(): DummyData? {
+        if (BuildConfig.DEBUG) {
+            return DummyData()
+        }
+        return null
     }
 }

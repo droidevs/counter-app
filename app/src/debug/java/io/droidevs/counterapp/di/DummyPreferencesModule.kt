@@ -46,8 +46,9 @@ import io.droidevs.counterapp.preference.notification.DummyNotificationSoundPref
 import io.droidevs.counterapp.preference.notification.DummyNotificationVibrationPatternPreference
 import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
+@Deprecated("This module is no longer used. The fake implementations are now provided in the main source set for debug builds.")
+//@Module
+//@InstallIn(SingletonComponent::class)
 object DummyPreferencesModule {
 
     @Provides

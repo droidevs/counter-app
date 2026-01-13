@@ -13,9 +13,10 @@ import io.droidevs.counterapp.repository.FakeCategoryRepository
 import io.droidevs.counterapp.repository.FakeCounterRepository
 import io.droidevs.counterapp.repository.FakeHistoryRepository
 
-@Module
-@InstallIn(SingletonComponent::class)
-object RepositoryModule {
+@Deprecated("This module is no longer used. The fake implementations are now provided in the main source set for debug builds.")
+//@Module
+//@InstallIn(SingletonComponent::class)
+object DummyRepositoryModule {
 
     @Provides
     @Singleton
@@ -41,4 +42,3 @@ object RepositoryModule {
         return FakeHistoryRepository(dummyData)
     }
 }
-
