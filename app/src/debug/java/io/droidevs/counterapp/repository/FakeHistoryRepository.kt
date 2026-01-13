@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.repository
 
 
+import android.content.Intent
 import io.droidevs.counterapp.data.entities.HistoryEventEntity
 import io.droidevs.counterapp.data.entities.HistoryEventWithCounter
 import io.droidevs.counterapp.data.toDomain
@@ -16,6 +17,7 @@ class FakeHistoryRepository(
 ) : HistoryRepository {
 
     override fun getHistory(): Flow<List<HistoryEvent>> {
+
         return dummyData.historyEventsFlow.asStateFlow()
             .map { historyEvents ->
                 val counters = dummyData.counters.associateBy { it.id }
