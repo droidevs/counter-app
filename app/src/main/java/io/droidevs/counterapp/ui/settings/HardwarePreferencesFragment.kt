@@ -8,12 +8,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.HardwarePreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class HardwarePreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: HardwarePreferencesViewModel by viewModels()

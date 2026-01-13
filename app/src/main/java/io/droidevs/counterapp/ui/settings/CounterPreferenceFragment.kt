@@ -8,12 +8,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.CounterPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class CounterPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: CounterPreferencesViewModel by viewModels()

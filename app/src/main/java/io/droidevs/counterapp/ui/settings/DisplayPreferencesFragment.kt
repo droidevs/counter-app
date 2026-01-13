@@ -9,6 +9,7 @@ import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.ui.vm.DisplayPreferencesViewModel
@@ -16,6 +17,8 @@ import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class DisplayPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: DisplayPreferencesViewModel by viewModels()

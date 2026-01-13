@@ -5,8 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 
+
+@AndroidEntryPoint
 class AboutFragment : Fragment() {
 
     override fun onCreateView(

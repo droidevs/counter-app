@@ -30,11 +30,13 @@ import androidx.window.layout.WindowMetricsCalculator
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 import io.droidevs.counterapp.ui.fragments.CategoryListFragment
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     var binding : ActivityMainBinding? = null
 

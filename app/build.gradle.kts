@@ -24,10 +24,21 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isDebuggable = true
+        }
+
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
+                getDefaultProguardFile(
+                    "proguard-android-optimize.txt"
+                ),
                 "proguard-rules.pro"
             )
         }
@@ -44,6 +55,18 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/java")
+        }
+        getByName("debug") {
+            java.srcDirs("src/debug/java")
+        }
+        getByName("release") {
+            java.srcDirs("src/release/java")
+        }
     }
 }
 

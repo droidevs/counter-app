@@ -10,12 +10,14 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.BackupPreferenceViewModel
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class BackupPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: BackupPreferenceViewModel by viewModels()

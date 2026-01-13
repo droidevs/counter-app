@@ -9,12 +9,15 @@ import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.NotificationsPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class NotificationPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: NotificationsPreferencesViewModel by viewModels()

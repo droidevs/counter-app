@@ -13,6 +13,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.ui.vm.OtherPreferencesViewModel
@@ -20,6 +21,8 @@ import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
 
