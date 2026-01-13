@@ -23,7 +23,7 @@ object DefaultData {
                 name = category.displayName,
                 color = category.color,
                 isSystem = true,
-                countersCount = category.systemCounterCount
+                countersCount = SystemCounterType.entries.count { it.category == category }
             )
         }
 
@@ -32,14 +32,14 @@ object DefaultData {
         categoryIdMap: Map<SystemCategory, String>
     ): List<CounterEntity> =
         SystemCounterType.entries
-            .filter { it.name !in existing.keys }
+            .filter { it.key !in existing.keys }
             .map { counter ->
                 CounterEntity(
                     id = UUID.randomUUID().toString(),
-                    kay = counter.name,
+                    kay = counter.key,
                     name = counter.displayName,
                     categoryId = categoryIdMap[counter.category]!!,
-                    currentCount = 0,
+                    currentCount = counter.defaultValue,
                     isSystem = true,
                     canDecrement = true,
                     canIncrement = true,

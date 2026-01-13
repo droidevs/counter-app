@@ -24,8 +24,6 @@ interface CounterRepository {
 
     fun getLastEditedWithCategory(limit : Int) : Flow<List<CounterWithCategory>>
 
-    suspend fun seedDefaults()
-
     fun getSystemCounters(): Flow<List<Counter>>
 
     suspend fun incrementSystemCounter(

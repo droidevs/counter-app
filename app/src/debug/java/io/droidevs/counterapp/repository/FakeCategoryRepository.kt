@@ -1,6 +1,5 @@
 package io.droidevs.counterapp.repository
 
-import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
@@ -20,7 +19,7 @@ class FakeCategoryRepository(
     private val categoriesFlow: Flow<List<Category>> =
         dummyData.categoriesFlow.asStateFlow()
             .map { categories ->
-                categories.map {
+                categories.map { 
                     it.toDomain()
                 }
             }
@@ -53,7 +52,7 @@ class FakeCategoryRepository(
         return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
 
             try {
-                val category = categories.first {
+                val category = categories.first { 
                     it.id == categoryId
                 }
 
@@ -86,7 +85,7 @@ class FakeCategoryRepository(
     override fun deleteCategory(categoryId: String) {
         dummyData.categories.removeIf { it.id == categoryId }
         // delete all counters related with that category or set category id to null
-        dummyData.counters.forEach {
+        dummyData.counters.forEach { 
             if (it.categoryId == categoryId) {
                 val newCounter = it.copy(
                     categoryId = null
@@ -100,15 +99,6 @@ class FakeCategoryRepository(
 
     override suspend fun getExistingCategoryColors(): List<Int> {
         return dummyData.categories.map { it.color }
-    }
-
-    override suspend fun seedDefaults() {
-        dummyData.categories.addAll(
-            DefaultData.buildCategories(
-                existing = emptyMap()
-            )
-        )
-        dummyData.emitCategoryUpdate()
     }
 
     override fun getSystemCategories(): Flow<List<Category>> {

@@ -74,9 +74,6 @@ class CounterRepositoryImpl(
         }
     }
 
-    override suspend fun seedDefaults() {
-    }
-
     override fun getSystemCounters(): Flow<List<Counter>> {
         return dao.getAllSystem().map { counters ->
             counters.map { it.toDomain() }

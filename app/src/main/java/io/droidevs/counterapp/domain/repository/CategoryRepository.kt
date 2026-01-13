@@ -21,7 +21,5 @@ interface CategoryRepository {
 
     suspend fun getExistingCategoryColors(): List<Int>
 
-    suspend fun seedDefaults()
-
     fun getSystemCategories(): Flow<List<Category>>
 }
