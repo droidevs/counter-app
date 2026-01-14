@@ -4,55 +4,41 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.services.FileExportService
-import io.droidevs.counterapp.domain.services.FileImportService
-import io.droidevs.counterapp.domain.usecases.export.ExportCountersUseCase
+import io.droidevs.counterapp.domain.usecases.export.ExportUseCase
 import io.droidevs.counterapp.domain.usecases.export.ExportUseCases
 import io.droidevs.counterapp.domain.usecases.export.GetAvailableExportFormatsUseCase
-import io.droidevs.counterapp.domain.usecases.import.ImportCountersUseCase
-import io.droidevs.counterapp.domain.usecases.import.ImportUseCases
 
 @Module
 @InstallIn(ViewModelComponent::class)
 object ExportUseCaseModule {
 
     @Provides
-    fun provideExportCountersUseCase(
+    fun provideExportUseCase(
         counterRepository: CounterRepository,
+        categoryRepository: CategoryRepository,
         fileExportService: FileExportService
-    ): ExportCountersUseCase {
-        return ExportCountersUseCase(counterRepository, fileExportService)
+    ): ExportUseCase {
+        return ExportUseCase(counterRepository, categoryRepository, fileExportService)
     }
 
     @Provides
-    fun provideGetAvailableExportFormatsUseCase(fileExportService: FileExportService): GetAvailableExportFormatsUseCase {
+    fun provideGetAvailableExportFormatsUseCase(
+        fileExportService: FileExportService
+    ): GetAvailableExportFormatsUseCase {
         return GetAvailableExportFormatsUseCase(fileExportService)
     }
 
     @Provides
     fun provideExportUseCases(
-        exportCountersUseCase: ExportCountersUseCase,
+        exportUseCase: ExportUseCase,
         getAvailableExportFormatsUseCase: GetAvailableExportFormatsUseCase
     ): ExportUseCases {
         return ExportUseCases(
-            exportCounters = exportCountersUseCase,
+            export = exportUseCase,
             getAvailableExportFormats = getAvailableExportFormatsUseCase
-        )
-    }
-
-    @Provides
-    fun provideImportCountersUseCase(
-        counterRepository: CounterRepository,
-        fileImportService: FileImportService
-    ): ImportCountersUseCase {
-        return ImportCountersUseCase(counterRepository, fileImportService)
-    }
-
-    @Provides
-    fun provideImportUseCases(importCountersUseCase: ImportCountersUseCase): ImportUseCases {
-        return ImportUseCases(
-            importCounters = importCountersUseCase
         )
     }
 }

@@ -22,4 +22,8 @@ interface CategoryRepository {
     suspend fun getExistingCategoryColors(): List<Int>
 
     fun getSystemCategories(): Flow<List<Category>>
+
+    suspend fun importCategories(categories: List<Category>)
+
+    suspend fun exportCategories(): List<Category>
 }

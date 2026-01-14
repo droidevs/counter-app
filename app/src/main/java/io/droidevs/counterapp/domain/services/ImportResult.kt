@@ -1,9 +1,6 @@
 package io.droidevs.counterapp.domain.services
 
-import io.droidevs.counterapp.domain.model.Counter
-
-sealed class ImportResult {
-    data class Success(val counters: List<Counter>) : ImportResult()
-    data class Error(val message: String) : ImportResult()
-    object Cancelled : ImportResult()
+sealed class ImportResult<out T> {
+    data class Success<T>(val data: T) : ImportResult<T>()
+    data class Error(val message: String) : ImportResult<Nothing>()
 }

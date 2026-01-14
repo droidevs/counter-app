@@ -6,11 +6,10 @@ import androidx.core.content.FileProvider
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.droidevs.counterapp.BuildConfig
+import io.droidevs.counterapp.domain.model.Backup
+import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.services.CounterExport
-import io.droidevs.counterapp.domain.services.ExportFormat
-import io.droidevs.counterapp.domain.services.ExportResult
-import io.droidevs.counterapp.domain.services.FileExportService
+import io.droidevs.counterapp.domain.services.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -32,11 +31,12 @@ class FileExportServiceImpl @Inject constructor(
         private const val FILE_PREFIX = "counters_export"
     }
 
-    override suspend fun export(counters: List<Counter>, format: ExportFormat): ExportResult {
+    override suspend fun export(counters: List<Counter>, categories: List<Category>, format: ExportFormat): ExportResult {
         return withContext(Dispatchers.IO) {
             try {
-                val exportData = counters.map { it.toExportModel() }
-                val tempFile = createTempExportFile(exportData, format)
+                val backup = Backup(counters, categories)
+                val backupExport = backup.toBackupExport()
+                val tempFile = createTempExportFile(backupExport, format)
                 val fileUri = getUriForFile(tempFile)
                 ExportResult.Success(fileUri, tempFile.name)
             } catch (e: Exception) {
@@ -50,7 +50,7 @@ class FileExportServiceImpl @Inject constructor(
     }
 
     private fun createTempExportFile(
-        counters: List<CounterExport>,
+        backup: BackupExport,
         format: ExportFormat
     ): File {
         val tempDir = File(context.cacheDir, "temp_exports").apply {
@@ -61,85 +61,115 @@ class FileExportServiceImpl @Inject constructor(
         val tempFile = File(tempDir, fileName)
 
         when (format) {
-            ExportFormat.CSV -> exportToCsv(counters, tempFile)
-            ExportFormat.JSON -> exportToJson(counters, tempFile)
-            ExportFormat.XML -> exportToXml(counters, tempFile)
-            ExportFormat.TXT -> exportToTxt(counters, tempFile)
+            ExportFormat.CSV -> exportToCsv(backup, tempFile)
+            ExportFormat.JSON -> exportToJson(backup, tempFile)
+            ExportFormat.XML -> exportToXml(backup, tempFile)
+            ExportFormat.TXT -> exportToTxt(backup, tempFile)
         }
 
         return tempFile
     }
 
-    private fun exportToJson(counters: List<CounterExport>, file: File) {
+    private fun exportToJson(backup: BackupExport, file: File) {
         file.bufferedWriter().use { writer ->
-            gson.toJson(counters, writer)
+            gson.toJson(backup, writer)
         }
     }
 
-    private fun exportToCsv(counters: List<CounterExport>, file: File) {
+    private fun exportToCsv(backup: BackupExport, file: File) {
         file.bufferedWriter().use { writer ->
-            writer.write("ID,Name,Value,Category,Created At,Updated At,Can Increase,Can Decrease\n")
+            writer.write("Type,ID,Name,Value,Category,Created At,Updated At,Can Increase,Can Decrease,Color\n")
 
-            counters.forEach { counter ->
+            backup.counters.forEach { counter ->
                 writer.write(
-                    "${escapeCsv(counter.id)}," +
+                    "Counter,${escapeCsv(counter.id)}," +
                             "${escapeCsv(counter.name)}," +
                             "${counter.value}," +
                             "${escapeCsv(counter.category ?: "")}," +
                             "${counter.createdAt}," +
                             "${counter.updatedAt}," +
                             "${counter.canIncrease}," +
-                            "${counter.canDecrease}\n"
+                            "${counter.canDecrease}," +
+                            "\n"
+                )
+            }
+            backup.categories.forEach { category ->
+                writer.write(
+                    "Category,${escapeCsv(category.id)}," +
+                            "${escapeCsv(category.name)}," +
+                            ",," +
+                            ",," +
+                            ",," +
+                            ",," +
+                            ",," +
+                            "${category.color}\n"
                 )
             }
         }
     }
 
-    private fun exportToXml(counters: List<CounterExport>, file: File) {
+    private fun exportToXml(backup: BackupExport, file: File) {
         file.bufferedWriter().use { writer ->
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-            writer.write("<counters>\n")
-
-            counters.forEach { counter ->
-                writer.write("  <counter>\n")
-                writer.write("    <id>${escapeXml(counter.id)}</id>\n")
-                writer.write("    <name>${escapeXml(counter.name)}</name>\n")
-                writer.write("    <value>${counter.value}</value>\n")
+            writer.write("<backup>\n")
+            writer.write("  <counters>\n")
+            backup.counters.forEach { counter ->
+                writer.write("    <counter>\n")
+                writer.write("      <id>${escapeXml(counter.id)}</id>\n")
+                writer.write("      <name>${escapeXml(counter.name)}</name>\n")
+                writer.write("      <value>${counter.value}</value>\n")
                 counter.category?.let {
-                    writer.write("    <category>${escapeXml(it)}</category>\n")
+                    writer.write("      <category>${escapeXml(it)}</category>\n")
                 }
-                writer.write("    <createdAt>${counter.createdAt}</createdAt>\n")
-                writer.write("    <updatedAt>${counter.updatedAt}</updatedAt>\n")
-                writer.write("    <canIncrease>${counter.canIncrease}</canIncrease>\n")
-                writer.write("    <canDecrease>${counter.canDecrease}</canDecrease>\n")
-                writer.write("  </counter>\n")
+                writer.write("      <createdAt>${counter.createdAt}</createdAt>\n")
+                writer.write("      <updatedAt>${counter.updatedAt}</updatedAt>\n")
+                writer.write("      <canIncrease>${counter.canIncrease}</canIncrease>\n")
+                writer.write("      <canDecrease>${counter.canDecrease}</canDecrease>\n")
+                writer.write("    </counter>\n")
             }
-
-            writer.write("</counters>")
+            writer.write("  </counters>\n")
+            writer.write("  <categories>\n")
+            backup.categories.forEach { category ->
+                writer.write("    <category>\n")
+                writer.write("      <id>${escapeXml(category.id)}</id>\n")
+                writer.write("      <name>${escapeXml(category.name)}</name>\n")
+                writer.write("      <color>${escapeXml(category.color)}</color>\n")
+                writer.write("    </category>\n")
+            }
+            writer.write("  </categories>\n")
+            writer.write("</backup>")
         }
     }
 
-    private fun exportToTxt(counters: List<CounterExport>, file: File) {
+    private fun exportToTxt(backup: BackupExport, file: File) {
         file.bufferedWriter().use { writer ->
-            writer.write("Counters Export - ${formatDateForExport(Instant.now())}\n")
+            writer.write("Backup - ${formatDateForExport(Instant.now())}\n")
             writer.write("=".repeat(50) + "\n\n")
 
-            counters.forEachIndexed { index, counter ->
+            writer.write("Counters (${backup.counters.size}):\n")
+            writer.write("-".repeat(50) + "\n")
+            backup.counters.forEachIndexed { index, counter ->
                 writer.write("Counter #${index + 1}:\n")
                 writer.write("  ID: ${counter.id}\n")
                 writer.write("  Name: ${counter.name}\n")
                 writer.write("  Value: ${counter.value}\n")
                 counter.category?.let {
-                    writer.write("  Category: $it\n")
+                    writer.write("  Category ID: $it\n")
                 }
                 writer.write("  Created: ${counter.createdAt}\n")
                 writer.write("  Updated: ${counter.updatedAt}\n")
-                writer.write("  Can Increase: ${counter.canIncrease}\n")
-                writer.write("  Can Decrease: ${counter.canDecrease}\n")
                 writer.write("-".repeat(30) + "\n")
             }
 
-            writer.write("\nTotal Counters: ${counters.size}")
+            writer.write("\nCategories (${backup.categories.size}):\n")
+            writer.write("-".repeat(50) + "\n")
+            backup.categories.forEachIndexed { index, category ->
+                writer.write("Category #${index + 1}:\n")
+                writer.write("  ID: ${category.id}\n")
+                writer.write("  Name: ${category.name}\n")
+                writer.write("  Color: ${category.color}\n")
+                writer.write("-".repeat(30) + "\n")
+            }
         }
     }
 
@@ -183,17 +213,32 @@ class FileExportServiceImpl @Inject constructor(
             .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
-}
 
-private fun Counter.toExportModel(): CounterExport {
-    return CounterExport(
-        id = id,
-        name = name,
-        value = currentCount,
-        category = categoryId,
-        createdAt = createdAt,
-        updatedAt = lastUpdatedAt,
-        canIncrease = canIncrease,
-        canDecrease = canDecrease
-    )
+    private fun Backup.toBackupExport(): BackupExport {
+        val countersExport = counters.map { it.toCounterExport() }
+        val categoriesExport = categories.map { it.toCategoryExport() }
+        return BackupExport(countersExport, categoriesExport)
+    }
+
+    private fun Counter.toCounterExport(): CounterExport {
+        return CounterExport(
+            id = id,
+            name = name,
+            value = currentCount,
+            category = categoryId,
+            createdAt = createdAt,
+            updatedAt = lastUpdatedAt,
+            canIncrease = canIncrease,
+            canDecrease = canDecrease
+        )
+    }
+
+    private fun Category.toCategoryExport(): CategoryExport {
+        return CategoryExport(
+            id = id,
+            name = name,
+            color = color.name
+        )
+    }
+
 }

@@ -4,6 +4,6 @@ import javax.inject.Inject
 
 
 data class ExportUseCases @Inject constructor(
-    val exportCounters: ExportCountersUseCase,
+    val export: ExportUseCase,
     val getAvailableExportFormats: GetAvailableExportFormatsUseCase
 )
