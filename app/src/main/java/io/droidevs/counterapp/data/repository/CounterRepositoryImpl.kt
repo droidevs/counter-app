@@ -12,7 +12,6 @@ import io.droidevs.counterapp.domain.toDomainModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlin.collections.map
 
 class CounterRepositoryImpl(
     private var dao: CounterDao,
@@ -20,7 +19,7 @@ class CounterRepositoryImpl(
 ) : CounterRepository {
     override fun getCounter(id: String): Flow<Counter?> {
         return dao.getCounter(id)
-            .map { it.toDomain() }
+            .map { it?.toDomain() }
     }
 
     override fun getAllCounters(): Flow<List<Counter>> {
@@ -30,47 +29,52 @@ class CounterRepositoryImpl(
     }
 
     override fun getLastEdited(limit: Int): Flow<List<Counter>> {
-        return dao.getCounters(5).map { counters ->
+        return dao.getCounters(limit).map { counters ->
             counters.map { it.toDomain() }
         }
     }
 
     override fun getTotalCounters() : Flow<Int> {
-        Log.i("CounterRepository", "Getting total counters")
         return dao.getTotalCounters()
     }
 
     override suspend fun saveCounter(counter : Counter) {
-        val n = dao.update(counter.toEntity())
-        Log.i("CounterRepository", "Updated $n counters")
+        val oldCounter = dao.getCounter(counter.id).first()
+        dao.upsert(counter.toEntity())
+
+        if (oldCounter?.categoryId != counter.categoryId) {
+            oldCounter?.categoryId?.let { oldCatId ->
+                categoryDao.decrementCounterCount(oldCatId)
+            }
+            counter.categoryId?.let { newCatId ->
+                categoryDao.incrementCounterCount(newCatId)
+            }
+        }
     }
 
     override suspend fun createCounter(counter: Counter) {
-        dao.insert(counter.toEntity())
-        val category = categoryDao.getCategory(counter.categoryId.toString()).first()
-        category.copy(
-            countersCount = category.countersCount + 1
-        )
-        categoryDao.updateCategory(category)
+        dao.upsert(counter.toEntity())
+        counter.categoryId?.let { categoryId ->
+            categoryDao.incrementCounterCount(categoryId)
+        }
     }
 
     override suspend fun deleteCounter(counter: Counter) {
         dao.delete(counter.toEntity())
+        counter.categoryId?.let { categoryId ->
+            categoryDao.decrementCounterCount(categoryId)
+        }
     }
 
     override fun getCountersWithCategories(): Flow<List<CounterWithCategory>> {
         return dao.getCountersWithCategories().map { data ->
-            data.map {
-                it.toDomainModel()
-            }
+            data.map { it.toDomainModel() }
         }
     }
 
     override fun getLastEditedWithCategory(limit: Int): Flow<List<CounterWithCategory>> {
         return dao.getCountersWithCategories(limit).map { data ->
-            data.map {
-                it.toDomainModel()
-            }
+            data.map { it.toDomainModel() }
         }
     }
 
@@ -89,14 +93,16 @@ class CounterRepositoryImpl(
     }
 
     override suspend fun deleteAllCounters() {
-        dao.deleteAll()
+        dao.deleteAllUserCounters()
+        categoryDao.resetAllUserCategoryCounts()
     }
 
     override suspend fun exportCounters(): List<Counter> {
-        return dao.getAll().first().map { it.toDomain() }
+        return dao.getAllUserCounters().first().map { it.toDomain() }
     }
 
     override suspend fun importCounters(counters: List<Counter>) {
-        dao.insertAll(counters.map { it.toEntity() })
+        dao.upsertAll(counters.map { it.toEntity() })
+        categoryDao.recalculateAllCategoryCounts()
     }
 }

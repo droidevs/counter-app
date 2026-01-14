@@ -3,6 +3,7 @@ package io.droidevs.counterapp.data.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -13,12 +14,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CounterDao {
 
-
     @Query("SELECT * FROM counters WHERE id = :id")
-    fun getCounter(id: String): Flow<CounterEntity>
+    fun getCounter(id: String): Flow<CounterEntity?>
 
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
     fun getAll() : Flow<List<CounterEntity>>
+
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
+    fun getAllUserCounters() : Flow<List<CounterEntity>>
 
     @Query("SELECT * FROM counters WHERE is_system = 1")
     fun getAllSystem(): Flow<List<CounterEntity>>
@@ -26,14 +29,20 @@ interface CounterDao {
     @Query("SELECT * FROM counters WHERE kay = :key LIMIT 1")
     suspend fun getByKey(key: String): CounterEntity?
 
-    @Insert
-    suspend fun insertAll(counters: List<CounterEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(counters: List<CounterEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(counter: CounterEntity)
 
     @Update
     suspend fun update(counter: CounterEntity) : Int
 
     @Insert
     suspend fun insert(counter: CounterEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(counters: List<CounterEntity>)
 
     @Query("""
         SELECT * FROM counters
@@ -48,6 +57,9 @@ interface CounterDao {
 
     @Delete
     suspend fun delete(counter: CounterEntity)
+
+    @Query("DELETE FROM counters WHERE is_system = 0")
+    suspend fun deleteAllUserCounters()
 
     @Query("DELETE FROM counters")
     suspend fun deleteAll()

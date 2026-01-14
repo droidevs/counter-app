@@ -13,6 +13,33 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
 
+    @Query("UPDATE categories SET counters_count = counters_count + 1 WHERE id = :categoryId")
+    suspend fun incrementCounterCount(categoryId: String)
+
+    @Query("UPDATE categories SET counters_count = counters_count - 1 WHERE id = :categoryId")
+    suspend fun decrementCounterCount(categoryId: String)
+
+    @Query("UPDATE categories SET counters_count = 0 WHERE is_system = 0")
+    suspend fun resetAllUserCategoryCounts()
+
+    @Transaction
+    suspend fun recalculateAllCategoryCounts() {
+        resetAllUserCategoryCounts()
+        val counts = getCategoryCounterCounts()
+        counts.forEach { count ->
+            setCategoryCount(count.categoryId, count.count)
+        }
+    }
+
+    @Query("""
+        SELECT categoryId, COUNT(*) as count FROM counters
+        WHERE categoryId IS NOT NULL AND is_system = 0
+        GROUP BY categoryId
+    """)
+    fun getCategoryCounterCounts(): List<CategoryCounterCount>
+
+    @Query("UPDATE categories SET counters_count = :count WHERE id = :categoryId")
+    suspend fun setCategoryCount(categoryId: String, count: Int)
 
     @Query("SELECT * FROM categories WHERE is_system = 0 ORDER BY counters_count DESC LIMIT :limit")
     fun getTopCategories(limit : Int): Flow<List<CategoryEntity>>
@@ -26,8 +53,9 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE is_system = 1")
     fun getSystemCategories(): Flow<List<CategoryEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
+
     @Insert
     suspend fun insert(category: CategoryEntity)
 
@@ -36,9 +64,7 @@ interface CategoryDao {
 
     @Transaction
     @Query("SELECT * FROM categories WHERE id = :categoryId AND is_system = 0")
-    fun getCategoryWithCounters(
-        categoryId: String
-    ) : Flow<CategoryWithCountersEntity>
+    fun getCategoryWithCounters(categoryId: String): Flow<CategoryWithCountersEntity>
 
     @Update
     fun updateCategory(category : CategoryEntity)
@@ -53,3 +79,8 @@ interface CategoryDao {
     suspend fun getExistingCategoryColors(): List<Int>
 
 }
+
+data class CategoryCounterCount(
+    val categoryId: String,
+    val count: Int
+)
