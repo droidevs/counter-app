@@ -5,13 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.fragments.CreateCounterFragment">
+
     <!-- Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        >
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,13 +27,6 @@
                 android:textStyle="bold"
                 android:textSize="16sp" />
 
-            <!-- Category dropdown -->
-            <Spinner
-                android:id="@+id/spinnerCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
-
             <EditText
                 android:id="@+id/etCounterName"
                 android:layout_width="match_parent"
@@ -41,6 +34,28 @@
                 android:hint="Enter counter name"
                 android:inputType="text"
                 android:layout_marginTop="8dp" />
+
+            <!-- Category Chip -->
+            <TextView
+                android:id="@+id/tvCategoryChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/chip_background"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Counter for category: My Category" />
+
+            <!-- Category dropdown -->
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
 
             <!-- Divider -->
             <View
@@ -99,7 +114,18 @@
                     android:checked="false" />
             </LinearLayout>
 
+            <EditText
+                android:id="@+id/etInitialValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Initial counter value"
+                android:inputType="number"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
             <TextView
+                android:id="@+id/tvInitialValueDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="The counter will start at 0"

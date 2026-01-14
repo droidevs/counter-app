@@ -4,14 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
-import io.droidevs.counterapp.ui.models.CounterUiModel
+import io.droidevs.counterapp.ui.model.CounterUiModel
+import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
-import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
 import io.droidevs.counterapp.ui.vm.mappers.toEditUiState
+import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -19,12 +19,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CounterEditViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases
 ) : ViewModel() {
 
-    private val counterId: String = savedStateHandle.get<String>("counterId")
-        ?: throw IllegalArgumentException("Counter ID is required")
+    private val counterId: String = savedStateHandle.get<String>("counterId")!!
 
     private val _event = MutableSharedFlow<CounterEditEvent>(extraBufferCapacity = 1)
     val event = _event.asSharedFlow()
@@ -45,8 +44,8 @@ class CounterEditViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            counterUseCases.getCounter(counterId).collectLatest { counter ->
-                _editableCounter.value = counter?.toUiModel()
+            counterUseCases.getCounter(counterId).collect { domainCounter ->
+                _editableCounter.value = domainCounter?.toUiModel()
             }
         }
     }
@@ -54,45 +53,56 @@ class CounterEditViewModel @Inject constructor(
     fun onAction(action: CounterEditAction) {
         when (action) {
             is CounterEditAction.UpdateName -> {
-                _editableCounter.update { currentCounter ->
-                    currentCounter?.copy(name = action.name, lastUpdatedAt = Instant.now())
-                }
+                _editableCounter.update { it?.copy(name = action.name) }
             }
             is CounterEditAction.UpdateCurrentCount -> {
-                _editableCounter.update { currentCounter ->
-                    currentCounter?.copy(currentCount = action.count, lastUpdatedAt = Instant.now())
-                }
+                _editableCounter.update { it?.copy(currentCount = action.count) }
             }
             is CounterEditAction.SetCanIncrease -> {
-                _editableCounter.update { currentCounter ->
-                    currentCounter?.copy(canIncrease = action.canIncrease, lastUpdatedAt = Instant.now())
+                _editableCounter.update { counter ->
+                    counter?.copy(
+                        canIncrease = action.canIncrease,
+                        canDecrease = if (!action.canIncrease) true else counter.canDecrease
+                    )
                 }
             }
             is CounterEditAction.SetCanDecrease -> {
-                _editableCounter.update { currentCounter ->
-                    currentCounter?.copy(canDecrease = action.canDecrease, lastUpdatedAt = Instant.now())
+                _editableCounter.update { counter ->
+                    counter?.copy(
+                        canDecrease = action.canDecrease,
+                        canIncrease = if (!action.canDecrease) true else counter.canIncrease
+                    )
                 }
             }
-            CounterEditAction.SaveClicked -> save()
+            CounterEditAction.SaveClicked -> {
+                saveCounter()
+            }
         }
     }
 
-    private fun save() {
-        val currentCounter = _editableCounter.value ?: return
-        viewModelScope.launch {
-            _isSaving.value = true
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId,
-                    newName = currentCounter.name,
-                    newCategoryId = currentCounter.categoryId,
-                    newCount = currentCounter.currentCount,
-                    canIncrease = currentCounter.canIncrease,
-                    canDecrease = currentCounter.canDecrease
+    private fun saveCounter() {
+        val counter = _editableCounter.value
+
+        if (counter != null) {
+            if (!counter.canIncrease && counter.canDecrease && counter.currentCount <= 0) {
+                viewModelScope.launch { _event.emit(CounterEditEvent.ShowMessage("Value must be greater than 0 for a decrement-only counter.")) }
+                return
+            }
+
+            viewModelScope.launch {
+                _isSaving.value = true
+                val request = UpdateCounterRequest(
+                    counterId = counter.id,
+                    newName = counter.name,
+                    newCount = counter.currentCount,
+                    canIncrease = counter.canIncrease,
+                    canDecrease = counter.canDecrease,
+                    lastUpdatedAt = Instant.now()
                 )
-            )
-            _isSaving.value = false
-            _event.emit(CounterEditEvent.CounterSaved)
+                counterUseCases.updateCounter(request)
+                _isSaving.value = false
+                _event.emit(CounterEditEvent.CounterSaved)
+            }
         }
     }
 }

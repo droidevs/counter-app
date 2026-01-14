@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -57,6 +58,10 @@ class CreateCounterFragment : Fragment() {
             viewModel.onAction(CreateCounterAction.NameChanged(it.toString()))
         }
 
+        binding.etInitialValue.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.InitialValueChanged(it.toString()))
+        }
+
         binding.switchCanIncrease.setOnCheckedChangeListener { _, checked ->
             viewModel.onAction(CreateCounterAction.CanIncreaseChanged(checked))
         }
@@ -94,27 +99,44 @@ class CreateCounterFragment : Fragment() {
                         if (binding.etCounterName.text.toString() != state.name) {
                             binding.etCounterName.setText(state.name)
                         }
+
+                        if (binding.etInitialValue.text.toString() != state.initialValue) {
+                            binding.etInitialValue.setText(state.initialValue)
+                        }
+
                         binding.switchCanIncrease.isChecked = state.canIncrease
                         binding.switchCanDecrease.isChecked = state.canDecrease
                         binding.btnSave.isEnabled = !state.isSaving
+                        binding.etInitialValue.isVisible = state.isInitialValueInputVisible
+                        binding.tvInitialValueDesc.text = if (state.isInitialValueInputVisible) "Initial value must be greater than 0" else "The counter will start at 0"
 
-                        // Update adapter data
-                        val categoryNames = state.categories.map { it.name }
-                        categoryAdapter.clear()
-                        categoryAdapter.add(noCategoryString)
-                        categoryAdapter.addAll(categoryNames)
-                        categoryAdapter.notifyDataSetChanged()
 
-                        // Set selection
-                        val selectedCategory = state.categories.find { it.id == state.categoryId }
-                        val selectionPosition = if (selectedCategory != null) {
-                            categoryNames.indexOf(selectedCategory.name) + 1 // +1 for 'No Category'
+                        if (viewModel.isCategoryFixed) {
+                            binding.spinnerCategory.isVisible = false
+                            binding.tvCategoryChip.isVisible = true
+                            val category = state.categories.find { it.id == state.categoryId }
+                            binding.tvCategoryChip.text = "Category: ${category?.name}"
                         } else {
-                            0 // 'No Category'
-                        }
+                            binding.spinnerCategory.isVisible = true
+                            binding.tvCategoryChip.isVisible = false
+                            // Update adapter data
+                            val categoryNames = state.categories.map { it.name }
+                            categoryAdapter.clear()
+                            categoryAdapter.add(noCategoryString)
+                            categoryAdapter.addAll(categoryNames)
+                            categoryAdapter.notifyDataSetChanged()
 
-                        if (binding.spinnerCategory.selectedItemPosition != selectionPosition) {
-                            binding.spinnerCategory.setSelection(selectionPosition)
+                            // Set selection
+                            val selectedCategory = state.categories.find { it.id == state.categoryId }
+                            val selectionPosition = if (selectedCategory != null) {
+                                categoryNames.indexOf(selectedCategory.name) + 1 // +1 for 'No Category'
+                            } else {
+                                0 // 'No Category'
+                            }
+
+                            if (binding.spinnerCategory.selectedItemPosition != selectionPosition) {
+                                binding.spinnerCategory.setSelection(selectionPosition)
+                            }
                         }
                     }
                 }
@@ -126,7 +148,7 @@ class CreateCounterFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Counter \"${event.name}\" saved", Toast.LENGTH_SHORT).show()
                             }
                             is CreateCounterEvent.ShowMessage -> {
-                                binding.etCounterName.error = event.message
+                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                             }
                             CreateCounterEvent.NavigateBack -> {
                                 findNavController().popBackStack()

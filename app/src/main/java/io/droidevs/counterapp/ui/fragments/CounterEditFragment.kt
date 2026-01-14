@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class CounterEditFragment : Fragment() {
 
-    lateinit var binding : FragmentCounterEditBinding
+    private lateinit var binding : FragmentCounterEditBinding
 
     private val viewModel : CounterEditViewModel by viewModels()
 
@@ -37,7 +37,7 @@ class CounterEditFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCounterEditBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,7 +56,7 @@ class CounterEditFragment : Fragment() {
             }
 
             etCurrentCount.doAfterTextChanged {
-                it.toString().toIntOrNull()?.let { count -> 
+                it.toString().toIntOrNull()?.let { count ->
                     viewModel.onAction(CounterEditAction.UpdateCurrentCount(count))
                 }
             }
@@ -83,8 +83,13 @@ class CounterEditFragment : Fragment() {
                             if (binding.etCurrentCount.text.toString() != counter.currentCount.toString()) {
                                 binding.etCurrentCount.setText(counter.currentCount.toString())
                             }
-                            binding.switchCanIncrease.isChecked = counter.canIncrease
-                            binding.switchCanDecrease.isChecked = counter.canDecrease
+
+                            if (binding.switchCanIncrease.isChecked != counter.canIncrease) {
+                                binding.switchCanIncrease.isChecked = counter.canIncrease
+                            }
+                            if (binding.switchCanDecrease.isChecked != counter.canDecrease) {
+                                binding.switchCanDecrease.isChecked = counter.canDecrease
+                            }
 
                             binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdAt.toString())
                             binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.lastUpdatedAt.toString())

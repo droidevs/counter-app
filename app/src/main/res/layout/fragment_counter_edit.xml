@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -25,12 +26,13 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android.layout_height="wrap_content"
                     android:inputType="textPersonName"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Current count -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCurrentCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -42,6 +44,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"/>
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tvCurrentCountError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorError"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="Value must be greater than 0 for a decrement-only counter."
+                tools:visibility="visible"/>
 
             <!-- Switches -->
             <com.google.android.material.switchmaterial.SwitchMaterial
