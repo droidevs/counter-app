@@ -5,8 +5,8 @@ import android.net.Uri
 import com.google.gson.Gson
 import io.droidevs.counterapp.domain.model.Backup
 import io.droidevs.counterapp.domain.model.Category
+import io.droidevs.counterapp.domain.model.CategoryColor
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.model.CounterTheme
 import io.droidevs.counterapp.domain.services.BackupExport
 import io.droidevs.counterapp.domain.services.CategoryExport
 import io.droidevs.counterapp.domain.services.CounterExport
@@ -58,7 +58,8 @@ class FileImportServiceImpl @Inject constructor(
         return Category(
             id = id,
             name = name,
-            color = CounterTheme.valueOf(color)
+            color = CategoryColor.of(Integer.parseInt(color)),
+            countersCount = 0
         )
     }
 }

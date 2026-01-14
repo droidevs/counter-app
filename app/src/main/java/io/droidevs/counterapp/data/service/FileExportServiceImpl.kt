@@ -237,7 +237,7 @@ class FileExportServiceImpl @Inject constructor(
         return CategoryExport(
             id = id,
             name = name,
-            color = color.name
+            color = color.colorInt.toString()
         )
     }
 
