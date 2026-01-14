@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPref
 import io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference
 import io.droidevs.counterapp.domain.preference.counter.MaximumCounterValuePreference
 import io.droidevs.counterapp.domain.preference.counter.MinimumCounterValuePreference
+import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCases
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterIncrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetDefaultCounterValueUseCase
@@ -74,4 +75,30 @@ object CounterPrefUseCaseModule {
     @Singleton
     fun provideSetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference): SetMaximumCounterValueUseCase =
         SetMaximumCounterValueUseCase(pref)
+
+    @Provides
+    @Singleton
+    fun provideCounterPreferenceUseCases(
+        getCounterIncrementStep: GetCounterIncrementStepUseCase,
+        setCounterIncrementStep: SetCounterIncrementStepUseCase,
+        getCounterDecrementStep: GetCounterDecrementStepUseCase,
+        setCounterDecrementStep: SetCounterDecrementStepUseCase,
+        getDefaultCounterValue: GetDefaultCounterValueUseCase,
+        setDefaultCounterValue: SetDefaultCounterValueUseCase,
+        getMinimumCounterValue: GetMinimumCounterValueUseCase,
+        setMinimumCounterValue: SetMinimumCounterValueUseCase,
+        getMaximumCounterValue: GetMaximumCounterValueUseCase,
+        setMaximumCounterValue: SetMaximumCounterValueUseCase
+    ): CounterPreferenceUseCases = CounterPreferenceUseCases(
+        getCounterIncrementStep = getCounterIncrementStep,
+        setCounterIncrementStep = setCounterIncrementStep,
+        getCounterDecrementStep = getCounterDecrementStep,
+        setCounterDecrementStep = setCounterDecrementStep,
+        getDefaultCounterValue = getDefaultCounterValue,
+        setDefaultCounterValue = setDefaultCounterValue,
+        getMinimumCounterValue = getMinimumCounterValue,
+        setMinimumCounterValue = setMinimumCounterValue,
+        getMaximumCounterValue = getMaximumCounterValue,
+        setMaximumCounterValue = setMaximumCounterValue
+    )
 }

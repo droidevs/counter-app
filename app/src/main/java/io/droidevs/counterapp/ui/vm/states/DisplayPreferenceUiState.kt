@@ -6,6 +6,5 @@ data class DisplayPreferenceUiState(
     val theme: Theme = Theme.SYSTEM,
     val hideControls: Boolean = false,
     val hideLastUpdate: Boolean = false,
-    val keepScreenOn: Boolean = false,
-    val showLabels: Boolean = true
+    val keepScreenOn: Boolean = false
 )

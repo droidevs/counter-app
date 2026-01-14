@@ -8,6 +8,7 @@ import io.droidevs.counterapp.domain.preference.notification.CounterLimitNotific
 import io.droidevs.counterapp.domain.preference.notification.DailySummaryNotificationPreference
 import io.droidevs.counterapp.domain.preference.notification.NotificationSoundPreference
 import io.droidevs.counterapp.domain.preference.notification.NotificationVibrationPatternPreference
+import io.droidevs.counterapp.domain.usecases.preference.NotificationPreferenceUseCases
 import io.droidevs.counterapp.domain.usecases.preference.notification.GetCounterLimitNotificationUseCase
 import io.droidevs.counterapp.domain.usecases.preference.notification.GetDailySummaryNotificationUseCase
 import io.droidevs.counterapp.domain.usecases.preference.notification.GetNotificationSoundUseCase
@@ -53,4 +54,26 @@ object NotificationUseCaseModule {
     @Provides
     @Singleton
     fun provideSetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference): SetNotificationVibrationPatternUseCase = SetNotificationVibrationPatternUseCase(pref)
+
+    @Provides
+    @Singleton
+    fun provideNotificationPreferenceUseCases(
+        getCounterLimitNotificationUseCase: GetCounterLimitNotificationUseCase,
+        setCounterLimitNotificationUseCase: SetCounterLimitNotificationUseCase,
+        getDailySummaryNotificationUseCase: GetDailySummaryNotificationUseCase,
+        setDailySummaryNotificationUseCase: SetDailySummaryNotificationUseCase,
+        getNotificationSoundUseCase: GetNotificationSoundUseCase,
+        setNotificationSoundUseCase: SetNotificationSoundUseCase,
+        getNotificationVibrationPatternUseCase: GetNotificationVibrationPatternUseCase,
+        setNotificationVibrationPatternUseCase: SetNotificationVibrationPatternUseCase
+    ): NotificationPreferenceUseCases = NotificationPreferenceUseCases(
+        getCounterLimitNotification = getCounterLimitNotificationUseCase,
+        setCounterLimitNotification = setCounterLimitNotificationUseCase,
+        getDailySummaryNotification = getDailySummaryNotificationUseCase,
+        setDailySummaryNotification = setDailySummaryNotificationUseCase,
+        getNotificationSound = getNotificationSoundUseCase,
+        setNotificationSound = setNotificationSoundUseCase,
+        getNotificationVibrationPattern = getNotificationVibrationPatternUseCase,
+        setNotificationVibrationPattern = setNotificationVibrationPatternUseCase
+    )
 }

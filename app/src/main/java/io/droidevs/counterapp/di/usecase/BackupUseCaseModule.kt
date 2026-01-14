@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import io.droidevs.counterapp.domain.preference.buckup.AutoBackupPreference
 import io.droidevs.counterapp.domain.preference.buckup.BackupIntervalPreference
 import io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference
+import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import io.droidevs.counterapp.domain.usecases.preference.buckup.GetAutoBackupUseCase
 import io.droidevs.counterapp.domain.usecases.preference.buckup.GetBackupIntervalUseCase
 import io.droidevs.counterapp.domain.usecases.preference.buckup.GetBackupLocationUseCase
@@ -42,4 +43,22 @@ object BackupUseCaseModule {
     @Provides
     @Singleton
     fun provideSetBackupLocationUseCase(pref: BackupLocationPreference): SetBackupLocationUseCase = SetBackupLocationUseCase(pref)
+
+    @Provides
+    @Singleton
+    fun provideBackupPreferenceUseCases(
+        getAutoBackupUseCase: GetAutoBackupUseCase,
+        setAutoBackupUseCase: SetAutoBackupUseCase,
+        getBackupIntervalUseCase: GetBackupIntervalUseCase,
+        setBackupIntervalUseCase: SetBackupIntervalUseCase,
+        getBackupLocationUseCase: GetBackupLocationUseCase,
+        setBackupLocationUseCase: SetBackupLocationUseCase
+    ): BackupPreferenceUseCases = BackupPreferenceUseCases(
+        getAutoBackup = getAutoBackupUseCase,
+        setAutoBackup = setAutoBackupUseCase,
+        getBackupInterval = getBackupIntervalUseCase,
+        setBackupInterval = setBackupIntervalUseCase,
+        getBackupLocation = getBackupLocationUseCase,
+        setBackupLocation = setBackupLocationUseCase
+    )
 }

@@ -7,5 +7,4 @@ sealed class DisplayPreferenceAction {
     data class SetHideControls(val hide: Boolean) : DisplayPreferenceAction()
     data class SetHideLastUpdate(val hide: Boolean) : DisplayPreferenceAction()
     data class SetKeepScreenOn(val keep: Boolean) : DisplayPreferenceAction()
-    data class SetShowLabels(val show: Boolean) : DisplayPreferenceAction()
 }

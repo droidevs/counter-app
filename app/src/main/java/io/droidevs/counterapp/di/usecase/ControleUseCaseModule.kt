@@ -8,6 +8,7 @@ import io.droidevs.counterapp.domain.preference.controle.HardwareButtonControlPr
 import io.droidevs.counterapp.domain.preference.controle.LabelControlPreference
 import io.droidevs.counterapp.domain.preference.controle.SoundsOnPreference
 import io.droidevs.counterapp.domain.preference.controle.VibrationOnPreference
+import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCases
 import io.droidevs.counterapp.domain.usecases.preference.controle.GetHardwareButtonControlUseCase
 import io.droidevs.counterapp.domain.usecases.preference.controle.GetLabelControlUseCase
 import io.droidevs.counterapp.domain.usecases.preference.controle.GetSoundsOnUseCase
@@ -61,4 +62,26 @@ object ControleUseCaseModule {
     @Singleton
     fun provideSetLabelControlUseCase(pref: LabelControlPreference): SetLabelControlUseCase =
         SetLabelControlUseCase(pref)
+
+    @Provides
+    @Singleton
+    fun provideHardwarePreferenceUseCases(
+        getHardwareButtonControl: GetHardwareButtonControlUseCase,
+        setHardwareButtonControl: SetHardwareButtonControlUseCase,
+        getSoundsOn: GetSoundsOnUseCase,
+        setSoundsOn: SetSoundsOnUseCase,
+        getVibrationOn: GetVibrationOnUseCase,
+        setVibrationOn: SetVibrationOnUseCase,
+        getLabelControl: GetLabelControlUseCase,
+        setLabelControl: SetLabelControlUseCase
+    ): HardwarePreferenceUseCases = HardwarePreferenceUseCases(
+        getHardwareButtonControl = getHardwareButtonControl,
+        setHardwareButtonControl = setHardwareButtonControl,
+        getSoundsOn = getSoundsOn,
+        setSoundsOn = setSoundsOn,
+        getVibrationOn = getVibrationOn,
+        setVibrationOn = setVibrationOn,
+        getLabelControl = getLabelControl,
+        setLabelControl = setLabelControl
+    )
 }

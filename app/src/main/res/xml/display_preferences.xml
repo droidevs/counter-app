@@ -25,10 +25,5 @@
             android:icon="@drawable/ic_time"
             android:key="hide_last_update"
             android:title="@string/hide_last_update_setting_title" />
-
-        <SwitchPreferenceCompat
-            android:key="show_labels"
-            android:title="Show labels"
-            android:summary="Display descriptive labels next to counters" />
     </PreferenceCategory>
 </PreferenceScreen>

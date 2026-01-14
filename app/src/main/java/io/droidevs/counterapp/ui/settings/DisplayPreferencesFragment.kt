@@ -31,7 +31,6 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         val hideControlsPref = findPreference<SwitchPreferenceCompat>("hide_controls")
         val hideLastUpdatePref = findPreference<SwitchPreferenceCompat>("hide_last_update")
         val keepScreenOnPref = findPreference<SwitchPreferenceCompat>("keep_screen_on")
-        val showLabelsPref = findPreference<SwitchPreferenceCompat>("show_labels")
 
         // Observe ViewModel UI State → update UI
         viewLifecycleOwner.lifecycleScope.launch {
@@ -48,7 +47,6 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
                         hideControlsPref?.isChecked = state.hideControls
                         hideLastUpdatePref?.isChecked = state.hideLastUpdate
                         keepScreenOnPref?.isChecked = state.keepScreenOn
-                        showLabelsPref?.isChecked = state.showLabels
                         isInitializing = false
                     }
                 }
@@ -96,13 +94,6 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         keepScreenOnPref?.setOnPreferenceChangeListener { _, newValue ->
             if (!isInitializing) {
                 viewModel.onAction(DisplayPreferenceAction.SetKeepScreenOn(newValue as Boolean))
-            }
-            true
-        }
-
-        showLabelsPref?.setOnPreferenceChangeListener { _, newValue ->
-            if (!isInitializing) {
-                viewModel.onAction(DisplayPreferenceAction.SetShowLabels(newValue as Boolean))
             }
             true
         }

@@ -1,5 +1,11 @@
 package io.droidevs.counterapp.ui.vm.mappers
 
+data class Triple<out A, out B, out C>(
+    val first: A,
+    val second: B,
+    val third: C
+)
+
 data class Quadruple<out A, out B, out C, out D>(
     val first: A,
     val second: B,

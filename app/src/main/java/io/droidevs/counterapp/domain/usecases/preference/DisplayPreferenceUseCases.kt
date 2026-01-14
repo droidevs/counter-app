@@ -8,9 +8,6 @@ import io.droidevs.counterapp.domain.usecases.preference.display.GetHideLastUpda
 import io.droidevs.counterapp.domain.usecases.preference.display.SetHideLastUpdateUseCase
 import io.droidevs.counterapp.domain.usecases.preference.display.GetKeepScreenOnUseCase
 import io.droidevs.counterapp.domain.usecases.preference.display.SetKeepScreenOnUseCase
-import io.droidevs.counterapp.domain.usecases.preference.controle.GetLabelControlUseCase
-import io.droidevs.counterapp.domain.usecases.preference.controle.SetLabelControlUseCase
-
 
 data class DisplayPreferenceUseCases(
     val getTheme: GetThemeUseCase,
@@ -20,7 +17,5 @@ data class DisplayPreferenceUseCases(
     val getHideLastUpdate: GetHideLastUpdateUseCase,
     val setHideLastUpdate: SetHideLastUpdateUseCase,
     val getKeepScreenOn: GetKeepScreenOnUseCase,
-    val setKeepScreenOn: SetKeepScreenOnUseCase,
-    val getLabelControl: GetLabelControlUseCase,
-    val setLabelControl: SetLabelControlUseCase
+    val setKeepScreenOn: SetKeepScreenOnUseCase
 )

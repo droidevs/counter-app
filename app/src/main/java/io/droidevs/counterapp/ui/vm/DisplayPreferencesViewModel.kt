@@ -9,7 +9,7 @@ import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toDisplayPreferenceUiState
-import io.droidevs.counterapp.ui.vm.mappers.Quadruple
+import io.droidevs.counterapp.ui.vm.mappers.Triple
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -31,9 +31,8 @@ class DisplayPreferencesViewModel @Inject constructor(
         useCases.getHideControls(),
         useCases.getHideLastUpdate(),
         useCases.getKeepScreenOn(),
-        useCases.getLabelControl()
-    ) { theme, hideControls, hideLastUpdate, keepScreenOn, showLabels ->
-        Quadruple(theme, hideControls, hideLastUpdate, keepScreenOn).toDisplayPreferenceUiState(showLabels)
+    ) { theme, hideControls, hideLastUpdate, keepScreenOn ->
+        Triple(theme, hideControls, hideLastUpdate, keepScreenOn).toDisplayPreferenceUiState()
     }
         .onStart { emit(DisplayPreferenceUiState()) }
         .stateIn(
@@ -48,7 +47,6 @@ class DisplayPreferencesViewModel @Inject constructor(
             is DisplayPreferenceAction.SetHideControls -> setHideControls(action.hide)
             is DisplayPreferenceAction.SetHideLastUpdate -> setHideLastUpdate(action.hide)
             is DisplayPreferenceAction.SetKeepScreenOn -> setKeepScreenOn(action.keep)
-            is DisplayPreferenceAction.SetShowLabels -> setShowLabels(action.show)
         }
     }
 
@@ -77,13 +75,6 @@ class DisplayPreferencesViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.setKeepScreenOn(keep)
             _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated"))
-        }
-    }
-
-    private fun setShowLabels(show: Boolean) {
-        viewModelScope.launch {
-            useCases.setLabelControl(show)
-            _event.emit(DisplayPreferenceEvent.ShowMessage("Labels visibility updated"))
         }
     }
 }
