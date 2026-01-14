@@ -17,8 +17,11 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.services.ExportFormat
+import io.droidevs.counterapp.ui.vm.ExportViewModel
 import io.droidevs.counterapp.ui.vm.OtherPreferencesViewModel
+import io.droidevs.counterapp.ui.vm.actions.ExportAction
 import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
+import io.droidevs.counterapp.ui.vm.events.ExportEvent
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
 import kotlinx.coroutines.launch
 
@@ -27,6 +30,7 @@ import kotlinx.coroutines.launch
 class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: OtherPreferencesViewModel by viewModels()
+    private val exportViewModel: ExportViewModel by viewModels()
     private var removeCountersDialog: AlertDialog? = null
     private var exportFormatDialog: AlertDialog? = null
 
@@ -50,7 +54,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>("exportCounters")
             ?.setOnPreferenceClickListener {
-                viewModel.onAction(OtherPreferencesAction.ExportRequest)
+                exportViewModel.onAction(ExportAction.RequestExport)
                 true
             }
 
@@ -87,9 +91,16 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
                         when (event) {
                             is OtherPreferencesEvent.ShowRemoveConfirmation -> showRemoveConfirmationDialog()
                             is OtherPreferencesEvent.RemoveSuccess -> showMessage("Counters removed successfully")
-                            is OtherPreferencesEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
-                            is OtherPreferencesEvent.ShareExportFile -> shareExportFile(event.fileUri)
                             is OtherPreferencesEvent.Error -> showMessage(event.message)
+                        }
+                    }
+                }
+                launch {
+                    exportViewModel.event.collect { event ->
+                        when (event) {
+                            is ExportEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
+                            is ExportEvent.ShareExportFile -> shareExportFile(event.fileUri)
+                            is ExportEvent.ShowMessage -> showMessage(event.message)
                         }
                     }
                 }
@@ -131,7 +142,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
         exportFormatDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.export_as))
             .setItems(items) { _, which ->
-                viewModel.onAction(OtherPreferencesAction.Export(formats[which]))
+                exportViewModel.onAction(ExportAction.Export(formats[which]))
             }
             .setOnDismissListener { exportFormatDialog = null }
             .show()

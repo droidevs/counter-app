@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class FakeCategoryRepository(
@@ -105,6 +106,23 @@ class FakeCategoryRepository(
         return categoriesFlow.map { list ->
             list.filter { it.isSystem }
         }
+    }
+
+    override suspend fun importCategories(categories: List<Category>) {
+        val categoryEntities = categories.map { it.toEntity() }
+        categoryEntities.forEach { categoryEntity ->
+            val index = dummyData.categories.indexOfFirst { it.id == categoryEntity.id }
+            if (index != -1) {
+                dummyData.categories[index] = categoryEntity
+            } else {
+                dummyData.categories.add(categoryEntity)
+            }
+        }
+        dummyData.emitCategoryUpdate()
+    }
+
+    override suspend fun exportCategories(): List<Category> {
+        return categoriesFlow.first().filter { !it.isSystem }
     }
 
 }

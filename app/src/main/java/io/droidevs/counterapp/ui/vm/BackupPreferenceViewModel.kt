@@ -1,14 +1,8 @@
 package io.droidevs.counterapp.ui.vm
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.services.ExportFormat
-import io.droidevs.counterapp.domain.services.ExportResult
-import io.droidevs.counterapp.domain.services.ImportResult
-import io.droidevs.counterapp.domain.usecases.export.ExportUseCases
-import io.droidevs.counterapp.domain.usecases.import.ImportUseCases
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
@@ -20,9 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupPreferenceViewModel @Inject constructor(
-    private val backup: BackupPreferenceUseCases,
-    private val export: ExportUseCases,
-    private val import: ImportUseCases
+    private val backup: BackupPreferenceUseCases
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<BackupPreferenceEvent>(extraBufferCapacity = 1)
@@ -43,10 +35,6 @@ class BackupPreferenceViewModel @Inject constructor(
         when (action) {
             is BackupPreferenceAction.SetAutoBackup -> setAutoBackup(action.enabled)
             is BackupPreferenceAction.SetBackupInterval -> setBackupInterval(action.hours)
-            BackupPreferenceAction.TriggerManualExport -> triggerManualExport()
-            is BackupPreferenceAction.Export -> export(action.format)
-            BackupPreferenceAction.TriggerManualImport -> triggerManualImport()
-            is BackupPreferenceAction.Import -> import(action.fileUri)
         }
     }
 
@@ -62,43 +50,6 @@ class BackupPreferenceViewModel @Inject constructor(
             val coercedHours = hours.coerceIn(1L..720L)
             backup.setBackupInterval(coercedHours)
             _event.tryEmit(BackupPreferenceEvent.ShowMessage("Backup interval updated"))
-        }
-    }
-
-    private fun triggerManualExport() {
-        viewModelScope.launch {
-            val formats = export.getAvailableExportFormats()
-            _event.tryEmit(BackupPreferenceEvent.ShowExportFormatDialog(formats))
-        }
-    }
-
-    private fun export(format: ExportFormat) {
-        viewModelScope.launch {
-            when (val result = export.exportCounters(format)) {
-                is ExportResult.Success -> _event.tryEmit(BackupPreferenceEvent.ShareExportFile(result.fileUri))
-                is ExportResult.Error -> _event.tryEmit(BackupPreferenceEvent.ShowMessage(result.message))
-                ExportResult.Cancelled -> Unit
-            }
-        }
-    }
-
-    private fun triggerManualImport() {
-        viewModelScope.launch {
-            _event.tryEmit(BackupPreferenceEvent.ShowImportFileChooser)
-        }
-    }
-
-    private fun import(fileUri: Uri) {
-        viewModelScope.launch {
-            when (val result = import.importCounters(fileUri)) {
-                is ImportResult.Success -> {
-                    _event.tryEmit(BackupPreferenceEvent.ShowMessage("Counters imported successfully"))
-                }
-                is ImportResult.Error -> {
-                    _event.tryEmit(BackupPreferenceEvent.ShowMessage(result.message))
-                }
-                ImportResult.Cancelled -> Unit
-            }
         }
     }
 }
