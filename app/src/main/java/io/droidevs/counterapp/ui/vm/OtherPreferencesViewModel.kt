@@ -3,7 +3,8 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.droidevs.counterapp.domain.usecases.counters.ExportCountersUseCase
+import io.droidevs.counterapp.domain.services.ExportFormat
+import io.droidevs.counterapp.domain.usecases.export.ExportUseCases
 import io.droidevs.counterapp.domain.usecases.counters.RemoveAllCountersUseCase
 import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OtherPreferencesViewModel @Inject constructor(
     private val removeAllCountersUseCase: RemoveAllCountersUseCase,
-    private val exportCountersUseCase: ExportCountersUseCase
+    private val exportUseCases: ExportUseCases
 ) : ViewModel() {
 
     private val _event = Channel<OtherPreferencesEvent>(Channel.BUFFERED)
@@ -32,7 +33,8 @@ class OtherPreferencesViewModel @Inject constructor(
     fun onAction(action: OtherPreferencesAction) {
         when (action) {
             OtherPreferencesAction.RemoveCounters -> showRemoveConfirmation()
-            OtherPreferencesAction.ExportCounters -> exportCounters()
+            OtherPreferencesAction.ExportRequest -> showExportFormatDialog()
+            is OtherPreferencesAction.Export -> export(action.format)
             is OtherPreferencesAction.ConfirmRemoveCounters -> removeAllCounters()
         }
     }
@@ -58,14 +60,21 @@ class OtherPreferencesViewModel @Inject constructor(
         }
     }
 
-    private fun exportCounters() {
+    private fun showExportFormatDialog() {
+        viewModelScope.launch {
+            val formats = exportUseCases.getAvailableExportFormats()
+            _event.send(OtherPreferencesEvent.ShowExportFormatDialog(formats))
+        }
+    }
+
+    private fun export(format: ExportFormat) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
             try {
-                val fileUri = exportCountersUseCase()
+                val fileUri = exportUseCases.export(format)
                 _state.value = _state.value.copy(isLoading = false)
-                _event.send(OtherPreferencesEvent.ExportSuccess(fileUri))
+                _event.send(OtherPreferencesEvent.ShareExportFile(fileUri))
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false)
                 _event.send(OtherPreferencesEvent.Error("Failed to export counters: ${e.message}"))

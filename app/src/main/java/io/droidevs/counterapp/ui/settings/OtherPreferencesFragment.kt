@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.services.ExportFormat
 import io.droidevs.counterapp.ui.vm.OtherPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
@@ -27,6 +28,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: OtherPreferencesViewModel by viewModels()
     private var removeCountersDialog: AlertDialog? = null
+    private var exportFormatDialog: AlertDialog? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.other_preferences, rootKey)
@@ -48,7 +50,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>("exportCounters")
             ?.setOnPreferenceClickListener {
-                viewModel.onAction(OtherPreferencesAction.ExportCounters)
+                viewModel.onAction(OtherPreferencesAction.ExportRequest)
                 true
             }
 
@@ -85,7 +87,8 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
                         when (event) {
                             is OtherPreferencesEvent.ShowRemoveConfirmation -> showRemoveConfirmationDialog()
                             is OtherPreferencesEvent.RemoveSuccess -> showMessage("Counters removed successfully")
-                            is OtherPreferencesEvent.ExportSuccess -> shareExportFile(event.fileUri)
+                            is OtherPreferencesEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
+                            is OtherPreferencesEvent.ShareExportFile -> shareExportFile(event.fileUri)
                             is OtherPreferencesEvent.Error -> showMessage(event.message)
                         }
                     }
@@ -120,6 +123,20 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
             .show()
     }
 
+    private fun showExportFormatDialog(formats: List<ExportFormat>) {
+        exportFormatDialog?.dismiss()
+
+        val items = formats.map { it.name }.toTypedArray()
+
+        exportFormatDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.export_as))
+            .setItems(items) { _, which ->
+                viewModel.onAction(OtherPreferencesAction.Export(formats[which]))
+            }
+            .setOnDismissListener { exportFormatDialog = null }
+            .show()
+    }
+
     private fun shareExportFile(fileUri: Uri) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/csv" // or "application/json" depending on your format
@@ -140,6 +157,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onDestroyView() {
         removeCountersDialog?.dismiss()
+        exportFormatDialog?.dismiss()
         super.onDestroyView()
     }
 }
