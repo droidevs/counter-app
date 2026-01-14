@@ -31,12 +31,11 @@ class CreateCounterViewModel @Inject constructor(
         val name: String = "",
         val canIncrease: Boolean = true,
         val canDecrease: Boolean = false,
-        val selectedCategoryId: String = "",
+        val selectedCategoryId: String? = null,
         val isSaving: Boolean = false
     )
 
-    private val initialCategoryId: String = savedStateHandle.get<String>("categoryId")
-        ?: ""
+    private val initialCategoryId: String? = savedStateHandle.get<String>("categoryId")
 
     // Single MutableStateFlow for the entire model
     private val _editModel = MutableStateFlow(EditModel(selectedCategoryId = initialCategoryId))
@@ -76,7 +75,7 @@ class CreateCounterViewModel @Inject constructor(
                 _editModel.update { it.copy(canDecrease = action.canDecrease) }
             }
             is CreateCounterAction.CategorySelected -> {
-                _editModel.update { it.copy(selectedCategoryId = action.categoryId.toString()) }
+                _editModel.update { it.copy(selectedCategoryId = action.categoryId) }
             }
             CreateCounterAction.SaveClicked -> saveCounter()
         }
