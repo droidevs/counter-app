@@ -11,6 +11,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.data.AppDatabase
+import io.droidevs.counterapp.data.DatabaseConfig
+import io.droidevs.counterapp.data.Migrations
 import io.droidevs.counterapp.domain.repository.DataInitializer
 import io.droidevs.counterapp.repository.DummyData
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -30,18 +32,30 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         dataInitializer: Provider<DataInitializer>
     ): AppDatabase {
-        return Room.databaseBuilder(
+        val builder = Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "counter_app_database"
-        ).addCallback(object : RoomDatabase.Callback() {
+            DatabaseConfig.DATABASE_NAME
+        )
+        .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 GlobalScope.launch {
                     dataInitializer.get().init()
                 }
             }
-        }).build()
+        })
+        // Add all registered migrations from the Migrations object
+        .addMigrations(*Migrations.ALL)
+
+        // For debug builds, allow falling back to a destructive migration.
+        // For release builds, this is disabled. If a migration is missing,
+        // the app will crash, preventing potential data loss.
+        if (BuildConfig.DEBUG) {
+            builder.fallbackToDestructiveMigration()
+        }
+
+        return builder.build()
     }
 
     @Provides
