@@ -24,6 +24,7 @@
         android:key="show_labels"
         android:title="Show action labels"
         android:summary="Display text labels next to hardware actions"
-        android:defaultValue="true" />
+        android:defaultValue="true"
+        android:icon="@drawable/ic_info" />
 
 </PreferenceScreen>
