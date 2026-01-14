@@ -161,4 +161,13 @@ class FakeCounterRepository(
     override fun getAllCounters(): Flow<List<Counter>> =
         countersFlow
 
+    override suspend fun exportCounters(): List<Counter> {
+        return dummyData.counters.map { it.toDomain() }
+    }
+
+    override suspend fun importCounters(counters: List<Counter>) {
+        dummyData.counters.addAll(counters.map { it.toEntity() })
+        dummyData.emitCounterUpdate()
+    }
+
 }
