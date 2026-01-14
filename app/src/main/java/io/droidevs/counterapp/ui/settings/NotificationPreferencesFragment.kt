@@ -31,6 +31,7 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
         val soundPref = findPreference<ListPreference>("notification_sound")
         val vibrationPref = findPreference<ListPreference>("vibration_pattern")
 
+
         // Observe ViewModel UI State → update UI
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

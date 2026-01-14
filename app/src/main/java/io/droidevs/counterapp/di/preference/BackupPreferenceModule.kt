@@ -1,5 +1,7 @@
 package io.droidevs.counterapp.di.preference
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import dagger.Lazy
@@ -27,6 +29,7 @@ object BackupPreferenceModule {
     @Singleton
     fun provideAutoBackupPreference(dataStore: Lazy<DataStore<Preferences>>): AutoBackupPreference = 
         if (BuildConfig.DEBUG) {
+            Log.i("BackupPreferenceModule", "Providing DummyAutoBackupPreference in DEBUG mode")
             DummyAutoBackupPreference()
         } else {
             AutoBackupPreferenceImpl(dataStore.get())

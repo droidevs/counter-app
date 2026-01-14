@@ -18,26 +18,26 @@ import io.droidevs.counterapp.repository.FakeHistoryRepository
 //@InstallIn(SingletonComponent::class)
 object DummyRepositoryModule {
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     fun provideDummyData(): DummyData {
         return DummyData()
     }
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     fun provideFakeCounterRepository(dummyData: DummyData): CounterRepository {
         return FakeCounterRepository(dummyData)
     }
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     fun provideFakeCategoryRepository(dummyData: DummyData): CategoryRepository {
         return FakeCategoryRepository(dummyData)
     }
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     fun provideFakeHistoryRepository(dummyData: DummyData): HistoryRepository {
         return FakeHistoryRepository(dummyData)
     }

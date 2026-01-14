@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.ui.settings
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -73,5 +74,9 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
             viewModel.onAction(BackupPreferenceAction.TriggerManualExport)
             true
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 }

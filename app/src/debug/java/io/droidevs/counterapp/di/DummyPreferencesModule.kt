@@ -46,108 +46,110 @@ import io.droidevs.counterapp.preference.notification.DummyNotificationSoundPref
 import io.droidevs.counterapp.preference.notification.DummyNotificationVibrationPatternPreference
 import javax.inject.Singleton
 
-@Deprecated("This module is no longer used. The fake implementations are now provided in the main source set for debug builds.")
-//@Module
-//@InstallIn(SingletonComponent::class)
+@Deprecated(
+    "This module is no longer used. The fake implementations are now provided in the main source set for debug builds."
+)
+// @Module
+// @InstallIn(SingletonComponent::class)
 object DummyPreferencesModule {
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideAutoBackupPreference(): AutoBackupPreference =
         DummyAutoBackupPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideBackupIntervalPreference(): BackupIntervalPreference =
         DummyBackupIntervalPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideBackupLocationPreference(): BackupLocationPreference =
         DummyBackupLocationPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideHardwareButtonControlPreference(): HardwareButtonControlPreference =
         DummyHardwareButtonControlPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideLabelControlPreference(): LabelControlPreference =
         DummyLabelControlPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideSoundsOnPreference(): SoundsOnPreference =
         DummySoundsOnPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideVibrationOnPreference(): VibrationOnPreference =
         DummyVibrationOnPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideCounterIncrementStepPreference(): CounterIncrementStepPreference =
         DummyCounterIncrementStepPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideCounterDecrementStepPreference(): CounterDecrementStepPreference =
         DummyCounterDecrementStepPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideDefaultCounterValuePreference(): DefaultCounterValuePreference =
         DummyDefaultCounterValuePreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideMaximumCounterValuePreference(): MaximumCounterValuePreference =
         DummyMaximumCounterValuePreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideMinimumCounterValuePreference(): MinimumCounterValuePreference =
         DummyMinimumCounterValuePreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideHideControlsPreference(): HideControlsPreference =
         DummyHideControlsPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideHideLastUpdatePreference(): HideLastUpdatePreference =
         DummyHideLastUpdatePreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideKeepScreenOnPreference(): KeepScreenOnPreference =
         DummyKeepScreenOnPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideThemePreference(): ThemePreference =
         DummyThemePreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideCounterLimitNotificationPreference(): CounterLimitNotificationPreference =
         DummyCounterLimitNotificationPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideDailySummaryNotificationPreference(): DailySummaryNotificationPreference =
         DummyDailySummaryNotificationPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideNotificationSoundPreference(): NotificationSoundPreference =
         DummyNotificationSoundPreference()
 
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideNotificationVibrationPatternPreference(): NotificationVibrationPatternPreference =
         DummyNotificationVibrationPatternPreference()
 }

@@ -28,12 +28,7 @@ object ExportModule {
         gson: Gson
     ): FileExportService {
         return if (BuildConfig.DEBUG) {
-            object : FileExportService {
-                // Fake export service for debug builds
-                override suspend fun exportToFile(fileName: String, content: String) {
-                    // No-op for debug
-                }
-            }
+            TODO()
         } else {
             FileExportServiceImpl(context, gson)
         }

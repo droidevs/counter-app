@@ -14,8 +14,8 @@ import javax.inject.Singleton
 //@InstallIn(SingletonComponent::class)
 object DebugInitializerModule {
 
-    @Provides
-    @Singleton
+    //@Provides
+    //@Singleton
     fun provideDataInitializer(dummyData: DummyData): DataInitializer {
         return FakeDataInitializer(dummyData)
     }
