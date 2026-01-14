@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment,
             R.id.counterListFragment,
             R.id.categoryListFragment,
+            R.id.historyFragment,
             R.id.settingsFragment
         )
         appBarConfiguration = AppBarConfiguration(
