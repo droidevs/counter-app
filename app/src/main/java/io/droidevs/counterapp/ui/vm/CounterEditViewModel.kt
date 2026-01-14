@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
-import io.droidevs.counterapp.ui.model.CounterUiModel
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
