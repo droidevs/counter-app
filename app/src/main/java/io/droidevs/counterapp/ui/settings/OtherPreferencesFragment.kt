@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,7 +16,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.CounterApp
 import io.droidevs.counterapp.ui.vm.OtherPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
@@ -25,17 +25,15 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
-
     private val viewModel: OtherPreferencesViewModel by viewModels()
     private var removeCountersDialog: AlertDialog? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.other_preferences, rootKey)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupActions()
         bindVersion()
         observeViewModel()
@@ -129,7 +127,8 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
             putExtra(Intent.EXTRA_SUBJECT, "Counters Export")
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
-        startActivity(Intent.createChooser(shareIntent, "Share Counters"))
+        startActivity(Intent.createChooser(shareIntent, "Share Counters
+        "))
     }
 
     private fun openUrl(url: String) {

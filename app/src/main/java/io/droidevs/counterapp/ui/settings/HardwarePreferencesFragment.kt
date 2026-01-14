@@ -1,6 +1,7 @@
 package io.droidevs.counterapp.ui.settings
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,81 +21,85 @@ import kotlinx.coroutines.launch
 class HardwarePreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: HardwarePreferencesViewModel by viewModels()
-    private var isInitializing = true
+
+    private var hardwareButtonPref: SwitchPreferenceCompat? = null
+    private var soundsPref: SwitchPreferenceCompat? = null
+    private var vibrationPref: SwitchPreferenceCompat? = null
+    private var labelsPref: SwitchPreferenceCompat? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.hardware_preferences, rootKey)
+    }
 
-        val hardwareButtonPref = findPreference<SwitchPreferenceCompat>("hardware_button_control")
-        val soundsPref = findPreference<SwitchPreferenceCompat>("sounds_on")
-        val vibrationPref = findPreference<SwitchPreferenceCompat>("vibration_on")
-        val labelsPref = findPreference<SwitchPreferenceCompat>("show_labels")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        findPreferences()
+        observeUiState()
+        observeEvents()
+        setupPreferenceListeners()
+    }
 
-        // Observe ViewModel UI State → update UI
+    private fun findPreferences() {
+        hardwareButtonPref = findPreference("hardware_button_control")
+        soundsPref = findPreference("sounds_on")
+        vibrationPref = findPreference("vibration_on")
+        labelsPref = findPreference("show_labels")
+    }
+
+    private fun setupPreferenceListeners() {
+        hardwareButtonPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(
+                HardwarePreferenceAction.SetHardwareButtonControl(newValue as Boolean)
+            )
+            true
+        }
+
+        soundsPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(
+                HardwarePreferenceAction.SetSoundsOn(newValue as Boolean)
+            )
+            true
+        }
+
+        vibrationPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(
+                HardwarePreferenceAction.SetVibrationOn(newValue as Boolean)
+            )
+            true
+        }
+
+        labelsPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(
+                HardwarePreferenceAction.SetShowLabels(newValue as Boolean)
+            )
+            true
+        }
+    }
+
+    private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    if (isInitializing) {
-                        // Set initial values without triggering listeners
-                        hardwareButtonPref?.isChecked = state.hardwareButtonControl
-                        soundsPref?.isChecked = state.soundsOn
-                        vibrationPref?.isChecked = state.vibrationOn
-                        labelsPref?.isChecked = state.showLabels
-                        isInitializing = false
-                    }
+                    hardwareButtonPref?.isChecked = state.hardwareButtonControl
+                    soundsPref?.isChecked = state.soundsOn
+                    vibrationPref?.isChecked = state.vibrationOn
+                    labelsPref?.isChecked = state.showLabels
                 }
             }
         }
+    }
 
-        // Observe events for showing messages
+    private fun observeEvents() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
                     when (event) {
                         is HardwarePreferenceEvent.ShowMessage -> {
-                            // Show snackbar or toast
                             Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
-        }
-
-        // User changes → send to ViewModel via onAction
-        hardwareButtonPref?.setOnPreferenceChangeListener { _, newValue ->
-            if (!isInitializing) {
-                viewModel.onAction(
-                    HardwarePreferenceAction.SetHardwareButtonControl(newValue as Boolean)
-                )
-            }
-            true
-        }
-
-        soundsPref?.setOnPreferenceChangeListener { _, newValue ->
-            if (!isInitializing) {
-                viewModel.onAction(
-                    HardwarePreferenceAction.SetSoundsOn(newValue as Boolean)
-                )
-            }
-            true
-        }
-
-        vibrationPref?.setOnPreferenceChangeListener { _, newValue ->
-            if (!isInitializing) {
-                viewModel.onAction(
-                    HardwarePreferenceAction.SetVibrationOn(newValue as Boolean)
-                )
-            }
-            true
-        }
-
-        labelsPref?.setOnPreferenceChangeListener { _, newValue ->
-            if (!isInitializing) {
-                viewModel.onAction(
-                    HardwarePreferenceAction.SetShowLabels(newValue as Boolean)
-                )
-            }
-            true
         }
     }
 }

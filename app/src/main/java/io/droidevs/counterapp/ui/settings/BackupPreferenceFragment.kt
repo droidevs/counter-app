@@ -23,42 +23,29 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
 
     private val viewModel: BackupPreferenceViewModel by viewModels()
 
+    private var autoBackupPref: SwitchPreferenceCompat? = null
+    private var intervalPref: ListPreference? = null
+    private var exportPref: Preference? = null
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.backup_preferences, rootKey)
+    }
 
-        val autoBackupPref = findPreference<SwitchPreferenceCompat>("auto_backup")
-        val intervalPref = findPreference<ListPreference>("backup_interval")
-        val exportPref = findPreference<Preference>("manual_export")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        findPreferences()
+        observeUiState()
+        observeEvents()
+        setupPreferenceListeners()
+    }
 
-        // Observe ViewModel UI State
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    // Update preferences based on state
-                    autoBackupPref?.isChecked = state.autoBackup
-                    intervalPref?.value = state.backupInterval.toString()
-                }
-            }
-        }
+    private fun findPreferences() {
+        autoBackupPref = findPreference("auto_backup")
+        intervalPref = findPreference("backup_interval")
+        exportPref = findPreference("manual_export")
+    }
 
-        // Observe events
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        is BackupPreferenceEvent.ShowMessage -> {
-                            // Show snackbar or toast
-                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                        BackupPreferenceEvent.ExportTriggered -> {
-                            // Handle export
-                        }
-                    }
-                }
-            }
-        }
-
-        // User changes → ViewModel
+    private fun setupPreferenceListeners() {
         autoBackupPref?.setOnPreferenceChangeListener { _, newValue ->
             viewModel.onAction(BackupPreferenceAction.SetAutoBackup(newValue as Boolean))
             true
@@ -76,7 +63,31 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    autoBackupPref?.isChecked = state.autoBackup
+                    intervalPref?.value = state.backupInterval.toString()
+                }
+            }
+        }
+    }
+
+    private fun observeEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.event.collect { event ->
+                    when (event) {
+                        is BackupPreferenceEvent.ShowMessage -> {
+                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
+                        }
+                        BackupPreferenceEvent.ExportTriggered -> {
+                            // Handle export
+                        }
+                    }
+                }
+            }
+        }
     }
 }
