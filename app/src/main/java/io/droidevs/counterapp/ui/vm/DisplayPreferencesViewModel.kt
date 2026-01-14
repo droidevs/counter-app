@@ -74,7 +74,7 @@ class DisplayPreferencesViewModel @Inject constructor(
     private fun setKeepScreenOn(keep: Boolean) {
         viewModelScope.launch {
             useCases.setKeepScreenOn(keep)
-            _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated"))
         }
     }
 }
