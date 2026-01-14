@@ -91,4 +91,12 @@ class CounterRepositoryImpl(
     override suspend fun deleteAllCounters() {
         dao.deleteAll()
     }
+
+    override suspend fun exportCounters(): List<Counter> {
+        return dao.getAll().first().map { it.toDomain() }
+    }
+
+    override suspend fun importCounters(counters: List<Counter>) {
+        dao.insertAll(counters.map { it.toEntity() })
+    }
 }

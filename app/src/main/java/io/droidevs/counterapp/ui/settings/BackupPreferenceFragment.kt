@@ -1,7 +1,9 @@
 package io.droidevs.counterapp.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -10,9 +12,11 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.services.ExportFormat
 import io.droidevs.counterapp.ui.vm.BackupPreferenceViewModel
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
@@ -26,6 +30,7 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
     private var autoBackupPref: SwitchPreferenceCompat? = null
     private var intervalPref: ListPreference? = null
     private var exportPref: Preference? = null
+    private var exportFormatDialog: AlertDialog? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.backup_preferences, rootKey)
@@ -82,12 +87,39 @@ class BackupPreferencesFragment : PreferenceFragmentCompat() {
                         is BackupPreferenceEvent.ShowMessage -> {
                             Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
                         }
-                        BackupPreferenceEvent.ExportTriggered -> {
-                            // Handle export
-                        }
+                        is BackupPreferenceEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
+                        is BackupPreferenceEvent.ShareExportFile -> shareExportFile(event)
                     }
                 }
             }
         }
+    }
+
+    private fun showExportFormatDialog(formats: List<ExportFormat>) {
+        exportFormatDialog?.dismiss()
+        val formatItems = formats.map { it.name }.toTypedArray()
+
+        exportFormatDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.export_counters_as))
+            .setItems(formatItems) { _, which ->
+                viewModel.onAction(BackupPreferenceAction.Export(formats[which]))
+            }
+            .setOnDismissListener { exportFormatDialog = null }
+            .show()
+    }
+
+    private fun shareExportFile(event: BackupPreferenceEvent.ShareExportFile) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "*/*"
+            putExtra(Intent.EXTRA_STREAM, event.fileUri)
+            putExtra(Intent.EXTRA_SUBJECT, "Counters Export")
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Counters"))
+    }
+
+    override fun onDestroyView() {
+        exportFormatDialog?.dismiss()
+        super.onDestroyView()
     }
 }

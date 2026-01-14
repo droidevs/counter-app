@@ -4,7 +4,7 @@ import io.droidevs.counterapp.ui.vm.states.BackupPreferenceUiState
 
 fun Pair<Boolean, Long>.toBackupPreferenceUiState(): BackupPreferenceUiState {
     return BackupPreferenceUiState(
-        autoBackup = this.first,
-        backupInterval = this.second
+        autoBackup = first,
+        backupInterval = second
     )
 }

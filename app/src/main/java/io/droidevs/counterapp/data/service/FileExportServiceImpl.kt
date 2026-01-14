@@ -17,8 +17,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,70 +28,25 @@ class FileExportServiceImpl @Inject constructor(
 ) : FileExportService {
 
     private companion object {
-        private const val EXPORT_DIRECTORY = "exports"
         private const val FILE_PROVIDER_AUTHORITY = "${BuildConfig.APPLICATION_ID}.fileprovider"
         private const val FILE_PREFIX = "counters_export"
-        private const val BUFFER_SIZE = 8192
     }
 
-    override suspend fun exportCounters(counters: List<Counter>): ExportResult {
-        return try {
-            val exportData = counters.map { it.toExportModel() }
-            val fileUri = createExportFile(exportData, ExportFormat.JSON)
-            ExportResult.Success(fileUri, generateFileName(ExportFormat.JSON))
-        } catch (e: Exception) {
-            ExportResult.Error("Failed to export counters: ${e.message}", e)
-        }
-    }
-
-    override suspend fun exportToFile(counters: List<Counter>): Uri {
-        val exportData = counters.map { it.toExportModel() }
-        return createExportFile(exportData, ExportFormat.JSON)
-    }
-
-    override suspend fun exportToShare(counters: List<Counter>): ExportResult {
-        return try {
-            val exportData = counters.map { it.toExportModel() }
-            val tempFile = createTempExportFile(exportData, ExportFormat.JSON)
-            val fileUri = getUriForFile(tempFile)
-            ExportResult.Success(fileUri, tempFile.name)
-        } catch (e: Exception) {
-            ExportResult.Error("Failed to create share file: ${e.message}", e)
-        }
-    }
-
-    override fun getExportDirectory(): File {
-        return File(context.getExternalFilesDir(null), EXPORT_DIRECTORY).apply {
-            if (!exists()) {
-                mkdirs()
+    override suspend fun export(counters: List<Counter>, format: ExportFormat): ExportResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val exportData = counters.map { it.toExportModel() }
+                val tempFile = createTempExportFile(exportData, format)
+                val fileUri = getUriForFile(tempFile)
+                ExportResult.Success(fileUri, tempFile.name)
+            } catch (e: Exception) {
+                ExportResult.Error("Failed to create share file: ${e.message}", e)
             }
         }
     }
 
     override fun getAvailableExportFormats(): List<ExportFormat> {
         return ExportFormat.values().toList()
-    }
-
-    // Private helper methods
-
-    private suspend fun createExportFile(
-        counters: List<CounterExport>,
-        format: ExportFormat
-    ): Uri {
-        return withContext(Dispatchers.IO) {
-            val exportDir = getExportDirectory()
-            val fileName = generateFileName(format)
-            val exportFile = File(exportDir, fileName)
-
-            when (format) {
-                ExportFormat.CSV -> exportToCsv(counters, exportFile)
-                ExportFormat.JSON -> exportToJson(counters, exportFile)
-                ExportFormat.XML -> exportToXml(counters, exportFile)
-                ExportFormat.TXT -> exportToTxt(counters, exportFile)
-            }
-
-            getUriForFile(exportFile)
-        }
     }
 
     private fun createTempExportFile(
@@ -103,11 +57,8 @@ class FileExportServiceImpl @Inject constructor(
             if (!exists()) mkdirs()
         }
 
-        val tempFile = File.createTempFile(
-            "${FILE_PREFIX}_${System.currentTimeMillis()}",
-            format.extension,
-            tempDir
-        )
+        val fileName = generateFileName(format)
+        val tempFile = File(tempDir, fileName)
 
         when (format) {
             ExportFormat.CSV -> exportToCsv(counters, tempFile)
@@ -127,10 +78,8 @@ class FileExportServiceImpl @Inject constructor(
 
     private fun exportToCsv(counters: List<CounterExport>, file: File) {
         file.bufferedWriter().use { writer ->
-            // Write CSV header
             writer.write("ID,Name,Value,Category,Created At,Updated At,Can Increase,Can Decrease\n")
 
-            // Write data rows
             counters.forEach { counter ->
                 writer.write(
                     "${escapeCsv(counter.id)}," +
@@ -199,30 +148,22 @@ class FileExportServiceImpl @Inject constructor(
     }
 
     private fun generateFileName(format: ExportFormat): String {
-        return try {
-            // Try with java.time (works with desugaring)
-            val timestamp = java.time.LocalDateTime.now()
+        val timestamp = try {
+            java.time.LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-            "counters_export_$timestamp${format.extension}"
         } catch (e: Exception) {
-            // Fallback to SimpleDateFormat
-            val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
-                .format(Date())
-            "counters_export_$timestamp${format.extension}"
+            SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
         }
+        return "${FILE_PREFIX}_$timestamp${format.extension}"
     }
 
     private fun formatDateForExport(date: Instant): String {
         return try {
-            // Try with java.time
-            val formatter = java.time.format.DateTimeFormatter
-                .ofPattern("yyyy-MM-dd HH:mm:ss")
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(java.time.ZoneId.systemDefault())
             formatter.format(date)
         } catch (e: Exception) {
-            // Fallback
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                .format(Date.from(date))
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date.from(date))
         }
     }
 
@@ -244,7 +185,6 @@ class FileExportServiceImpl @Inject constructor(
     }
 }
 
-// Extension function to convert Counter to CounterExport
 private fun Counter.toExportModel(): CounterExport {
     return CounterExport(
         id = id,

@@ -13,7 +13,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.data.service.FileExportServiceImpl
+import io.droidevs.counterapp.data.service.FileImportServiceImpl
 import io.droidevs.counterapp.domain.services.FileExportService
+import io.droidevs.counterapp.domain.services.FileImportService
 import java.time.Instant
 import javax.inject.Singleton
 
@@ -32,6 +34,15 @@ object ExportModule {
         } else {
             FileExportServiceImpl(context, gson)
         }
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileImportService(
+        @ApplicationContext context: Context,
+        gson: Gson
+    ): FileImportService {
+        return FileImportServiceImpl(context, gson)
     }
 
     @Provides

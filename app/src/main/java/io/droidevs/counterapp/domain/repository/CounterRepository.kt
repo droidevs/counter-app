@@ -37,4 +37,8 @@ interface CounterRepository {
 
     suspend fun deleteAllCounters()
 
+    suspend fun exportCounters(): List<Counter>
+
+    suspend fun importCounters(counters: List<Counter>)
+
 }

@@ -30,4 +30,9 @@
         android:title="Export backup now"
         android:summary="Create a file you can save/share" />
 
+    <Preference
+        android:key="manual_import"
+        android:title="Import from backup"
+        android:summary="Restore counters from a previously exported file" />
+
 </PreferenceScreen>
