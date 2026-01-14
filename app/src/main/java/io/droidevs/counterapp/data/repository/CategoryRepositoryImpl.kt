@@ -7,6 +7,7 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRepository {
@@ -53,5 +54,13 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
         return categoryDao.getSystemCategories().map { list ->
             list.map { it.toDomain() }
         }
+    }
+
+    override suspend fun importCategories(categories: List<Category>) {
+        categoryDao.insertAll(categories.map { it.toEntity() })
+    }
+
+    override suspend fun exportCategories(): List<Category> {
+        return categoryDao.getAllCategories().first().map { it.toDomain() }
     }
 }
