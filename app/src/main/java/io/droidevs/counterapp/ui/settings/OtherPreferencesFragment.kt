@@ -127,8 +127,7 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
             putExtra(Intent.EXTRA_SUBJECT, "Counters Export")
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
-        startActivity(Intent.createChooser(shareIntent, "Share Counters
-        "))
+        startActivity(Intent.createChooser(shareIntent, "Share Counters"))
     }
 
     private fun openUrl(url: String) {
