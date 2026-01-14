@@ -32,9 +32,9 @@ interface CategoryDao {
     }
 
     @Query("""
-        SELECT categoryId, COUNT(*) as count FROM counters
-        WHERE categoryId IS NOT NULL AND is_system = 0
-        GROUP BY categoryId
+        SELECT category_id, COUNT(*) as count FROM counters
+        WHERE category_id IS NOT NULL AND is_system = 0
+        GROUP BY category_id
     """)
     fun getCategoryCounterCounts(): List<CategoryCounterCount>
 

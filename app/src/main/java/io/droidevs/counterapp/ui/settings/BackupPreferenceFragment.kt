@@ -132,7 +132,7 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
         val formatItems = formats.map { it.name }.toTypedArray()
 
         exportFormatDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.export_counters_as))
+            .setTitle(getString(R.string.export_as))
             .setItems(formatItems) { _, which ->
                 exportViewModel.onAction(ExportAction.Export(formats[which]))
             }
