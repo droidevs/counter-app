@@ -9,7 +9,7 @@ import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toDisplayPreferenceUiState
-import io.droidevs.counterapp.ui.vm.mappers.Triple
+import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ class DisplayPreferencesViewModel @Inject constructor(
         useCases.getHideLastUpdate(),
         useCases.getKeepScreenOn(),
     ) { theme, hideControls, hideLastUpdate, keepScreenOn ->
-        Triple(theme, hideControls, hideLastUpdate, keepScreenOn).toDisplayPreferenceUiState()
+        Quadruple(theme, hideControls, hideLastUpdate, keepScreenOn).toDisplayPreferenceUiState()
     }
         .onStart { emit(DisplayPreferenceUiState()) }
         .stateIn(
@@ -74,7 +74,7 @@ class DisplayPreferencesViewModel @Inject constructor(
     private fun setKeepScreenOn(keep: Boolean) {
         viewModelScope.launch {
             useCases.setKeepScreenOn(keep)
-            _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated"))
+            _event.emit(DisplayPreferenceEvent.ShowMessage("Keep screen on updated
         }
     }
 }
