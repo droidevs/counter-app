@@ -1,10 +1,11 @@
-package io.droidevs.counterapp.domain.usecases.import
+package io.droidevs.counterapp.domain.usecases.importing
 
 import android.net.Uri
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.services.FileImportService
 import io.droidevs.counterapp.domain.services.ImportResult
+import io.droidevs.counterapp.domain.services.ImportResult.*
 import javax.inject.Inject
 
 class ImportUseCase @Inject constructor(
@@ -18,13 +19,14 @@ class ImportUseCase @Inject constructor(
                 try {
                     categoryRepository.importCategories(result.data.categories)
                     counterRepository.importCounters(result.data.counters)
-                    ImportResult.Success(Unit)
+                    Success(Unit)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    ImportResult.Error("Failed to save backup: ${e.message}")
+                    Error("Failed to save backup: ${e.message}")
                 }
             }
             is ImportResult.Error -> result
+            is ImportResult.Cancelled -> result
         }
     }
 }

@@ -7,8 +7,8 @@ import dagger.hilt.android.components.ViewModelComponent
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.services.FileImportService
-import io.droidevs.counterapp.domain.usecases.import.ImportUseCase
-import io.droidevs.counterapp.domain.usecases.import.ImportUseCases
+import io.droidevs.counterapp.domain.usecases.importing.ImportUseCase
+import io.droidevs.counterapp.domain.usecases.importing.ImportUseCases
 
 @Module
 @InstallIn(ViewModelComponent::class)

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.services.ImportResult
-import io.droidevs.counterapp.domain.usecases.import.ImportUseCases
+import io.droidevs.counterapp.domain.usecases.importing.ImportUseCases
 import io.droidevs.counterapp.ui.vm.actions.ImportAction
 import io.droidevs.counterapp.ui.vm.events.ImportEvent
 import kotlinx.coroutines.flow.MutableSharedFlow

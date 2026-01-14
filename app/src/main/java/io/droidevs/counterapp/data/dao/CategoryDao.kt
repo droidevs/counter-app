@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.data.dao
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -81,6 +82,8 @@ interface CategoryDao {
 }
 
 data class CategoryCounterCount(
+    @ColumnInfo(name = "category_id")
     val categoryId: String,
+    @ColumnInfo(name = "count")
     val count: Int
 )

@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.domain.usecases.import
+package io.droidevs.counterapp.domain.usecases.importing
 
 data class ImportUseCases(
     val import: ImportUseCase
