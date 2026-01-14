@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp") version "2.0.21-1.0.28"
-    id("com.google.dagger.hilt.android") version "2.57.2"
+    alias(libs.plugins.hilt)
     id("androidx.navigation.safeargs.kotlin")
     //id('kotlin-kapt')
 }
@@ -108,8 +108,8 @@ dependencies {
 
     implementation(libs.google.dagger)
     ksp(libs.dagger.compiler)
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson)
 }
