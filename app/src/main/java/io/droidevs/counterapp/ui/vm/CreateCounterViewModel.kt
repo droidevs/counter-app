@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.vm.mappers.toCreateCounterUiState
 import io.droidevs.counterapp.ui.vm.states.CreateCounterUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,7 +41,7 @@ class CreateCounterViewModel @Inject constructor(
         val canDecrease: Boolean = false,
         val selectedCategoryId: String? = null,
         val isSaving: Boolean = false,
-        val initialValue: String = "0"
+        val initialValue: Int = 0
     )
 
     private val initialCategoryId: String? = savedStateHandle.get<String>("categoryId")
@@ -69,7 +70,9 @@ class CreateCounterViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = CreateCounterUiState(categoryId = initialCategoryId)
+        initialValue = CreateCounterUiState(
+            categoryId = initialCategoryId
+        )
     )
 
     fun onAction(action: CreateCounterAction) {
@@ -98,7 +101,7 @@ class CreateCounterViewModel @Inject constructor(
             return
         }
 
-        val initialValue = currentModel.initialValue.toIntOrNull() ?: 0
+        val initialValue = currentModel.initialValue ?: 0
 
         if (!currentModel.canIncrease && currentModel.canDecrease && initialValue <= 0) {
             viewModelScope.launch { _event.tryEmit(CreateCounterEvent.ShowMessage("Initial value must be greater than 0")) }

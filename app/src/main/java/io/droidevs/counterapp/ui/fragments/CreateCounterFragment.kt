@@ -59,7 +59,7 @@ class CreateCounterFragment : Fragment() {
         }
 
         binding.etInitialValue.doAfterTextChanged {
-            viewModel.onAction(CreateCounterAction.InitialValueChanged(it.toString()))
+            viewModel.onAction(CreateCounterAction.InitialValueChanged(Integer.parseInt(it.toString())))
         }
 
         binding.switchCanIncrease.setOnCheckedChangeListener { _, checked ->
@@ -100,7 +100,7 @@ class CreateCounterFragment : Fragment() {
                             binding.etCounterName.setText(state.name)
                         }
 
-                        if (binding.etInitialValue.text.toString() != state.initialValue) {
+                        if (binding.etInitialValue.text.toString() != state.initialValue.toString()) {
                             binding.etInitialValue.setText(state.initialValue)
                         }
 

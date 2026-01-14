@@ -8,4 +8,5 @@ sealed class CreateCounterAction {
     data class CanDecreaseChanged(val canDecrease: Boolean) : CreateCounterAction()
     data class CategorySelected(val categoryId: String?) : CreateCounterAction()
     object SaveClicked : CreateCounterAction()
+    data class InitialValueChanged(val value: Int): CreateCounterAction()
 }

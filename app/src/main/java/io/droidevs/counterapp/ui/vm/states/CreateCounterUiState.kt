@@ -7,7 +7,7 @@ data class CreateCounterUiState(
     val canIncrease: Boolean = true,
     val canDecrease: Boolean = true,
     val initialValue: Int = 0,
-    val isInitialValueInputVisible: Boolean,
+    val isInitialValueInputVisible: Boolean = false,
     val categoryId: String? = null,
     val categories: List<CategoryUiModel> = emptyList(),
     val isSaving: Boolean = false
