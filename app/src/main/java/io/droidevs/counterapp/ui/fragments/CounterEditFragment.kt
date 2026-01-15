@@ -17,10 +17,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CounterEditFragment : Fragment() {
@@ -28,6 +30,9 @@ class CounterEditFragment : Fragment() {
     private lateinit var binding : FragmentCounterEditBinding
 
     private val viewModel : CounterEditViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +107,7 @@ class CounterEditFragment : Fragment() {
                         when (event) {
                             CounterEditEvent.CounterSaved -> {
                                 Toast.makeText(requireContext(), R.string.saved_message, Toast.LENGTH_SHORT).show()
+                                appNavigator.back()
                             }
                             is CounterEditEvent.ShowMessage -> {
                                 Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()

@@ -11,10 +11,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
@@ -22,11 +20,13 @@ import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CounterListFragment : Fragment(), OnCounterClickListener {
@@ -35,6 +35,9 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
     private val binding get() = _binding!!
 
     private val viewModel: CountersListViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     private lateinit var listAdapter: ListCounterAdapter
 
@@ -122,11 +125,11 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         viewModel.event.onEach { event ->
             when (event) {
                 is CounterListEvent.NavigateToCreateCounter -> {
-                    findNavController().navigate(R.id.action_counterList_to_counterCreate)
+                    appNavigator.navigate(R.id.action_counterList_to_counterCreate)
                 }
 
                 is CounterListEvent.NavigateToCounterView -> {
-                    findNavController().navigate(
+                    appNavigator.navigate(
                         CounterListFragmentDirections.actionCounterListToCounterView(
                             event.counterId
                         )

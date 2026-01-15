@@ -11,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
@@ -19,16 +18,21 @@ import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.data.repository.CategoryColorProvider
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
 import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
 import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateCategoryFragment : Fragment() {
 
     private lateinit var binding: FragmentCreateCategoryBinding
     private val viewModel: CreateCategoryViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     private lateinit var adapter: CategoryColorAdapter
 
@@ -118,7 +122,7 @@ class CreateCategoryFragment : Fragment() {
                                 binding.etCategoryName.error = event.message
                             }
                             CreateCategoryEvent.NavigateBack -> {
-                                findNavController().popBackStack()
+                                appNavigator.back()
                             }
                         }
                     }

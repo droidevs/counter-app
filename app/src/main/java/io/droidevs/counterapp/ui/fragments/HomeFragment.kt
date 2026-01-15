@@ -25,9 +25,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
 import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -35,6 +37,9 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
 
     lateinit var binding : FragmentHomeBinding
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     var recentCountersRecycler : RecyclerView? = null
     var categoriesRecycler : RecyclerView? = null
@@ -122,35 +127,34 @@ class HomeFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             is HomeEvent.NavigateToCounterView -> {
-                                findNavController().navigate(R.id.action_to_counters_graph)
-                                findNavController().navigate(
+                                appNavigator.navigate(R.id.action_to_counters_graph)
+                                appNavigator.navigate(
                                     CounterListFragmentDirections.actionCounterListToCounterView(
                                         event.counterId
                                     )
                                 )
                             }
                             HomeEvent.NavigateToCreateCounter -> {
-                                findNavController().navigate(R.id.action_to_counters_graph)
-                                findNavController().navigate(R.id.action_counterList_to_counterCreate)
+                                appNavigator.navigate(R.id.action_to_counters_graph)
+                                appNavigator.navigate(R.id.action_counterList_to_counterCreate)
                             }
                             is HomeEvent.NavigateToCategoryView -> {
-                                findNavController().navigate(R.id.action_to_categories_graph)
-                                findNavController().navigate(
+                                appNavigator.navigate(R.id.action_to_categories_graph)
+                                appNavigator.navigate(
                                     CategoryListFragmentDirections.actionCategoryListToCategoryView(
                                         event.categoryId
                                     )
                                 )
                             }
                             HomeEvent.NavigateToCreateCategory -> {
-                                findNavController().navigate(R.id.action_to_categories_graph)
-                                findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
+                                appNavigator.navigate(R.id.action_to_categories_graph)
+                                appNavigator.navigate(R.id.action_categoryList_to_categoryCreate)
                             }
                             HomeEvent.NavigateToCounterList -> {
-                                findNavController().navigate(R.id.action_to_counters_graph)
-                                findNavController().navigate(R.id.counterListFragment)
+                                appNavigator.navigate(R.id.action_to_counters_graph)
                             }
                             HomeEvent.NavigateToCategoryList -> {
-                                findNavController().navigate(R.id.action_to_categories_graph)
+                                appNavigator.navigate(R.id.action_to_categories_graph)
                             }
                             is HomeEvent.ShowMessage -> {
                                 // Handle showing toast or snackbar

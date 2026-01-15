@@ -11,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
@@ -23,12 +22,14 @@ import io.droidevs.counterapp.ui.fragments.CategoryListFragmentArgs
 import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CategoryListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject 
 
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
@@ -36,6 +37,9 @@ class CategoryListFragment : Fragment() {
     private lateinit var binding: FragmentCategoryListBinding
     private lateinit var adapter: CategoryListAdapter
     private val viewModel: CategoryListViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -142,7 +146,7 @@ class CategoryListFragment : Fragment() {
         emptyBinding.icon.setImageResource(R.drawable.ic_category)
         emptyBinding.titleText.setText(R.string.empty_categories_title)
         emptyBinding.subtitleText.setText(R.string.empty_categories_message)
-        emptyBinding.createButton.setText(R.string.action_create_category)
+        empty.createButton.setText(R.string.action_create_category)
         emptyBinding.createButton.setOnClickListener { onAction() }
 
         binding.stateContainer.addView(emptyBinding.root)
@@ -157,14 +161,14 @@ class CategoryListFragment : Fragment() {
     private fun handleEvent(event: CategoryListEvent) {
         when (event) {
             is CategoryListEvent.NavigateToCategoryView -> {
-                findNavController().navigate(
+                appNavigator.navigate(
                     CategoryListFragmentDirections.actionCategoryListToCategoryView(
                         event.categoryId
                     )
                 )
             }
             is CategoryListEvent.NavigateToCreateCategory -> {
-                findNavController().navigate(R.id.action_categoryList_to_categoryCreate)
+                appNavigator.navigate(R.id.action_categoryList_to_categoryCreate)
             }
 
             is CategoryListEvent.ShowMessage -> {

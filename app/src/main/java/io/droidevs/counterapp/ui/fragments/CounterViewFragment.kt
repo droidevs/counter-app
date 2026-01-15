@@ -16,21 +16,25 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
     lateinit var binding : FragmentCounterViewBinding
     private val viewModel: CounterViewViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,14 +85,14 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                     viewModel.event.collect { event ->
                         when (event) {
                             is CounterViewEvent.NavigateToCounterEdit -> {
-                                findNavController().navigate(
+                                appNavigator.navigate(
                                     CounterViewFragmentDirections.actionCounterViewToCounterEdit(
                                         event.counterId
                                     )
                                 )
                             }
                             CounterViewEvent.NavigateBack -> {
-                                findNavController().popBackStack()
+                                appNavigator.back()
                             }
                             is CounterViewEvent.ShowMessage -> {
                                 Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()

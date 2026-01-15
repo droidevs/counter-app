@@ -15,18 +15,20 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.NavRootDirections
+import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ViewCategoryFragment : Fragment() {
@@ -35,6 +37,9 @@ class ViewCategoryFragment : Fragment() {
     private lateinit var adapter: CategoryCountersAdapter
 
     private val viewModel : CategoryViewViewModel by viewModels()
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,13 +100,13 @@ class ViewCategoryFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             CategoryViewEvent.NavigateBack -> {
-                                findNavController().navigateUp()
+                                appNavigator.back()
                             }
                             is CategoryViewEvent.NavigateToCreateCounter -> {
-                                findNavController().navigate(
+                                appNavigator.navigate(
                                     NavRootDirections.actionToCountersGraph()
                                 )
-                                findNavController().navigate(
+                                appNavigator.navigate(
                                     CounterListFragmentDirections.actionCounterListToCounterCreate(
                                         event.categoryId
                                     )

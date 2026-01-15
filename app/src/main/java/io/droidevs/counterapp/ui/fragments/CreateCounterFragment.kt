@@ -14,13 +14,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateCounterFragment : Fragment() {
@@ -28,6 +29,9 @@ class CreateCounterFragment : Fragment() {
     private lateinit var binding: FragmentCreateCounterBinding
     private val viewModel: CreateCounterViewModel by viewModels()
     private lateinit var categoryAdapter: ArrayAdapter<String>
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     private val noCategoryString by lazy { "No Category" } // Define const
 
@@ -151,7 +155,7 @@ class CreateCounterFragment : Fragment() {
                                 Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                             }
                             CreateCounterEvent.NavigateBack -> {
-                                findNavController().popBackStack()
+                                appNavigator.back()
                             }
                         }
                     }
