@@ -3,9 +3,11 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.CreateCategoryRequest
 import io.droidevs.counterapp.domain.model.CategoryColor
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
@@ -65,7 +67,11 @@ class CreateCategoryViewModel @Inject constructor(
     private fun saveCategory() {
         val name = _name.value.trim()
         if (name.isEmpty()) {
-            uiMessageDispatcher.dispatch(UiMessage.Toast("Category name is required"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.category_name_required)
+                )
+            )
             return
         }
 
@@ -73,7 +79,7 @@ class CreateCategoryViewModel @Inject constructor(
             _isSaving.value = true
             categoryUseCases.createCategory(CreateCategoryRequest.of(name = name, color = _selectedColor.value))
             _isSaving.value = false
-            _event.emit(CreateCategoryEvent.CategoryCreated(name))
+            uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.category_created_message, args = arrayOf(name))))
             _event.emit(CreateCategoryEvent.NavigateBack)
         }
     }

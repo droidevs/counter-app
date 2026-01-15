@@ -3,8 +3,11 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.counters.RemoveAllCountersUseCase
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.OtherPreferencesAction
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
@@ -50,10 +53,22 @@ class OtherPreferencesViewModel @Inject constructor(
             try {
                 removeAllCountersUseCase()
                 _state.value = _state.value.copy(isLoading = false)
-                uiMessageDispatcher.emit(UiMessage.Snackbar("Counters removed successfully"))
+                uiMessageDispatcher.dispatch(
+                    Toast(
+                        message = Message.Resource(
+                            R.string.counters_removed_successfully
+                        )
+                    )
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false)
-                uiMessageDispatcher.emit(UiMessage.Snackbar("Failed to remove counters: ${e.message}"))
+                uiMessageDispatcher.dispatch(
+                    Toast(
+                        message = Message.Resource(
+                            R.string.failed_to_remove_counters
+                        )
+                    )
+                )
             }
         }
     }

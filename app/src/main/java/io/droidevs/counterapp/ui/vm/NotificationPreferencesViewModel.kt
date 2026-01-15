@@ -3,7 +3,12 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.preference.NotificationPreferenceUseCases
+import io.droidevs.counterapp.ui.message.Message
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.UiMessage.Toast
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import io.droidevs.counterapp.ui.vm.mappers.Quadruple
@@ -15,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationsPreferencesViewModel @Inject constructor(
-    private val useCases: NotificationPreferenceUseCases
+    private val useCases: NotificationPreferenceUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<NotificationPreferenceEvent>(extraBufferCapacity = 1)
@@ -48,28 +54,44 @@ class NotificationsPreferencesViewModel @Inject constructor(
     private fun setCounterLimitNotification(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setCounterLimitNotification(enabled)
-            _event.emit(NotificationPreferenceEvent.ShowMessage("Counter limit notification updated"))
+            uiMessageDispatcher.dispatch(
+                Toast(
+                    message = Message.Resource(R.string.counter_limit_notification_updated)
+                )
+            )
         }
     }
 
     private fun setDailySummaryNotification(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setDailySummaryNotification(enabled)
-            _event.emit(NotificationPreferenceEvent.ShowMessage("Daily summary notification updated"))
+            uiMessageDispatcher.dispatch(
+                Toast(
+                    message = Message.Resource(R.string.daily_summary_notification_updated)
+                )
+            )
         }
     }
 
     private fun setNotificationSound(sound: String) {
         viewModelScope.launch {
             useCases.setNotificationSound(sound)
-            _event.emit(NotificationPreferenceEvent.ShowMessage("Notification sound updated"))
+            uiMessageDispatcher.dispatch(
+                Toast(
+                    message = Message.Resource(R.string.notification_sound_updated)
+                )
+            )
         }
     }
 
     private fun setNotificationVibrationPattern(pattern: String) {
         viewModelScope.launch {
             useCases.setNotificationVibrationPattern(pattern)
-            _event.emit(NotificationPreferenceEvent.ShowMessage("Vibration pattern updated"))
+            uiMessageDispatcher.dispatch(
+                Toast(
+                    message = Message.Resource(R.string.notification_vibration_pattern_updated)
+                )
+            )
         }
     }
 }

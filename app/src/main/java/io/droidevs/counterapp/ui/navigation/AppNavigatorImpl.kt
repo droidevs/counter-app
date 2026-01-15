@@ -52,6 +52,13 @@ class AppNavigatorImpl(
         )
     }
 
+    override fun navigateRoot(directions: NavDirections) {
+        navController.navigate(
+            directions,
+            policy.rootReplacementOptions()
+        )
+    }
+
     override fun back() {
         navController.popBackStack()
     }

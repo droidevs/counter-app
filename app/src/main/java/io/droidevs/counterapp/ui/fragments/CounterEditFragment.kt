@@ -104,7 +104,7 @@ class CounterEditFragment : Fragment() {
                 launch {
                     viewModel.event.collect { event ->
                         when (event) {
-                            CounterEditEvent.CounterSaved -> {
+                            CounterEditEvent.NavigateBack -> {
                                 appNavigator.back()
                             }
                         }

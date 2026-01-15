@@ -170,10 +170,6 @@ class CategoryListFragment : Fragment() {
             is CategoryListEvent.NavigateToCreateCategory -> {
                 appNavigator.navigate(R.id.action_categoryList_to_categoryCreate)
             }
-
-            is CategoryListEvent.ShowMessage -> {
-                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-            }
         }
     }
 }

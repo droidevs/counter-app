@@ -4,9 +4,12 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.services.ImportResult
 import io.droidevs.counterapp.domain.usecases.importing.ImportUseCases
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ImportAction
 import io.droidevs.counterapp.ui.vm.events.ImportEvent
@@ -42,10 +45,16 @@ class ImportViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = importUseCases.import(fileUri)) {
                 is ImportResult.Success -> {
-                    uiMessageDispatcher.dispatch(UiMessage.Snackbar("Counters imported successfully"))
+                    uiMessageDispatcher.dispatch(
+                        Toast(
+                            message = Message.Resource(R.string.counters_imported_successfully)
+                        )
+                    )
+
+
                 }
                 is ImportResult.Error -> {
-                    uiMessageDispatcher.dispatch(UiMessage.Snackbar(result.message))
+                    uiMessageDispatcher.dispatch(Toast(message = Message.Text(result.message)))
                 }
                 ImportResult.Cancelled -> Unit
             }

@@ -4,10 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
@@ -100,7 +102,7 @@ class CounterViewViewModel @Inject constructor(
         viewModelScope.launch {
             val counterName = uiState.value.counter?.name ?: "Counter"
             counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
-            uiMessageDispatcher.dispatch(UiMessage.Toast("$counterName deleted"))
+            uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.counter_deleted, args = arrayOf(counterName))))
             _event.emit(CounterViewEvent.NavigateBack)
         }
     }

@@ -132,26 +132,27 @@ class HomeFragment : Fragment() {
                             is HomeEvent.NavigateToCounterView -> {
                                 //appNavigator.navigateRoot(R.id.action_to_counters_graph)
                                 appNavigator.navigate(
-                                    R.id.action_to_counterView,
-                                    bundleOf("counterId" to event.counterId)
+                                    NavRootDirections.actionToCounterView(
+                                        counterId = event.counterId
+                                    )
                                 )
                             }
                             HomeEvent.NavigateToCreateCounter -> {
                                 //appNavigator.navigateRoot(R.id.action_to_counters_graph)
-                                appNavigator.navigate(
+                                appNavigator.navigateRoot(
                                     R.id.action_to_counterView
                                 )
                             }
                             is HomeEvent.NavigateToCategoryView -> {
                                 //appNavigator.navigateRoot(R.id.action_to_categories_graph)
-                                appNavigator.navigate(
+                                appNavigator.navigateRoot(
                                    R.id.action_to_categoryView,
                                     bundleOf("categoryId" to event.categoryId)
                                 )
                             }
                             HomeEvent.NavigateToCreateCategory -> {
                                 //appNavigator.navigateRoot(R.id.action_to_categories_graph)
-                                appNavigator.navigate(
+                                appNavigator.navigateRoot(
                                     R.id.action_to_categoryCreate
                                 )
                             }
@@ -160,9 +161,6 @@ class HomeFragment : Fragment() {
                             }
                             HomeEvent.NavigateToCategoryList -> {
                                 appNavigator.navigateRoot(R.id.action_to_categories_graph)
-                            }
-                            is HomeEvent.ShowMessage -> {
-                                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

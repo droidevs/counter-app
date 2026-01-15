@@ -3,7 +3,11 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCases
+import io.droidevs.counterapp.ui.message.Message
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
@@ -15,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HardwarePreferencesViewModel @Inject constructor(
-    private val useCases: HardwarePreferenceUseCases
+    private val useCases: HardwarePreferenceUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<HardwarePreferenceEvent>(extraBufferCapacity = 1)
@@ -48,28 +53,44 @@ class HardwarePreferencesViewModel @Inject constructor(
     private fun setHardwareButtonControl(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setHardwareButtonControl(enabled)
-            _event.emit(HardwarePreferenceEvent.ShowMessage("Hardware button control updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.hardware_button_control_updated)
+                )
+            )
         }
     }
 
     private fun setSoundsOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setSoundsOn(enabled)
-            _event.emit(HardwarePreferenceEvent.ShowMessage("Sounds updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.sounds_updated)
+                )
+            )
         }
     }
 
     private fun setVibrationOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setVibrationOn(enabled)
-            _event.emit(HardwarePreferenceEvent.ShowMessage("Vibration updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.vibration_updated)
+                )
+            )
         }
     }
 
     private fun setShowLabels(show: Boolean) {
         viewModelScope.launch {
             useCases.setLabelControl(show)
-            _event.emit(HardwarePreferenceEvent.ShowMessage("Labels visibility updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.labels_visibility_updated)
+                )
+            )
         }
     }
 }

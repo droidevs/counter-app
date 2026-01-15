@@ -43,7 +43,7 @@ class ExportViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = exportUseCases.export(format)) {
                 is ExportResult.Success -> _event.tryEmit(ExportEvent.ShareExportFile(result.fileUri))
-                is ExportResult.Error -> uiMessageDispatcher.emit(UiMessage.Snackbar(result.message))
+                is ExportResult.Error -> uiMessageDispatcher.dispatch(UiMessage.Snackbar(text = result.message))
                 ExportResult.Cancelled -> Unit
             }
         }

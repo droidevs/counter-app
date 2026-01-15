@@ -18,8 +18,8 @@
     <string name="default_category_name">Default</string>
     <string name="edit_label">Edit</string>
     <string name="reset_label">Reset</string>
-    <string name="created_at_label">"Created: "</string>
-    <string name="last_updated_label">"Last update: "</string>
+    <string name="created_at_label">Created %1$s</string>
+    <string name="last_updated_label">Updated %1$s</string>
     <string name="never_updated_message">Never</string>
     <string name="saved_message">Saved</string>
     <string name="deleted_message">Counter deleted</string>
@@ -142,4 +142,48 @@
     <string name="navigation_drawer_close">Close Drawer</string>
     <string name="import_confirmation_message">Importing a file will overwrite all your current counters. Are you sure you want to proceed?</string>
     <string name="export_as">Export As</string>
+
+    <string name="error_decrement_only_counter">Value must be greater than 0 for a decrement-only counter.</string>
+
+    <string name="counter_deleted">%1$s deleted</string>
+
+    <!-- res/values/strings.xml -->
+    <string name="controls_visibility_updated">Controls visibility updated</string>
+    <string name="last_update_visibility_updated">Last update visibility updated</string>
+    <string name="keep_screen_on_updated">Keep screen on updated</string>
+
+    <string name="theme_updated">Theme updated</string>
+
+    <string name="hardware_button_control_updated">Hardware button control updated</string>
+    <string name="sounds_updated">Sounds updated</string>
+    <string name="vibration_updated">Vibration updated</string>
+    <string name="labels_visibility_updated">Labels visibility updated</string>
+    <string name="history_cleared">History cleared</string>
+
+    <string name="counters_imported_successfully">Counters imported successfully</string>
+    <string name="counter_limit_notification_updated">Counter limit notification updated</string>
+    <string name="daily_summary_notification_updated">Daily summary notification updated</string>
+    <string name="notification_sound_updated">Notification sound updated</string>
+    <string name="notification_vibration_pattern_updated">Notification vibration pattern updated</string>
+
+    <string name="counters_removed_successfully">Counters removed successfully</string>
+    <string name="failed_to_remove_counters">Failed to remove counters</string>
+
+    <string name="increment_step_updated">Increment step updated</string>
+    <string name="decrement_step_updated">Decrement step updated</string>
+    <string name="default_value_updated">Default value updated</string>
+    <string name="minimum_value_updated">Minimum value updated</string>
+    <string name="maximum_value_updated">Maximum value updated</string>
+
+    <string name="auto_backup_updated">Auto backup updated</string>
+    <string name="backup_interval_updated">Backup interval updated</string>
+
+    <string name="counter_saved">Counter saved</string>
+    <string name="category_name_required">Category name is required</string>
+    <string name="name_required">Name is required</string>
+
+    <string name="initial_value_must_be_positive">Initial value must be greater than 0</string>
+
+    <string name="counter_created">Counter "%1$s" created</string>
+
 </resources>

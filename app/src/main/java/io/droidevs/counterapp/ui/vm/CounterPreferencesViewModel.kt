@@ -3,7 +3,9 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCases
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
@@ -53,36 +55,45 @@ class CounterPreferencesViewModel @Inject constructor(
     private fun setIncrementStep(value: Int) {
         viewModelScope.launch {
             useCases.setCounterIncrementStep(value.coerceAtLeast(1))
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Increment step updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.increment_step_updated))
+            )
         }
     }
 
     private fun setDecrementStep(value: Int) {
         viewModelScope.launch {
             useCases.setCounterDecrementStep(value.coerceAtLeast(1))
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Decrement step updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.decrement_step_updated))
+            )
         }
     }
 
     private fun setDefaultValue(value: Int) {
         viewModelScope.launch {
             useCases.setDefaultCounterValue(value)
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Default value updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.default_value_updated))
+            )
         }
     }
 
     private fun setMinimumValue(value: Int?) {
         viewModelScope.launch {
             useCases.setMinimumCounterValue(value)
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Minimum value updated
-            ))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.minimum_value_updated))
+            )
         }
     }
 
     private fun setMaximumValue(value: Int?) {
         viewModelScope.launch {
             useCases.setMaximumCounterValue(value)
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Maximum value updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.maximum_value_updated))
+            )
         }
     }
 }

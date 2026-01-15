@@ -1,5 +1,5 @@
 package io.droidevs.counterapp.ui.vm.events
 
 sealed class CounterEditEvent {
-    object CounterSaved : CounterEditEvent()
+    object NavigateBack : CounterEditEvent()
 }

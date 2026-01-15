@@ -3,7 +3,9 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
@@ -44,7 +46,11 @@ class BackupPreferenceViewModel @Inject constructor(
     private fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
             backup.setAutoBackup(enabled)
-            uiMessageDispatcher.dispatch(UiMessage.Toast("Auto backup updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.auto_backup_updated)
+                )
+            )
         }
     }
 
@@ -52,7 +58,11 @@ class BackupPreferenceViewModel @Inject constructor(
         viewModelScope.launch {
             val coercedHours = hours.coerceIn(1L..720L)
             backup.setBackupInterval(coercedHours)
-            uiMessageDispatcher.dispatch(UiMessage.Toast("Backup interval updated"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(R.string.backup_interval_updated)
+                )
+            )
         }
     }
 }

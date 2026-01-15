@@ -4,11 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.CreateCounterRequest
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
@@ -100,14 +102,26 @@ class CreateCounterViewModel @Inject constructor(
         val name = currentModel.name.trim()
 
         if (name.isEmpty()) {
-            viewModelScope.launch { uiMessageDispatcher.emit(UiMessage.Snackbar("Name is required")) }
+            viewModelScope.launch {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(
+                        message = Message.Resource(R.string.name_required)
+                    )
+                )
+            }
             return
         }
 
         val initialValue = currentModel.initialValue ?: 0
 
         if (!currentModel.canIncrease && currentModel.canDecrease && initialValue <= 0) {
-            viewModelScope.launch { uiMessageDispatcher.emit(UiMessage.Snackbar("Initial value must be greater than 0")) }
+            viewModelScope.launch {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(
+                        message = Message.Resource(R.string.initial_value_must_be_positive)
+                    )
+                )
+            }
             return
         }
 
@@ -128,7 +142,14 @@ class CreateCounterViewModel @Inject constructor(
             counterUseCases.createCounter(CreateCounterRequest.of(counter))
             _editModel.update { it.copy(isSaving = false) }
 
-            uiMessageDispatcher.emit(UiMessage.Snackbar("Counter '$name' created"))
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(
+                    message = Message.Resource(
+                        R.string.counter_created,
+                        arrayOf(name)
+                    )
+                )
+            )
             _event.tryEmit(CreateCounterEvent.NavigateBack)
         }
     }

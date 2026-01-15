@@ -3,8 +3,11 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.history.HistoryUseCases
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.models.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
@@ -58,7 +61,12 @@ class HistoryViewModel @Inject constructor(
     private fun clearHistory() {
         viewModelScope.launch {
             historyUseCases.clearHistoryUseCase()
-            uiMessageDispatcher.dispatch(UiMessage.Snackbar("History cleared"))
+            uiMessageDispatcher.dispatch(
+                Toast(
+                    message = Message.Resource(R.string.history_cleared)
+                )
+            )
+
         }
     }
 }

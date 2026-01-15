@@ -9,7 +9,7 @@ sealed interface UiMessage {
 
     data class Toast(
         override val id: String = UUID.randomUUID().toString(),
-        val text: String,
+        val message: Message,
         val duration: Duration = Duration.SHORT
     ) : UiMessage
 

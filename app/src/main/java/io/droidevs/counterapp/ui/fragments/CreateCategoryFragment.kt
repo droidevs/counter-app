@@ -111,16 +111,6 @@ class CreateCategoryFragment : Fragment() {
                 launch {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is CreateCategoryEvent.CategoryCreated -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    getString(R.string.category_created_message, event.name),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            is CreateCategoryEvent.ShowMessage -> {
-                                binding.etCategoryName.error = event.message
-                            }
                             CreateCategoryEvent.NavigateBack -> {
                                 appNavigator.back()
                             }

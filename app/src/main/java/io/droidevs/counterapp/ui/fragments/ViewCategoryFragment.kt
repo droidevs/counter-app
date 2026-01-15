@@ -112,9 +112,6 @@ class ViewCategoryFragment : Fragment() {
                                     )
                                 )
                             }
-                            is CategoryViewEvent.ShowMessage -> {
-                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-                            }
                         }
                     }
                 }

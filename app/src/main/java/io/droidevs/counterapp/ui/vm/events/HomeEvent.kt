@@ -7,5 +7,5 @@ sealed class HomeEvent {
     object NavigateToCreateCategory : HomeEvent()
     object NavigateToCounterList : HomeEvent()
     object NavigateToCategoryList : HomeEvent()
-    data class ShowMessage(val message: String) : HomeEvent()
+    // data class ShowMessage(val message: String) : HomeEvent()
 }

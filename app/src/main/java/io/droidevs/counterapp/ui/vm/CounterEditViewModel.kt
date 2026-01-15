@@ -4,10 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.domain.toUiModel
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
@@ -88,7 +90,7 @@ class CounterEditViewModel @Inject constructor(
 
         if (counter != null) {
             if (!counter.canIncrease && counter.canDecrease && counter.currentCount <= 0) {
-                uiMessageDispatcher.dispatch(UiMessage.Toast("Value must be greater than 0 for a decrement-only counter."))
+                uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.error_decrement_only_counter)))
                 return
             }
 
@@ -105,8 +107,12 @@ class CounterEditViewModel @Inject constructor(
                 )
                 counterUseCases.updateCounter(request)
                 _isSaving.value = false
-                uiMessageDispatcher.emit(UiMessage.Snackbar("Counter Saved"))
-                _event.emit(CounterEditEvent.CounterSaved)
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(
+                        message = Message.Resource(R.string.counter_saved)
+                    )
+                )
+                _event.emit(CounterEditEvent.NavigateBack)
             }
         }
     }

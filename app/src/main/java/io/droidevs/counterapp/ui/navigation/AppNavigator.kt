@@ -23,5 +23,7 @@ interface AppNavigator {
 
     fun navigate(directions: NavDirections)
 
+    fun navigateRoot(directions: NavDirections)
+
     fun back()
 }

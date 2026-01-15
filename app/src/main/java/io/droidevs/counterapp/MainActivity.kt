@@ -42,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 import io.droidevs.counterapp.ui.fragments.CategoryListFragment
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.actions.UiActionHandler
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
@@ -157,24 +158,32 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateView(name, context, attrs)
     }
 
-    private fun handleMessage(message: UiMessage) {
-        when (message) {
+    private fun handleMessage(uiMessage: UiMessage) {
+        when (uiMessage) {
 
             is UiMessage.Toast -> {
-                Toast.makeText(
-                    this,
-                    message.text,
-                    message.duration.toToastLength()
-                ).show()
+                if (uiMessage.message is Message.Text)
+                    Toast.makeText(
+                        this,
+                        uiMessage.message.value,
+                        uiMessage.duration.toToastLength()
+                    ).show()
+                else if (uiMessage.message is Message.Resource) {
+                    Toast.makeText(
+                        this,
+                        getString(uiMessage.message.resId, *uiMessage.message.args),
+                        uiMessage.duration.toToastLength()
+                    ).show()
+                }
             }
 
             is UiMessage.Snackbar -> {
                 Snackbar.make(
                     findViewById(android.R.id.content),
-                    message.text,
-                    message.duration.toSnackbarLength()
+                    uiMessage.text,
+                    uiMessage.duration.toSnackbarLength()
                 ).apply {
-                    message.action?.let { action ->
+                    uiMessage.action?.let { action ->
                         actionHandler.handle(action = action.uiAction)
                     }
                 }.show()
