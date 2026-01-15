@@ -37,7 +37,6 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         super.onViewCreated(view, savedInstanceState)
         findPreferences()
         observeUiState()
-        observeEvents()
         setupPreferenceListeners()
     }
 
@@ -90,17 +89,4 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun observeEvents() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        is DisplayPreferenceEvent.ShowMessage -> {
-                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

@@ -95,8 +95,8 @@ class CounterEditFragment : Fragment() {
                                 binding.switchCanDecrease.isChecked = counter.canDecrease
                             }
 
-                            binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdAt.toString())
-                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.lastUpdatedAt.toString())
+                            binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdTime.toString())
+                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.editedTime.toString())
                         }
                     }
                 }

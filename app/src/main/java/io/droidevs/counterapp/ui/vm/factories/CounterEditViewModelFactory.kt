@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
+import io.droidevs.counterapp.ui.date.DateFormatter
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 
@@ -11,7 +13,9 @@ import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 class CounterEditViewModelFactory(
     private val initialCounter: CounterUiModel,
     private val savedStateHandle: SavedStateHandle,
-    private val counterUseCases: CounterUseCases
+    private val counterUseCases: CounterUseCases,
+    private val dateFormatter: DateFormatter,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -20,7 +24,9 @@ class CounterEditViewModelFactory(
             return CounterEditViewModel(
                 //initialCounter = initialCounter,
                 savedStateHandle = savedStateHandle,
-                counterUseCases = counterUseCases
+                counterUseCases = counterUseCases,
+                dateFormatter = dateFormatter,
+                uiMessageDispatcher = uiMessageDispatcher
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

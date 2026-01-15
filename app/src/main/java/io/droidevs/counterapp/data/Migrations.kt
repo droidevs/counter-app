@@ -26,6 +26,8 @@ object Migrations {
                     `color` INTEGER NOT NULL, 
                     `counters_count` INTEGER NOT NULL, 
                     `is_system` INTEGER NOT NULL, 
+                    `created_at` INTEGER NOT NULL, 
+                    `last_updated_at` INTEGER,
                     PRIMARY KEY(`id`)
                 )
             """.trimIndent())
@@ -51,8 +53,8 @@ object Migrations {
                     `category_id` TEXT, 
                     `is_system` INTEGER NOT NULL, 
                     `created_at` INTEGER NOT NULL, 
-                    `last_updated_at` INTEGER NOT NULL, 
-                    `order_anchor_at` INTEGER NOT NULL, 
+                    `last_updated_at` INTEGER, 
+                    `order_anchor_at` INTEGER, 
                     PRIMARY KEY(`id`), 
                     FOREIGN KEY(`category_id`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
                 )

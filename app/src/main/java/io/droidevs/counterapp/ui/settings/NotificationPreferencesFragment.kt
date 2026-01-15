@@ -36,7 +36,6 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
         super.onViewCreated(view, savedInstanceState)
         findPreferences()
         observeUiState()
-        observeEvents()
         setupPreferenceListeners()
     }
 
@@ -85,20 +84,6 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
                     dailySummaryPref?.isChecked = state.dailySummaryNotification
                     soundPref?.value = state.notificationSound
                     vibrationPref?.value = state.notificationVibrationPattern
-                }
-            }
-        }
-    }
-
-    private fun observeEvents() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        is NotificationPreferenceEvent.ShowMessage -> {
-                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
                 }
             }
         }

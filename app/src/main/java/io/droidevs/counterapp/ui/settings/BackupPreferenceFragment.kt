@@ -116,14 +116,12 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
         when (event) {
             is ExportEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
             is ExportEvent.ShareExportFile -> shareExportFile(event)
-            is ExportEvent.ShowMessage -> showMessage(event.message)
         }
     }
 
     private fun handleImportEvent(event: ImportEvent) {
         when (event) {
             is ImportEvent.ShowImportFileChooser -> showImportFileChooser()
-            is ImportEvent.ShowMessage -> showMessage(event.message)
         }
     }
 

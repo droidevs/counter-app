@@ -4,13 +4,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 
 @Deprecated("Use Hilt injection with @HiltViewModel instead")
 class CategoryViewViewModelFactory(
     private val categoryId: String,
     private val savedStateHandle: SavedStateHandle,
-    private val categoryUseCases: CategoryUseCases
+    private val categoryUseCases: CategoryUseCases,
+    private val dateFormatter: DateFormatter
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -19,7 +21,8 @@ class CategoryViewViewModelFactory(
             return CategoryViewViewModel(
                 //categoryId = categoryId,
                 savedStateHandle = savedStateHandle,
-                categoryUseCases = categoryUseCases
+                categoryUseCases = categoryUseCases,
+                dateFormatter = dateFormatter
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

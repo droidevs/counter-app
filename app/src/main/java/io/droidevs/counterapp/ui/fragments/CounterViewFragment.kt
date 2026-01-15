@@ -71,8 +71,8 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                             (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
                             binding.tvCounterName.text = c.name
                             updateCount(binding.tvCurrentCount, c.currentCount)
-                            binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdAt.toString())
-                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.lastUpdatedAt.toString())
+                            binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdTime.toString())
+                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.editedTime.toString())
 
                             binding.ivIncrement.isEnabled = c.canIncrease
                             binding.ivDecrement.isEnabled = c.canDecrease

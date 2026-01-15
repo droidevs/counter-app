@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.domain.toUiModel
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
@@ -25,7 +26,8 @@ import javax.inject.Inject
 class CounterEditViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")!!
@@ -50,7 +52,7 @@ class CounterEditViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             counterUseCases.getCounter(counterId).collect { domainCounter ->
-                _editableCounter.value = domainCounter?.toUiModel()
+                _editableCounter.value = domainCounter?.toUiModel(dateFormatter)
             }
         }
     }

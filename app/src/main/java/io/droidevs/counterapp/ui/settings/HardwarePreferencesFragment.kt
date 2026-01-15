@@ -35,7 +35,6 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
         super.onViewCreated(view, savedInstanceState)
         findPreferences()
         observeUiState()
-        observeEvents()
         setupPreferenceListeners()
     }
 
@@ -84,20 +83,6 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
                     soundsPref?.isChecked = state.soundsOn
                     vibrationPref?.isChecked = state.vibrationOn
                     labelsPref?.isChecked = state.showLabels
-                }
-            }
-        }
-    }
-
-    private fun observeEvents() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        is HardwarePreferenceEvent.ShowMessage -> {
-                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
                 }
             }
         }
