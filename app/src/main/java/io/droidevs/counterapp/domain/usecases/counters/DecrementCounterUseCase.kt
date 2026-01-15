@@ -6,6 +6,7 @@ import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import kotlinx.coroutines.flow.first
+import java.time.Instant
 import javax.inject.Inject
 
 class DecrementCounterUseCase @Inject constructor(
@@ -20,7 +21,8 @@ class DecrementCounterUseCase @Inject constructor(
         updateCounterUseCase(
             UpdateCounterRequest(
                 counterId = counter.id,
-                newCount = newValue
+                newCount = newValue,
+                lastUpdatedAt = Instant.now()
             )
         )
         addHistoryEventUseCase(

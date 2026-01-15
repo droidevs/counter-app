@@ -12,6 +12,19 @@
     <include app:graph="@navigation/nav_about"/>
 
     <action
+        android:id="@+id/action_global_categoryList"
+        app:destination="@id/categoryListFragment"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/nav_root"
+        app:popUpToInclusive="false"
+        app:popUpToSaveState="true">
+        <argument
+            android:name="isSystem"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </action>
+
+    <action
         android:id="@+id/action_to_settings_graph"
         app:destination="@id/settings_graph"
         app:launchSingleTop="true"

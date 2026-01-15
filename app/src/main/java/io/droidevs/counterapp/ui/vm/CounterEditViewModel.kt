@@ -97,7 +97,8 @@ class CounterEditViewModel @Inject constructor(
                     newCount = counter.currentCount,
                     canIncrease = counter.canIncrease,
                     canDecrease = counter.canDecrease,
-                    lastUpdatedAt = Instant.now()
+                    lastUpdatedAt = Instant.now(),
+                    orderAnchorAt = Instant.now()
                 )
                 counterUseCases.updateCounter(request)
                 _isSaving.value = false

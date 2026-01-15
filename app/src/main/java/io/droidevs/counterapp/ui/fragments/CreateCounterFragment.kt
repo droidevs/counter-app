@@ -101,7 +101,7 @@ class CreateCounterFragment : Fragment() {
                         }
 
                         if (binding.etInitialValue.text.toString() != state.initialValue.toString()) {
-                            binding.etInitialValue.setText(state.initialValue)
+                            binding.etInitialValue.setText(state.initialValue.toString())
                         }
 
                         binding.switchCanIncrease.isChecked = state.canIncrease

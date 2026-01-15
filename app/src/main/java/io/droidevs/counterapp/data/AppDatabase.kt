@@ -28,7 +28,7 @@ import io.droidevs.counterapp.data.entities.HistoryEventEntity
         HistoryEventEntity::class
     ],
     version = DatabaseConfig.DATABASE_VERSION, // Use the version from DatabaseConfig
-    exportSchema = true
+    exportSchema = false
 )
 @TypeConverters(InstantConverters::class)
 abstract class AppDatabase : RoomDatabase() {

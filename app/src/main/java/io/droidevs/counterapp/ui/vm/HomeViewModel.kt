@@ -97,62 +97,59 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun scheduleInteractionEnd(counter: Counter) {
+    private fun scheduleInteractionEnd(counterId: String) {
         interactionJob?.cancel()
 
         interactionJob = viewModelScope.launch {
             delay(2000) // user stopped tapping
-            finishInteraction(counter)
+            finishInteraction(counterId)
         }
     }
 
-    private fun finishInteraction(counter: Counter) {
-        Log.i("HomeViewModel", "finishInteraction: ${counter.currentCount}")
+    private fun finishInteraction(counterId: String) {
+        Log.i("HomeViewModel", "finishInteraction: $counterId")
 
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counter.id, newCount = counter.currentCount, orderAnchorAt = Instant.now()))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counterId, orderAnchorAt = Instant.now()))
         }
+
         activeCounter = null
     }
 
-    private fun flushInteraction(counter: Counter) {
+    private fun flushInteraction(counterId: String) {
         interactionJob?.cancel()
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counter.id, newCount = counter.currentCount, orderAnchorAt = Instant.now()))
+            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counterId, orderAnchorAt = Instant.now()))
         }
     }
 
     private fun incrementCounter(counterUiModel: CounterUiModel) {
         if (activeCounter != null && activeCounter!!.id != counterUiModel.id) {
-            flushInteraction(activeCounter!!)
+            flushInteraction(activeCounter!!.id)
         }
 
         activeCounter = counterUiModel.toDomain()
-        activeCounter?.increment()
-        val updatedCounter = activeCounter!!
 
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt))
+            counterUseCases.incrementCounter(counter = activeCounter!!)
         }
-        scheduleInteractionEnd(updatedCounter)
+        scheduleInteractionEnd(activeCounter!!.id)
     }
 
     private fun decrementCounter(counterUiModel: CounterUiModel) {
         if (activeCounter != null && activeCounter!!.id != counterUiModel.id) {
-            flushInteraction(activeCounter!!)
+            flushInteraction(activeCounter!!.id)
         }
         activeCounter = counterUiModel.toDomain()
-        activeCounter?.decrement()
-        val updatedCounter = activeCounter!!
 
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = updatedCounter.id, newCount = updatedCounter.currentCount, lastUpdatedAt = updatedCounter.lastUpdatedAt))
+            counterUseCases.decrementCounter(counter = activeCounter!!)
         }
-        scheduleInteractionEnd(updatedCounter)
+        scheduleInteractionEnd(activeCounter!!.id)
     }
 
     override fun onCleared() {
-        activeCounter?.let { flushInteraction(it) }
+        activeCounter?.let { flushInteraction(it.id) }
         super.onCleared()
     }
 }

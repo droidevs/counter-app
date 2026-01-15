@@ -12,5 +12,7 @@ data class CounterUseCases(
     val getTotalNumberOfCounters: GetTotalNumberOfCountersUseCase,
     val incrementSystemCounter: IncrementSystemCounterUseCase,
     val updateCounter: UpdateCounterUseCase,
-    val updateSystemCounter: UpdateSystemCounterUseCase
+    val updateSystemCounter: UpdateSystemCounterUseCase,
+    val incrementCounter : IncrementCounterUseCase,
+    val decrementCounter : DecrementCounterUseCase,
 )
