@@ -5,6 +5,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+<!--    <action-->
+<!--        android:id="@+id/action_to_categoryView"-->
+<!--        app:destination="@id/categoryViewFragment" />-->
+
+<!--    <action-->
+<!--        android:id="@+id/action_to_categoryCreate"-->
+<!--        app:destination="@id/createCategoryFragment" />-->
+
     <fragment
         android:id="@+id/categoryListFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CategoryListFragment"

@@ -1,20 +1,27 @@
 package io.droidevs.counterapp
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.NavOptionsBuilder
@@ -30,16 +37,27 @@ import androidx.window.layout.WindowMetricsCalculator
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.ActivityMainBinding
 import io.droidevs.counterapp.ui.fragments.CategoryListFragment
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.actions.UiActionHandler
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
+import io.droidevs.counterapp.ui.message.mappers.toSnackbarLength
+import io.droidevs.counterapp.ui.message.mappers.toToastLength
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     var binding : ActivityMainBinding? = null
 
+    @Inject lateinit var messageDispatcher: UiMessageDispatcher
+
+    @Inject lateinit var actionHandler: UiActionHandler
 
     private var toolbar : MaterialToolbar? = null
     private lateinit var navController : NavController;
@@ -123,6 +141,43 @@ class MainActivity : AppCompatActivity() {
                 toolbar?.setNavigationOnClickListener { drawer.openDrawer(GravityCompat.START) }
             } else {
                 toolbar?.setNavigationOnClickListener { navController.navigateUp() }
+            }
+        }
+    }
+
+    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                messageDispatcher.flow().collect { message ->
+                    handleMessage(message)
+                }
+            }
+        }
+        return super.onCreateView(name, context, attrs)
+    }
+
+    private fun handleMessage(message: UiMessage) {
+        when (message) {
+
+            is UiMessage.Toast -> {
+                Toast.makeText(
+                    this,
+                    message.text,
+                    message.duration.toToastLength()
+                ).show()
+            }
+
+            is UiMessage.Snackbar -> {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    message.text,
+                    message.duration.toSnackbarLength()
+                ).apply {
+                    message.action?.let { action ->
+                        actionHandler.handle(action = action.uiAction)
+                    }
+                }.show()
             }
         }
     }
@@ -286,8 +341,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun openSystemCategories() {
         navController.navigate(
-            NavRootDirections
-                .actionGlobalCategoryList(isSystem = true)
+            R.id.categories_graph,
+            bundleOf("isSystem" to true)
         )
 
     }

@@ -13,9 +13,15 @@ interface AppNavigator {
         extras: Navigator.Extras? = null,
         options: NavOptions? = null
     )
-    fun navigate(directions: NavDirections)
 
-    fun navigateRoot(directions: NavDirections)
+    fun navigateRoot(
+        actionId: Int,
+        args: Bundle? = null,
+        extras: Navigator.Extras? = null,
+        options: NavOptions? = null
+    )
+
+    fun navigate(directions: NavDirections)
 
     fun back()
 }

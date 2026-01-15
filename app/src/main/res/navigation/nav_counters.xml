@@ -5,6 +5,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+<!--    <action-->
+<!--        android:id="@+id/action_to_counterView"-->
+<!--        app:destination="@id/counterViewFragment"-->
+<!--        app:popUpToSaveState="true"/>-->
+
+<!--    <action-->
+<!--        android:id="@+id/action_to_counterCreate"-->
+<!--        app:destination="@id/counterCreateFragment"-->
+<!--        app:popUpToSaveState="true"/>-->
+
     <fragment
         android:id="@+id/counterListFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CounterListFragment"

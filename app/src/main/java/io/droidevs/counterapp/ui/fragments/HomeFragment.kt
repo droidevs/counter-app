@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +24,7 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import dagger.hilt.android.AndroidEntryPoint
+import io.droidevs.counterapp.NavRootDirections
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
 import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
@@ -127,37 +130,39 @@ class HomeFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             is HomeEvent.NavigateToCounterView -> {
-                                appNavigator.navigate(R.id.action_to_counters_graph)
+                                //appNavigator.navigateRoot(R.id.action_to_counters_graph)
                                 appNavigator.navigate(
-                                    CounterListFragmentDirections.actionCounterListToCounterView(
-                                        event.counterId
-                                    )
+                                    R.id.action_to_counterView,
+                                    bundleOf("counterId" to event.counterId)
                                 )
                             }
                             HomeEvent.NavigateToCreateCounter -> {
-                                appNavigator.navigate(R.id.action_to_counters_graph)
-                                appNavigator.navigate(R.id.action_counterList_to_counterCreate)
+                                //appNavigator.navigateRoot(R.id.action_to_counters_graph)
+                                appNavigator.navigate(
+                                    R.id.action_to_counterView
+                                )
                             }
                             is HomeEvent.NavigateToCategoryView -> {
-                                appNavigator.navigate(R.id.action_to_categories_graph)
+                                //appNavigator.navigateRoot(R.id.action_to_categories_graph)
                                 appNavigator.navigate(
-                                    CategoryListFragmentDirections.actionCategoryListToCategoryView(
-                                        event.categoryId
-                                    )
+                                   R.id.action_to_categoryView,
+                                    bundleOf("categoryId" to event.categoryId)
                                 )
                             }
                             HomeEvent.NavigateToCreateCategory -> {
-                                appNavigator.navigate(R.id.action_to_categories_graph)
-                                appNavigator.navigate(R.id.action_categoryList_to_categoryCreate)
+                                //appNavigator.navigateRoot(R.id.action_to_categories_graph)
+                                appNavigator.navigate(
+                                    R.id.action_to_categoryCreate
+                                )
                             }
                             HomeEvent.NavigateToCounterList -> {
-                                appNavigator.navigate(R.id.action_to_counters_graph)
+                                appNavigator.navigateRoot(R.id.action_to_counters_graph)
                             }
                             HomeEvent.NavigateToCategoryList -> {
-                                appNavigator.navigate(R.id.action_to_categories_graph)
+                                appNavigator.navigateRoot(R.id.action_to_categories_graph)
                             }
                             is HomeEvent.ShowMessage -> {
-                                // Handle showing toast or snackbar
+                                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

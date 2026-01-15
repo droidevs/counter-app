@@ -146,7 +146,7 @@ class CategoryListFragment : Fragment() {
         emptyBinding.icon.setImageResource(R.drawable.ic_category)
         emptyBinding.titleText.setText(R.string.empty_categories_title)
         emptyBinding.subtitleText.setText(R.string.empty_categories_message)
-        empty.createButton.setText(R.string.action_create_category)
+        emptyBinding.createButton.setText(R.string.action_create_category)
         emptyBinding.createButton.setOnClickListener { onAction() }
 
         binding.stateContainer.addView(emptyBinding.root)
