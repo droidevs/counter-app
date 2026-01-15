@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -106,11 +105,7 @@ class CounterEditFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             CounterEditEvent.CounterSaved -> {
-                                Toast.makeText(requireContext(), R.string.saved_message, Toast.LENGTH_SHORT).show()
                                 appNavigator.back()
-                            }
-                            is CounterEditEvent.ShowMessage -> {
-                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

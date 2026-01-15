@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.CreateCategoryRequest
-import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryColor
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
 import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
 import io.droidevs.counterapp.ui.vm.states.CreateCategoryUiState
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateCategoryViewModel @Inject constructor(
-    private val categoryUseCases: CategoryUseCases
+    private val categoryUseCases: CategoryUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _name = MutableStateFlow("")
@@ -63,9 +65,7 @@ class CreateCategoryViewModel @Inject constructor(
     private fun saveCategory() {
         val name = _name.value.trim()
         if (name.isEmpty()) {
-            viewModelScope.launch {
-                _event.emit(CreateCategoryEvent.ShowMessage("Category name is required"))
-            }
+            uiMessageDispatcher.dispatch(UiMessage.Toast("Category name is required"))
             return
         }
 

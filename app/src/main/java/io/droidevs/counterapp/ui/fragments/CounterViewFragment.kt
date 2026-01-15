@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -93,9 +92,6 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                             }
                             CounterViewEvent.NavigateBack -> {
                                 appNavigator.back()
-                            }
-                            is CounterViewEvent.ShowMessage -> {
-                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

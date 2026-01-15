@@ -8,6 +8,8 @@ import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.domain.toUiModel
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import io.droidevs.counterapp.ui.vm.mappers.toEditUiState
@@ -20,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CounterEditViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val counterUseCases: CounterUseCases
+    private val counterUseCases: CounterUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")!!
@@ -85,7 +88,7 @@ class CounterEditViewModel @Inject constructor(
 
         if (counter != null) {
             if (!counter.canIncrease && counter.canDecrease && counter.currentCount <= 0) {
-                viewModelScope.launch { _event.emit(CounterEditEvent.ShowMessage("Value must be greater than 0 for a decrement-only counter.")) }
+                uiMessageDispatcher.dispatch(UiMessage.Toast("Value must be greater than 0 for a decrement-only counter."))
                 return
             }
 
@@ -102,6 +105,7 @@ class CounterEditViewModel @Inject constructor(
                 )
                 counterUseCases.updateCounter(request)
                 _isSaving.value = false
+                uiMessageDispatcher.emit(UiMessage.Snackbar("Counter Saved"))
                 _event.emit(CounterEditEvent.CounterSaved)
             }
         }

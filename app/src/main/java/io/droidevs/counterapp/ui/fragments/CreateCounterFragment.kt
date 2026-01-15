@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
@@ -148,12 +147,6 @@ class CreateCounterFragment : Fragment() {
                 launch {
                     viewModel.event.collect { event ->
                         when (event) {
-                            is CreateCounterEvent.CounterCreated -> {
-                                Toast.makeText(requireContext(), "Counter \"${event.name}\" saved", Toast.LENGTH_SHORT).show()
-                            }
-                            is CreateCounterEvent.ShowMessage -> {
-                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-                            }
                             CreateCounterEvent.NavigateBack -> {
                                 appNavigator.back()
                             }

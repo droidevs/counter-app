@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.history.HistoryUseCases
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.models.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
 import io.droidevs.counterapp.ui.vm.events.HistoryViewEvent
@@ -20,7 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val historyUseCases: HistoryUseCases
+    private val historyUseCases: HistoryUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryViewState())
@@ -55,7 +58,7 @@ class HistoryViewModel @Inject constructor(
     private fun clearHistory() {
         viewModelScope.launch {
             historyUseCases.clearHistoryUseCase()
-            _uiEvent.emit(HistoryViewEvent.ShowMessage("History cleared"))
+            uiMessageDispatcher.dispatch(UiMessage.Snackbar("History cleared"))
         }
     }
 }

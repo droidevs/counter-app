@@ -9,6 +9,8 @@ import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.CreateCounterRequest
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import io.droidevs.counterapp.ui.vm.mappers.toCreateCounterUiState
@@ -32,7 +34,8 @@ import javax.inject.Inject
 class CreateCounterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
-    private val categoryUseCases: CategoryUseCases
+    private val categoryUseCases: CategoryUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     data class EditModel(
@@ -97,14 +100,14 @@ class CreateCounterViewModel @Inject constructor(
         val name = currentModel.name.trim()
 
         if (name.isEmpty()) {
-            viewModelScope.launch { _event.tryEmit(CreateCounterEvent.ShowMessage("Name is required")) }
+            viewModelScope.launch { uiMessageDispatcher.emit(UiMessage.Snackbar("Name is required")) }
             return
         }
 
         val initialValue = currentModel.initialValue ?: 0
 
         if (!currentModel.canIncrease && currentModel.canDecrease && initialValue <= 0) {
-            viewModelScope.launch { _event.tryEmit(CreateCounterEvent.ShowMessage("Initial value must be greater than 0")) }
+            viewModelScope.launch { uiMessageDispatcher.emit(UiMessage.Snackbar("Initial value must be greater than 0")) }
             return
         }
 
@@ -125,7 +128,7 @@ class CreateCounterViewModel @Inject constructor(
             counterUseCases.createCounter(CreateCounterRequest.of(counter))
             _editModel.update { it.copy(isSaving = false) }
 
-            _event.tryEmit(CreateCounterEvent.CounterCreated(name))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Counter '$name' created"))
             _event.tryEmit(CreateCounterEvent.NavigateBack)
         }
     }

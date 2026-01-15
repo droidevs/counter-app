@@ -8,12 +8,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.CounterPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
-import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
 import kotlinx.coroutines.launch
 
 
@@ -36,7 +34,6 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
         super.onViewCreated(view, savedInstanceState)
         findPreferences()
         observeUiState()
-        observeEvents()
         setupPreferenceListeners()
     }
 
@@ -99,20 +96,6 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
                     defaultPref?.text = state.defaultCounterValue.toString()
                     minPref?.text = state.minimumCounterValue?.toString() ?: ""
                     maxPref?.text = state.maximumCounterValue?.toString() ?: ""
-                }
-            }
-        }
-    }
-
-    private fun observeEvents() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        is CounterBehaviorPreferenceEvent.ShowMessage -> {
-                            Snackbar.make(requireView(), event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
                 }
             }
         }

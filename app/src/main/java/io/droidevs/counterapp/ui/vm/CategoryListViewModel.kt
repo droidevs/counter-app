@@ -9,13 +9,15 @@ import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
-    private val categoryUseCases: CategoryUseCases
+    private val categoryUseCases: CategoryUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CategoryListEvent>(extraBufferCapacity = 1)

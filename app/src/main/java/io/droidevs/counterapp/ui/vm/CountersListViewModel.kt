@@ -14,13 +14,15 @@ import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CountersListViewModel @Inject constructor(
-    private val counterUseCases: CounterUseCases
+    private val counterUseCases: CounterUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CounterListEvent>(extraBufferCapacity = 1)

@@ -10,7 +10,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.FragmentHistoryBinding
 import io.droidevs.counterapp.ui.adapter.HistoryAdapter
@@ -61,17 +60,6 @@ class HistoryFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     historyAdapter.submitList(state.history)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiEvent.collect { event ->
-                    when (event) {
-                        is io.droidevs.counterapp.ui.vm.events.HistoryViewEvent.ShowMessage -> {
-                            Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
                 }
             }
         }

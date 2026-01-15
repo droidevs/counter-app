@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
 import io.droidevs.counterapp.ui.vm.mappers.toBackupPreferenceUiState
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupPreferenceViewModel @Inject constructor(
-    private val backup: BackupPreferenceUseCases
+    private val backup: BackupPreferenceUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<BackupPreferenceEvent>(extraBufferCapacity = 1)
@@ -41,7 +44,7 @@ class BackupPreferenceViewModel @Inject constructor(
     private fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
             backup.setAutoBackup(enabled)
-            _event.tryEmit(BackupPreferenceEvent.ShowMessage("Auto backup updated"))
+            uiMessageDispatcher.dispatch(UiMessage.Toast("Auto backup updated"))
         }
     }
 
@@ -49,7 +52,7 @@ class BackupPreferenceViewModel @Inject constructor(
         viewModelScope.launch {
             val coercedHours = hours.coerceIn(1L..720L)
             backup.setBackupInterval(coercedHours)
-            _event.tryEmit(BackupPreferenceEvent.ShowMessage("Backup interval updated"))
+            uiMessageDispatcher.dispatch(UiMessage.Toast("Backup interval updated"))
         }
     }
 }

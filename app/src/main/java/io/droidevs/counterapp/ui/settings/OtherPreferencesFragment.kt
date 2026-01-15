@@ -13,7 +13,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.services.ExportFormat
@@ -90,8 +89,6 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
                     viewModel.event.collect { event ->
                         when (event) {
                             is OtherPreferencesEvent.ShowRemoveConfirmation -> showRemoveConfirmationDialog()
-                            is OtherPreferencesEvent.RemoveSuccess -> showMessage("Counters removed successfully")
-                            is OtherPreferencesEvent.Error -> showMessage(event.message)
                         }
                     }
                 }
@@ -100,7 +97,6 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
                         when (event) {
                             is ExportEvent.ShowExportFormatDialog -> showExportFormatDialog(event.formats)
                             is ExportEvent.ShareExportFile -> shareExportFile(event.fileUri)
-                            is ExportEvent.ShowMessage -> showMessage(event.message)
                         }
                     }
                 }
@@ -160,10 +156,6 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
     private fun openUrl(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-    }
-
-    private fun showMessage(message: String) {
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

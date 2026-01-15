@@ -1,6 +1,5 @@
 package io.droidevs.counterapp.ui.vm
 
-import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,8 @@ import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
 import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CounterViewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val counterUseCases: CounterUseCases
+    private val counterUseCases: CounterUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")
@@ -96,7 +98,9 @@ class CounterViewViewModel @Inject constructor(
 
     private fun delete() {
         viewModelScope.launch {
+            val counterName = uiState.value.counter?.name ?: "Counter"
             counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
+            uiMessageDispatcher.dispatch(UiMessage.Toast("$counterName deleted"))
             _event.emit(CounterViewEvent.NavigateBack)
         }
     }

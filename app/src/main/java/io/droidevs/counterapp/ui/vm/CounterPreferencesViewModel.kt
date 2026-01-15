@@ -4,18 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCases
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
-import io.droidevs.counterapp.ui.vm.events.CounterBehaviorPreferenceEvent
 import io.droidevs.counterapp.ui.vm.mappers.Quintuple
 import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
 import io.droidevs.counterapp.ui.vm.mappers.toCounterBehaviorPreferenceUiState
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -23,11 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CounterPreferencesViewModel @Inject constructor(
-    private val useCases: CounterPreferenceUseCases
+    private val useCases: CounterPreferenceUseCases,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
-
-    private val _event = MutableSharedFlow<CounterBehaviorPreferenceEvent>(extraBufferCapacity = 1)
-    val event: SharedFlow<CounterBehaviorPreferenceEvent> = _event.asSharedFlow()
 
     val uiState: StateFlow<CounterBehaviorPreferenceUiState> = combine(
         useCases.getCounterIncrementStep(),
@@ -58,35 +53,36 @@ class CounterPreferencesViewModel @Inject constructor(
     private fun setIncrementStep(value: Int) {
         viewModelScope.launch {
             useCases.setCounterIncrementStep(value.coerceAtLeast(1))
-            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Increment step updated"))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Increment step updated"))
         }
     }
 
     private fun setDecrementStep(value: Int) {
         viewModelScope.launch {
             useCases.setCounterDecrementStep(value.coerceAtLeast(1))
-            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Decrement step updated"))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Decrement step updated"))
         }
     }
 
     private fun setDefaultValue(value: Int) {
         viewModelScope.launch {
             useCases.setDefaultCounterValue(value)
-            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Default value updated"))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Default value updated"))
         }
     }
 
     private fun setMinimumValue(value: Int?) {
         viewModelScope.launch {
             useCases.setMinimumCounterValue(value)
-            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Minimum value updated"))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Minimum value updated
+            ))
         }
     }
 
     private fun setMaximumValue(value: Int?) {
         viewModelScope.launch {
             useCases.setMaximumCounterValue(value)
-            _event.emit(CounterBehaviorPreferenceEvent.ShowMessage("Maximum value updated"))
+            uiMessageDispatcher.emit(UiMessage.Snackbar("Maximum value updated"))
         }
     }
 }

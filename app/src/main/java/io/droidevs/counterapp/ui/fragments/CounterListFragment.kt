@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -134,9 +133,6 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
                             event.counterId
                         )
                     )
-                }
-                is CounterListEvent.ShowMessage -> {
-                    Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
