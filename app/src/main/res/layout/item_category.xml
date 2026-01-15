@@ -42,4 +42,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <!-- Edited time ago -->
+    <TextView
+        android:id="@+id/tvEditedTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edited_time_ago"
+        android:textSize="12sp"
+        android:textColor="?attr/colorOnSecondaryContainer"
+        android:alpha="0.65"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:background="@drawable/bg_time_badge"
+        app:layout_constraintTop_toTopOf="@id/tvCountersCount"
+        app:layout_constraintBottom_toBottomOf="@id/tvCountersCount"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

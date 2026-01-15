@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class CounterViewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")
@@ -35,7 +37,7 @@ class CounterViewViewModel @Inject constructor(
 
     val uiState: StateFlow<CounterViewUiState> = counterUseCases.getCounter(counterId)
         .map { counter ->
-            counter?.toUiModel()?.toViewUiState(isLoading = false)
+            counter?.toUiModel(dateFormatter)?.toViewUiState(isLoading = false)
                 ?: CounterViewUiState(isLoading = false) // Or handle error state
         }
         .onStart { emit(CounterViewUiState(isLoading = true)) } // Initial loading state

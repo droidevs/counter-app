@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -62,10 +63,14 @@ class HomeCategoryAdapter(
         private val name = binding.categoryName
         private val count = binding.categoryCount
         private val container = binding.container
+        private val tvEditedTime = binding.tvEditedTime
 
         fun bind(category: CategoryUiModel) {
             name.text = category.name
-            count.text = category.countersCount.toString()
+
+            count.text = itemView.context.resources.getQuantityString(
+                R.plurals.counters_count, category.countersCount, category.countersCount
+            )
 
             val drawable = ContextCompat
                 .getDrawable(itemView.context, R.drawable.bg_category_card)
@@ -80,6 +85,15 @@ class HomeCategoryAdapter(
             }
             container.background = drawable
 
+            if (!category.editedTime.isNullOrBlank()) {
+                tvEditedTime.text = itemView.context.getString(
+                    R.string.edited_time_ago,
+                    category.editedTime
+                )
+                tvEditedTime.isVisible = true
+            } else {
+                tvEditedTime.isVisible = false
+            }
         }
     }
 

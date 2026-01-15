@@ -6,7 +6,7 @@ import java.time.Instant
 import javax.inject.Inject
 
 class TimeAgoDateFormatter @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : DateFormatter {
 
     override fun format(instant: Instant): String {

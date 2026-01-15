@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val dateFormatter : DateFormatter
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CategoryListEvent>(extraBufferCapacity = 1)
@@ -32,7 +34,12 @@ class CategoryListViewModel @Inject constructor(
             } else {
                 categoryUseCases.getAllCategories()
             }
-                .map { categories -> categories.map { it.toUiModel() } }
+                .map { categories -> categories.map {
+                    it.toUiModel(dateFormatter).copy(
+                        createdTime = it.createdAt?.let { dateFormatter.format(it) },
+                        editedTime = it.updatedAt?.let { dateFormatter.format(it) }
+                    )
+                } }
                 .onStart { emit(emptyList()) } // Emit empty list initially for the mapper
                 .map { categories -> categories.toUiState(isLoading = false, isSystem = isSystem) }
                 .onStart { emit(CategoryListUiState(isLoading = true, isSystem = isSystem)) } // Initial loading state

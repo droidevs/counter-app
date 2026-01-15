@@ -3,6 +3,7 @@ package io.droidevs.counterapp.domain
 import io.droidevs.counterapp.data.entities.CategoryEntity
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryColor
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 
 // Entity → Domain
@@ -26,13 +27,19 @@ fun Category.toEntity(): CategoryEntity =
 
 
 // Domain → UI
-fun Category.toUiModel(): CategoryUiModel {
+fun Category.toUiModel(
+    formatter: DateFormatter,
+): CategoryUiModel {
     return CategoryUiModel(
         id = id,
         name = name,
-        countersCount = countersCount
+        color = color,
+        countersCount = countersCount,
+        createdTime = createdAt?.let { formatter.format(it) },
+        editedTime = updatedAt?.let { formatter.format(it) }
     )
 }
+
 
 // UI → Domain (useful for create/edit later)
 fun CategoryUiModel.toDomain(): Category {

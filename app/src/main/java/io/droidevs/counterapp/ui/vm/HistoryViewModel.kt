@@ -4,12 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.history.HistoryUseCases
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
-import io.droidevs.counterapp.ui.models.toUiModel
 import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
 import io.droidevs.counterapp.ui.vm.events.HistoryViewEvent
 import io.droidevs.counterapp.ui.vm.states.HistoryViewState
@@ -26,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyUseCases: HistoryUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val dateFormatter : DateFormatter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryViewState())
@@ -50,7 +52,7 @@ class HistoryViewModel @Inject constructor(
             .onEach { result ->
                 _uiState.update { state ->
                     state.copy(
-                        history = result.map { it.toUiModel() },
+                        history = result.map { it.toUiModel(dateFormatter) },
                         isLoading = false
                     )
                 }

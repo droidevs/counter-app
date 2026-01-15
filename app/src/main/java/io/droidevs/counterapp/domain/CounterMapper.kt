@@ -1,22 +1,25 @@
 package io.droidevs.counterapp.domain
 
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.models.CounterUiModel
 
 
-fun Counter.toUiModel(): CounterUiModel {
+fun Counter.toUiModel(
+    formatter: DateFormatter
+): CounterUiModel {
     return CounterUiModel(
         id = id,
         name = name,
         currentCount = currentCount,
         categoryId = categoryId,
-        createdAt = createdAt,
-        lastUpdatedAt = lastUpdatedAt,
         canIncrease = canIncrease,
         canDecrease = canDecrease,
-        orderAnchorAt = orderAnchorAt
+        createdTime = createdAt?.let { formatter.format(it) },
+        editedTime = lastUpdatedAt?.let { formatter.format(it) }
     )
 }
+
 
 fun CounterUiModel.toDomain(): Counter {
     return Counter(
@@ -25,9 +28,6 @@ fun CounterUiModel.toDomain(): Counter {
         currentCount = currentCount,
         canIncrease = canIncrease,
         canDecrease = canDecrease,
-        categoryId = categoryId,
-        createdAt = createdAt,
-        lastUpdatedAt = lastUpdatedAt,
-        orderAnchorAt = orderAnchorAt
+        categoryId = categoryId
     )
 }

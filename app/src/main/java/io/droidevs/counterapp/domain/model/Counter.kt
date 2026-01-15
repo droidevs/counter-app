@@ -17,8 +17,8 @@ class Counter(
     var isSystem: Boolean = false,
 
     val createdAt: Instant = Instant.now(),
-    var lastUpdatedAt: Instant = createdAt,
-    var orderAnchorAt: Instant = lastUpdatedAt
+    var lastUpdatedAt: Instant? = null,
+    var orderAnchorAt: Instant? = null
 ) {
 
     fun increment() {

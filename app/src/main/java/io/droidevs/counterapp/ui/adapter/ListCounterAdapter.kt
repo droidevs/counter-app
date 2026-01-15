@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
@@ -29,7 +30,7 @@ class ListCounterAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         val tvName: TextView = binding.tvCounterName
         val tvCount: TextView = binding.tvCounterValue
-        val updatedAt : TextView = binding.tvUpdated
+        val tvEditTime : TextView = binding.tvEditedTime
         val tvCategory : TextView = binding.tvCategory
 
         fun bind(
@@ -40,7 +41,7 @@ class ListCounterAdapter(
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
             tvCategory.text = data.category?.name
-            updatedAt.text = getRelativeTime(data.counter.lastUpdatedAt)
+            tvEditTime.text = data.counter.editedTime
 
             binding.root.setOnClickListener {
                 listener.onCounterClick(data.counter)
@@ -70,6 +71,15 @@ class ListCounterAdapter(
                 drawable?.setTint(color)
                 tvCategory.background = drawable
 
+                if (!it.editedTime.isNullOrBlank()) {
+                    tvEditTime.text = itemView.context.getString(
+                        R.string.edited_time_ago,
+                        it.editedTime
+                    )
+                    tvEditTime.isVisible = true
+                } else {
+                    tvEditTime.isVisible = false
+                }
             }
         }
     }

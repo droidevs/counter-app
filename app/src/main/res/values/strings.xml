@@ -186,4 +186,15 @@
 
     <string name="counter_created">Counter "%1$s" created</string>
 
+    <string name="edited_time_ago">Edited %1$s</string>
+    <string name="edited_recently">Edited recently</string>
+
+    <plurals name="counters_count">
+        <item quantity="one">%d counter</item>
+        <item quantity="other">%d counters</item>
+    </plurals>
+
+    <!-- content description -->
+    <string name="increase">Increase</string>
+    <string name="decrease">Decrease</string>
 </resources>

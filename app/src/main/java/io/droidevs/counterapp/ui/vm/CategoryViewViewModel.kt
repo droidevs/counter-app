@@ -8,6 +8,8 @@ import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
 import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithCountersRequest
+import io.droidevs.counterapp.ui.date.DateFormatter
+import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
@@ -20,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryViewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val categoryUseCases: CategoryUseCases
+    private val categoryUseCases: CategoryUseCases,
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
     private val categoryId: String = savedStateHandle.get<String>("categoryId")
@@ -36,7 +39,11 @@ class CategoryViewViewModel @Inject constructor(
     val uiState: StateFlow<CategoryViewUiState> = categoryUseCases.getCategoryWithCounters(
         GetCategoryWithCountersRequest(categoryId = categoryId)
     )
-        .map { it.toUiModel().toUiState(isLoading = false) }
+        .map {
+            it
+                .toUiModel(dateFormatter)
+                .toUiState(isLoading = false)
+        }
         .onStart { emit(CategoryViewUiState(isLoading = true)) }
         .stateIn(
             scope = viewModelScope,

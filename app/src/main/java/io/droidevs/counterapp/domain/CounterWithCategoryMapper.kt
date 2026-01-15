@@ -5,6 +5,7 @@ import io.droidevs.counterapp.data.entities.CounterWithCategoryEntity
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import io.droidevs.counterapp.domain.model.CounterWithCategory
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 
 
@@ -29,9 +30,11 @@ fun CounterWithCategoryUiModel.toDomain() : CounterWithCategory {
     )
 }
 
-fun CounterWithCategory.toUiModel() : CounterWithCategoryUiModel {
+fun CounterWithCategory.toUiModel(
+     formatter : DateFormatter
+) : CounterWithCategoryUiModel {
     return CounterWithCategoryUiModel(
-        counter = counter.toUiModel(),
-        category = category?.toUiModel()
+        counter = counter.toUiModel(formatter),
+        category = category?.toUiModel(formatter)
     )
 }

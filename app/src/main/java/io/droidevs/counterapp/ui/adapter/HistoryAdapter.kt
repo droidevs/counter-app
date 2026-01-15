@@ -23,7 +23,7 @@ class HistoryAdapter : ListAdapter<HistoryUiModel, HistoryAdapter.HistoryViewHol
         fun bind(history: HistoryUiModel) {
             binding.textViewCounterName.text = history.counterName
             binding.textViewChange.text = history.change.toString()
-            binding.textViewTimestamp.text = history.timestamp.toString()
+            binding.textViewTimestamp.text = history.createdTime
         }
     }
 

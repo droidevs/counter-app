@@ -86,15 +86,20 @@
 
         <!-- Updated Date -->
         <TextView
-            android:id="@+id/tvUpdated"
+            android:id="@+id/tvEditedTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Updated: 12/19/2025"
+            android:text="Edited 2h ago"
             android:textSize="12sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="?colorOnSurfaceVariant"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/bg_time_badge"
+            android:alpha="0.75"
+            android:layout_marginTop="10dp"
             app:layout_constraintTop_toBottomOf="@id/tvCounterValue"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

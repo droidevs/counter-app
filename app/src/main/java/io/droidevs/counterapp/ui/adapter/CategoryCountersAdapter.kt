@@ -2,9 +2,11 @@ package io.droidevs.counterapp.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemCategoryCounterBinding
 import io.droidevs.counterapp.ui.models.CounterUiModel
 
@@ -28,6 +30,15 @@ class CategoryCountersAdapter :
         with(holder.binding) {
             tvCounterName.text = item.name
             tvCounterValue.text = item.currentCount.toString()
+            if (!item.editedTime.isNullOrBlank()) {
+                tvEditedTime.text = holder.itemView.context.getString(
+                    R.string.edited_time_ago,
+                    item.editedTime
+                )
+                tvEditedTime.isVisible = true
+            } else {
+                tvEditedTime.isVisible = false
+            }
         }
     }
 

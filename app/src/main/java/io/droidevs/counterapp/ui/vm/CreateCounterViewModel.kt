@@ -10,6 +10,7 @@ import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.CreateCounterRequest
+import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
@@ -37,7 +38,8 @@ class CreateCounterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
     private val categoryUseCases: CategoryUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
     data class EditModel(
@@ -58,7 +60,7 @@ class CreateCounterViewModel @Inject constructor(
     val event: SharedFlow<CreateCounterEvent> = _event.asSharedFlow()
 
     private val _categoriesFlow = categoryUseCases.getAllCategories()
-        .map { categories -> categories.map { it.toUiModel() } }
+        .map { categories -> categories.map { it.toUiModel(dateFormatter) } }
         .onStart { emit(emptyList()) }
 
     val uiState: StateFlow<CreateCounterUiState> = combine(

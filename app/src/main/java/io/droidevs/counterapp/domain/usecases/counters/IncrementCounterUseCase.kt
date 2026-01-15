@@ -22,8 +22,7 @@ class IncrementCounterUseCase @Inject constructor(
             UpdateCounterRequest(
                 counterId = counter.id,
                 newCount = newValue,
-                lastUpdatedAt = Instant.now(),
-                orderAnchorAt = counter.orderAnchorAt
+                lastUpdatedAt = Instant.now()
             )
         )
         addHistoryEventUseCase(

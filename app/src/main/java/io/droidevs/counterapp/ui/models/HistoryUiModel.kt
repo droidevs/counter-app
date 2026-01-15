@@ -10,17 +10,5 @@ data class HistoryUiModel(
     val oldValue: Int,
     val newValue: Int,
     val change: Int,
-    val timestamp: Instant
+    val createdTime: String? = null
 )
-
-fun HistoryEvent.toUiModel(): HistoryUiModel {
-    return HistoryUiModel(
-        id = this.id,
-        counterId = this.counterId,
-        counterName = this.counterName,
-        oldValue = this.oldValue,
-        newValue = this.newValue,
-        change = this.change,
-        timestamp = this.timestamp
-    )
-}

@@ -13,9 +13,11 @@
         android:id="@+id/tvCounterName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Water Glasses"
+        android:text="Counter Name"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="?colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tvCounterValue"
@@ -23,14 +25,19 @@
 
     <!-- Updated date -->
     <TextView
-        android:id="@+id/tvUpdatedAt"
+        android:id="@+id/tvEditedTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Updated 12/20/2025"
+        android:text="Edited 2h ago"
         android:textSize="12sp"
         android:textColor="?colorOnSurfaceVariant"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:background="@drawable/bg_time_badge"
+        android:alpha="0.75"
         app:layout_constraintStart_toStartOf="@id/tvCounterName"
-        app:layout_constraintTop_toBottomOf="@id/tvCounterName"/>
+        app:layout_constraintTop_toBottomOf="@id/tvCounterName"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <!-- Counter value -->
     <TextView
@@ -53,7 +60,7 @@
         android:layout_height="40dp"
         android:background="@drawable/bg_circle_secondary"
         android:src="@drawable/ic_minus"
-        android:contentDescription="Decrease"
+        android:contentDescription="@string/decrease"
         app:layout_constraintEnd_toStartOf="@id/btnPlus"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -66,7 +73,7 @@
         android:layout_height="40dp"
         android:background="@drawable/bg_circle_primary"
         android:src="@drawable/ic_plus"
-        android:contentDescription="Increase"
+        android:contentDescription="@string/increase"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

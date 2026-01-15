@@ -6,5 +6,7 @@ data class CategoryUiModel(
     val id: String,
     val name: String,
     val color: CategoryColor = CategoryColor.default(),
-    val countersCount: Int = 0
+    val countersCount: Int = 0,
+    val createdTime: String? = null,
+    val editedTime : String? = null
 )

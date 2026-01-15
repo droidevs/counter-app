@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
@@ -84,7 +85,7 @@ internal class HomeCounterAdapter(
         var name: TextView = binding.txtCounterName
         var category: TextView = binding.txtCategory
         var count = binding.txtCount
-        var updatedAt = binding.txtUpdated
+        var tvEditTime = binding.tvEditedTime
         var btnPlus = binding.btnPlus
         var btnMinus = binding.btnMinus
 
@@ -96,7 +97,6 @@ internal class HomeCounterAdapter(
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
             category.text = cwg.category?.name
-            updatedAt.text = getRelativeTime(cwg.counter.lastUpdatedAt)
 
             btnPlus.setOnClickListener {
                 onIncrement(cwg)
@@ -121,6 +121,19 @@ internal class HomeCounterAdapter(
                 drawable?.setTint(color)
                 category.background = drawable
 
+                count.text = itemView.context.resources.getQuantityString(
+                    R.plurals.counters_count, it.countersCount, it.countersCount
+                )
+
+                if (!it.editedTime.isNullOrBlank()) {
+                    tvEditTime.text = itemView.context.getString(
+                        R.string.edited_time_ago,
+                        it.editedTime
+                    )
+                    tvEditTime.isVisible = true
+                } else {
+                    tvEditTime.isVisible = false
+                }
 
             }
         }
