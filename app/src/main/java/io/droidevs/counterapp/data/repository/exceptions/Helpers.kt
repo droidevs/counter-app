@@ -10,7 +10,8 @@ import android.os.TransactionTooLargeException
 import io.droidevs.bmicalc.data.db.exceptions.DatabaseException
 import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.asResultFlow
+import io.droidevs.counterapp.domain.result.asResult
+import io.droidevs.counterapp.domain.result.asResultAlready
 import io.droidevs.counterapp.domain.result.flowRunCatching
 import io.droidevs.counterapp.domain.result.runCatchingResult
 import io.droidevs.counterapp.domain.result.runCatchingWithResult
@@ -39,14 +40,14 @@ suspend fun <D> runCatchingDatabaseWithResult(
 /**
  * For flows that emit raw values (wraps in Result)
  */
-fun <D> Flow<D>.asDatabaseResult(): Flow<Result<D, DatabaseError>> = asResultFlow(
+fun <D> Flow<D>.asDatabaseResult(): Flow<Result<D, DatabaseError>> = asResult(
     errorTransform = { e -> e.toDatabaseError() }
 )
 
 /**
  * For flows that already emit Result types (just transforms errors)
  */
-fun <D> Flow<Result<D, DatabaseError>>.asDatabaseResultAlready(): Flow<Result<D, DatabaseError>> = asResultFlow(
+fun <D> Flow<Result<D, DatabaseError>>.asDatabaseResultAlready(): Flow<Result<D, DatabaseError>> = asResultAlready(
     errorTransform = { e -> e.toDatabaseError() }
 )
 

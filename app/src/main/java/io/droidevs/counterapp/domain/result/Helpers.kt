@@ -38,13 +38,13 @@ suspend fun <D , E : RootError> runCatchingWithResult(
 }
 
 // Base function using collect
-fun <D, E : RootError> Flow<D>.asResultFlow(
+fun <D, E : RootError> Flow<D>.asResult(
     errorTransform: (Throwable) -> E,
     retries: Int = 2,
     delayMillis: Long = 1000
 ): Flow<Result<D, E>> = flow {
     try {
-        this@asResultFlow
+        this@asResult
             .retry(retries.toLong()) { cause ->
                 delay(delayMillis)
                 cause is IOException // Only retry on network errors
@@ -57,13 +57,13 @@ fun <D, E : RootError> Flow<D>.asResultFlow(
     }
 }
 
-fun <D, E : RootError> Flow<Result<D, E>>.asResultFlow(
+fun <D, E : RootError> Flow<Result<D, E>>.asResultAlready(
     errorTransform: (Throwable) -> E,
     retries: Int = 2,
     delayMillis: Long = 1000
 ): Flow<Result<D, E>> = flow {
     try {
-        this@asResultFlow
+        this@asResultAlready
             .retry(retries.toLong()) { cause ->
                 delay(delayMillis)
                 cause is IOException // Only retry on network errors
@@ -82,7 +82,7 @@ fun <D, E : RootError> flowRunCatching(
     block: suspend () -> Flow<D>
 ): Flow<Result<D, E>> = flow {
     try {
-        block().asResultFlow(errorTransform).collect { result ->
+        block().asResult(errorTransform).collect { result ->
             emit(result)
         }
     } catch (e: Exception){
