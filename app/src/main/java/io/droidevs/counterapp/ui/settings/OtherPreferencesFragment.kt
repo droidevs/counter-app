@@ -1,10 +1,11 @@
 package io.droidevs.counterapp.ui.settings
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -24,7 +25,6 @@ import io.droidevs.counterapp.ui.vm.events.ExportEvent
 import io.droidevs.counterapp.ui.vm.events.OtherPreferencesEvent
 import kotlinx.coroutines.launch
 
-
 @AndroidEntryPoint
 class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
@@ -32,6 +32,20 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
     private val exportViewModel: ExportViewModel by viewModels()
     private var removeCountersDialog: AlertDialog? = null
     private var exportFormatDialog: AlertDialog? = null
+
+    private var loadingView: View? = null
+    private var errorView: View? = null
+    private var container: ViewGroup? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        this.container = view as? ViewGroup
+        return view
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.other_preferences, rootKey)
@@ -104,12 +118,19 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
                 // Observe loading state (optional)
                 launch {
                     viewModel.state.collect { state ->
-                        // Update UI based on loading state if needed
                         if (state.isLoading) {
-                            // Show loading indicator
+                            showLoading()
                         } else {
-                            // Hide loading indicator
+                            hideLoading()
                         }
+
+                        if (state.error) {
+                            showError()
+                        } else {
+                            hideError()
+                        }
+
+                        preferenceScreen.isVisible = !state.isLoading && !state.error
                     }
                 }
             }
@@ -156,6 +177,30 @@ class OtherPreferencesFragment : PreferenceFragmentCompat() {
 
     private fun openUrl(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
+
+    private fun showLoading() {
+        hideError()
+        if (loadingView == null) {
+            loadingView = layoutInflater.inflate(R.layout.loading_state_layout, container, false)
+        }
+        loadingView?.let { container?.addView(it) }
+    }
+
+    private fun hideLoading() {
+        loadingView?.let { container?.removeView(it) }
+    }
+
+    private fun showError() {
+        hideLoading()
+        if (errorView == null) {
+            errorView = layoutInflater.inflate(R.layout.error_state_layout, container, false)
+        }
+        errorView?.let { container?.addView(it) }
+    }
+
+    private fun hideError() {
+        errorView?.let { container?.removeView(it) }
     }
 
     override fun onDestroyView() {

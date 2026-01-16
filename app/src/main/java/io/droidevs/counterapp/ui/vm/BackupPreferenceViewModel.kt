@@ -4,15 +4,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.onFailureSuspend
+import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
-import io.droidevs.counterapp.ui.vm.mappers.toBackupPreferenceUiState
 import io.droidevs.counterapp.ui.vm.states.BackupPreferenceUiState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,12 +37,22 @@ class BackupPreferenceViewModel @Inject constructor(
     val uiState: StateFlow<BackupPreferenceUiState> = combine(
         backup.getAutoBackup(),
         backup.getBackupInterval()
-    ) { autoBackup, backupInterval ->
-        Pair(autoBackup, backupInterval).toBackupPreferenceUiState()
+    ) { autoBackupResult, backupIntervalResult ->
+        val autoBackup = autoBackupResult.getOrNull() ?: false
+        val backupInterval = backupIntervalResult.getOrNull() ?: 24L
+
+        val hasError = autoBackupResult is Result.Failure || backupIntervalResult is Result.Failure
+
+        BackupPreferenceUiState(
+            autoBackup = autoBackup,
+            backupInterval = backupInterval,
+            error = hasError,
+            isLoading = false
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = BackupPreferenceUiState()
+        initialValue = BackupPreferenceUiState(isLoading = true)
     )
 
     fun onAction(action: BackupPreferenceAction) {
@@ -46,11 +65,20 @@ class BackupPreferenceViewModel @Inject constructor(
     private fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
             backup.setAutoBackup(enabled)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.auto_backup_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(R.string.auto_backup_updated)
+                        )
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(R.string.preference_update_failed)
+                        )
+                    )
+                }
         }
     }
 
@@ -58,11 +86,20 @@ class BackupPreferenceViewModel @Inject constructor(
         viewModelScope.launch {
             val coercedHours = hours.coerceIn(1L..720L)
             backup.setBackupInterval(coercedHours)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.backup_interval_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(R.string.backup_interval_updated)
+                        )
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(R.string.preference_update_failed)
+                        )
+                    )
+                }
         }
     }
 }

@@ -1,7 +1,9 @@
 package io.droidevs.counterapp.ui.settings
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -9,15 +11,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.ui.vm.DisplayPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
-import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import kotlinx.coroutines.launch
-
 
 @AndroidEntryPoint
 class DisplayPreferencesFragment : PreferenceFragmentCompat() {
@@ -28,6 +27,20 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
     private var hideControlsPref: SwitchPreferenceCompat? = null
     private var hideLastUpdatePref: SwitchPreferenceCompat? = null
     private var keepScreenOnPref: SwitchPreferenceCompat? = null
+
+    private var loadingView: View? = null
+    private var errorView: View? = null
+    private var container: ViewGroup? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        this.container = view as? ViewGroup
+        return view
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.display_preferences, rootKey)
@@ -75,6 +88,20 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
+                    if (state.isLoading) {
+                        showLoading()
+                    } else {
+                        hideLoading()
+                    }
+
+                    if (state.error) {
+                        showError()
+                    } else {
+                        hideError()
+                    }
+
+                    preferenceScreen.isVisible = !state.isLoading && !state.error
+
                     themePref?.value = when (state.theme) {
                         Theme.SYSTEM -> "system"
                         Theme.LIGHT -> "light"
@@ -89,4 +116,27 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun showLoading() {
+        hideError()
+        if (loadingView == null) {
+            loadingView = layoutInflater.inflate(R.layout.loading_state_layout, container, false)
+        }
+        loadingView?.let { container?.addView(it) }
+    }
+	
+    private fun hideLoading() {
+        loadingView?.let { container?.removeView(it) }
+    }
+
+    private fun showError() {
+        hideLoading()
+        if (errorView == null) {
+            errorView = layoutInflater.inflate(R.layout.error_state_layout, container, false)
+        }
+        errorView?.let { container?.addView(it) }
+    }
+
+    private fun hideError() {
+        errorView?.let { container?.removeView(it) }
+    }
 }

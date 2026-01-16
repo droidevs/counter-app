@@ -1,7 +1,9 @@
 package io.droidevs.counterapp.ui.settings
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,7 +16,6 @@ import io.droidevs.counterapp.ui.vm.CounterPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
 import kotlinx.coroutines.launch
 
-
 @AndroidEntryPoint
 class CounterPreferencesFragment : PreferenceFragmentCompat() {
 
@@ -25,6 +26,20 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
     private var defaultPref: EditTextPreference? = null
     private var minPref: EditTextPreference? = null
     private var maxPref: EditTextPreference? = null
+
+    private var loadingView: View? = null
+    private var errorView: View? = null
+    private var container: ViewGroup? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        this.container = view as? ViewGroup
+        return view
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.counter_preferences, rootKey)
@@ -91,6 +106,20 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
+                    if (state.isLoading) {
+                        showLoading()
+                    } else {
+                        hideLoading()
+                    }
+
+                    if (state.error) {
+                        showError()
+                    } else {
+                        hideError()
+                    }
+
+                    preferenceScreen.isVisible = !state.isLoading && !state.error
+
                     incrementPref?.text = state.counterIncrementStep.toString()
                     decrementPref?.text = state.counterDecrementStep.toString()
                     defaultPref?.text = state.defaultCounterValue.toString()
@@ -99,5 +128,29 @@ class CounterPreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
         }
+    }
+
+    private fun showLoading() {
+        hideError()
+        if (loadingView == null) {
+            loadingView = layoutInflater.inflate(R.layout.loading_state_layout, container, false)
+        }
+        loadingView?.let { container?.addView(it) }
+    }
+
+    private fun hideLoading() {
+        loadingView?.let { container?.removeView(it) }
+    }
+
+    private fun showError() {
+        hideLoading()
+        if (errorView == null) {
+            errorView = layoutInflater.inflate(R.layout.error_state_layout, container, false)
+        }
+        errorView?.let { container?.addView(it) }
+    }
+
+    private fun hideError() {
+        errorView?.let { container?.removeView(it) }
     }
 }

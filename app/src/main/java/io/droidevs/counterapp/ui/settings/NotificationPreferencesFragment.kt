@@ -1,7 +1,9 @@
 package io.droidevs.counterapp.ui.settings
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -9,14 +11,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.ui.vm.NotificationsPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
-import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import kotlinx.coroutines.launch
-
 
 @AndroidEntryPoint
 class NotificationPreferencesFragment : PreferenceFragmentCompat() {
@@ -27,6 +26,20 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
     private var dailySummaryPref: SwitchPreferenceCompat? = null
     private var soundPref: ListPreference? = null
     private var vibrationPref: ListPreference? = null
+
+    private var loadingView: View? = null
+    private var errorView: View? = null
+    private var container: ViewGroup? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        this.container = view as? ViewGroup
+        return view
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.notification_preferences, rootKey)
@@ -80,6 +93,20 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
+                    if (state.isLoading) {
+                        showLoading()
+                    } else {
+                        hideLoading()
+                    }
+
+                    if (state.error) {
+                        showError()
+                    } else {
+                        hideError()
+                    }
+
+                    preferenceScreen.isVisible = !state.isLoading && !state.error
+
                     limitNotifPref?.isChecked = state.counterLimitNotification
                     dailySummaryPref?.isChecked = state.dailySummaryNotification
                     soundPref?.value = state.notificationSound
@@ -87,5 +114,29 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
         }
+    }
+
+    private fun showLoading() {
+        hideError()
+        if (loadingView == null) {
+            loadingView = layoutInflater.inflate(R.layout.loading_state_layout, container, false)
+        }
+        loadingView?.let { container?.addView(it) }
+    }
+
+    private fun hideLoading() {
+        loadingView?.let { container?.removeView(it) }
+    }
+
+    private fun showError() {
+        hideLoading()
+        if (errorView == null) {
+            errorView = layoutInflater.inflate(R.layout.error_state_layout, container, false)
+        }
+        errorView?.let { container?.addView(it) }
+    }
+
+    private fun hideError() {
+        errorView?.let { container?.removeView(it) }
     }
 }

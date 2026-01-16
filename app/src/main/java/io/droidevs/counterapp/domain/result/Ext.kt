@@ -126,3 +126,5 @@ fun <T, E : RootError, R> Flow<Result<T, E>>.flatMapResult(
         is Result.Failure -> flowOf(Result.Failure(result.error))
     }
 }
+
+fun <D> D.asSuccess(): Result.Success<D> = Result.Success(this)

@@ -3,6 +3,7 @@ package io.droidevs.counterapp.domain.usecases.counters
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.HistoryEvent
+import io.droidevs.counterapp.domain.result.getOrNull
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
@@ -19,7 +20,8 @@ class DecrementCounterUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(counter: Counter) = withContext(dispatchers.io) {
         val oldValue = counter.currentCount
-        val decrementStep = getCounterDecrementStepUseCase().first()
+        // TODO: We will expose the result later
+        val decrementStep = getCounterDecrementStepUseCase().first().getOrNull() ?: 1L
         val newValue = oldValue - decrementStep
         updateCounterUseCase(
             UpdateCounterRequest(

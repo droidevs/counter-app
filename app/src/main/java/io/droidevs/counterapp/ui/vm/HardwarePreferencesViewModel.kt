@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.onFailureSuspend
+import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -11,8 +15,6 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
-import io.droidevs.counterapp.ui.vm.mappers.toHardwarePreferenceUiState
-import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,15 +33,32 @@ class HardwarePreferencesViewModel @Inject constructor(
         useCases.getSoundsOn(),
         useCases.getVibrationOn(),
         useCases.getLabelControl()
-    ) { hardwareButtonControl, soundsOn, vibrationOn, showLabels ->
-        Quadruple(hardwareButtonControl, soundsOn, vibrationOn, showLabels).toHardwarePreferenceUiState()
-    }
-        .onStart { emit(HardwarePreferenceUiState()) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = HardwarePreferenceUiState()
+    ) { hardwareButtonControlResult, soundsOnResult, vibrationOnResult, showLabelsResult ->
+        val hardwareButtonControl = hardwareButtonControlResult.getOrNull() ?: false
+        val soundsOn = soundsOnResult.getOrNull() ?: false
+        val vibrationOn = vibrationOnResult.getOrNull() ?: false
+        val showLabels = showLabelsResult.getOrNull() ?: false
+
+        val hasError = listOf(
+            hardwareButtonControlResult,
+            soundsOnResult,
+            vibrationOnResult,
+            showLabelsResult
+        ).any { it is Result.Failure }
+
+        HardwarePreferenceUiState(
+            hardwareButtonControl = hardwareButtonControl,
+            soundsOn = soundsOn,
+            vibrationOn = vibrationOn,
+            showLabels = showLabels,
+            error = hasError,
+            isLoading = false
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = HardwarePreferenceUiState(isLoading = true)
+    )
 
     fun onAction(action: HardwarePreferenceAction) {
         when (action) {
@@ -53,44 +72,64 @@ class HardwarePreferencesViewModel @Inject constructor(
     private fun setHardwareButtonControl(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setHardwareButtonControl(enabled)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.hardware_button_control_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.hardware_button_control_updated))
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                    )
+                }
         }
     }
 
     private fun setSoundsOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setSoundsOn(enabled)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.sounds_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.sounds_updated))
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                    )
+                }
         }
     }
 
     private fun setVibrationOn(enabled: Boolean) {
         viewModelScope.launch {
             useCases.setVibrationOn(enabled)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.vibration_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.vibration_updated))
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                    )
+                }
         }
     }
 
     private fun setShowLabels(show: Boolean) {
         viewModelScope.launch {
             useCases.setLabelControl(show)
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(R.string.labels_visibility_updated)
-                )
-            )
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.labels_visibility_updated))
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                    )
+                }
         }
     }
 }

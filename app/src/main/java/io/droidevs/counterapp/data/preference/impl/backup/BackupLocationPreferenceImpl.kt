@@ -4,7 +4,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.droidevs.counterapp.data.preference.impl.exceptions.flowCatchingPreference
+import io.droidevs.counterapp.data.preference.impl.exceptions.runCatchingPreference
 import io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.PreferenceError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -15,8 +19,6 @@ class BackupLocationPreferenceImpl(
 
     companion object {
         val key = stringPreferencesKey("backup_location")
-
-        // Common/default values
         const val DEFAULT_VALUE = "local"
         const val LOCAL = "local"
         const val GOOGLE_DRIVE = "google_drive"
@@ -25,20 +27,17 @@ class BackupLocationPreferenceImpl(
         const val OTHER_CLOUD = "other_cloud"
     }
 
-    override fun get(): Flow<String> = dataStore.data
-        .map { prefs -> prefs[key] ?: DEFAULT_VALUE }
+    override fun get(): Flow<Result<String, PreferenceError>> = flowCatchingPreference {
+        dataStore.data.map { prefs -> prefs[key] ?: DEFAULT_VALUE }
+    }
 
-    override suspend fun set(value: String) {
+    override suspend fun set(value: String): Result<Unit, PreferenceError> = runCatchingPreference {
         dataStore.edit { prefs ->
             prefs[key] = value
         }
     }
 
-    // ───────────────────────────────────────────────
-    //            Convenience helper methods
-    // ───────────────────────────────────────────────
-
-    suspend fun getCurrent(): String = get().first()
+    suspend fun getCurrent(): String = get().first().getOrNull() ?: DEFAULT_VALUE
 
     suspend fun isLocal(): Boolean = getCurrent() == LOCAL
 
@@ -49,7 +48,6 @@ class BackupLocationPreferenceImpl(
 
     suspend fun isDropbox(): Boolean = getCurrent() == DROPBOX
 
-    // Optional: useful when showing UI options
     suspend fun requiresAuthentication(): Boolean =
         getCurrent() in listOf(GOOGLE_DRIVE, DROPBOX, ICLOUD)
 }

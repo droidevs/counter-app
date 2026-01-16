@@ -3,7 +3,9 @@ package io.droidevs.counterapp.ui.settings
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
@@ -15,7 +17,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.services.ExportFormat
@@ -42,12 +43,26 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
     private var importPref: Preference? = null
     private var exportFormatDialog: AlertDialog? = null
 
+    private var loadingView: View? = null
+    private var errorView: View? = null
+    private var container: ViewGroup? = null
+
     private val importFileResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 importViewModel.onAction(ImportAction.Import(uri))
             }
         }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        this.container = view as? ViewGroup
+        return view
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -96,6 +111,20 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 backupViewModel.uiState.collect { state ->
+                    if (state.isLoading) {
+                        showLoading()
+                    } else {
+                        hideLoading()
+                    }
+
+                    if (state.error) {
+                        showError()
+                    } else {
+                        hideError()
+                    }
+
+                    preferenceScreen.isVisible = !state.isLoading && !state.error
+
                     autoBackupPref?.isChecked = state.autoBackup
                     intervalPref?.value = state.backupInterval.toString()
                 }
@@ -106,8 +135,8 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
     private fun observeEvents() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                exportViewModel.event.collect(::handleExportEvent)
-                importViewModel.event.collect(::handleImportEvent)
+                launch { exportViewModel.event.collect(::handleExportEvent) }
+                launch { importViewModel.event.collect(::handleImportEvent) }
             }
         }
     }
@@ -156,8 +185,28 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
         importFileResult.launch(intent)
     }
 
-    private fun showMessage(message: String) {
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    private fun showLoading() {
+        hideError()
+        if (loadingView == null) {
+            loadingView = layoutInflater.inflate(R.layout.loading_state_layout, container, false)
+        }
+        loadingView?.let { container?.addView(it) }
+    }
+
+    private fun hideLoading() {
+        loadingView?.let { container?.removeView(it) }
+    }
+
+    private fun showError() {
+        hideLoading()
+        if (errorView == null) {
+            errorView = layoutInflater.inflate(R.layout.error_state_layout, container, false)
+        }
+        errorView?.let { container?.addView(it) }
+    }
+
+    private fun hideError() {
+        errorView?.let { container?.removeView(it) }
     }
 
     override fun onDestroyView() {

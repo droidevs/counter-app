@@ -1,12 +1,15 @@
 package io.droidevs.counterapp.preference.notification
 
-// 4. NotificationVibrationPatternPreference (String - pattern name or custom pattern)
 import io.droidevs.counterapp.domain.preference.notification.NotificationVibrationPatternPreference
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.asSuccess
+import io.droidevs.counterapp.domain.result.errors.PreferenceError
 import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class DummyNotificationVibrationPatternPreference(
-    initialValue: String = "default"   // examples: "default", "short", "long", "none", "heartbeat"
+    initialValue: String = "default"
 ) : NotificationVibrationPatternPreference {
 
     private val delegate by lazy {
@@ -16,9 +19,10 @@ class DummyNotificationVibrationPatternPreference(
         )
     }
 
-    override fun get(): Flow<String> = delegate.flow
+    override fun get(): Flow<Result<String, PreferenceError>> = delegate.flow.map { it.asSuccess() }
 
-    override suspend fun set(value: String) {
+    override suspend fun set(value: String): Result<Unit, PreferenceError> {
         delegate.set(value)
+        return Unit.asSuccess()
     }
 }
