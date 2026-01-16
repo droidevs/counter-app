@@ -33,7 +33,7 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
 
     // Get all categories
     override fun allCategories(): Flow<List<Category>> {
-        return categoryDao.getAllCategories().map { list ->
+        return categoryDao.getUserCategories().map { list ->
             list.map { it.toDomain() }
         }
     }
@@ -61,6 +61,6 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
     }
 
     override suspend fun exportCategories(): List<Category> {
-        return categoryDao.getAllCategories().first().map { it.toDomain() }
+        return categoryDao.getUserCategories().first().map { it.toDomain() }
     }
 }

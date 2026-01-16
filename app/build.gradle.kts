@@ -112,4 +112,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.gson)
+
+    implementation(libs.androidx.lifecycle.process)
 }

@@ -49,7 +49,7 @@ interface CategoryDao {
     fun getTotalCategoriesCount() : Flow<Int>
 
     @Query("SELECT * FROM categories WHERE is_system = 0")
-    fun getAllCategories(): Flow<List<CategoryEntity>>
+    fun getUserCategories(): Flow<List<CategoryEntity>>
 
     @Query("SELECT * FROM categories WHERE is_system = 1")
     fun getSystemCategories(): Flow<List<CategoryEntity>>

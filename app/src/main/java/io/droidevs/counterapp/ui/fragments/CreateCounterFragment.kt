@@ -128,7 +128,6 @@ class CreateCounterFragment : Fragment() {
                             categoryAdapter.add(noCategoryString)
                             categoryAdapter.addAll(categoryNames)
                             categoryAdapter.notifyDataSetChanged()
-
                             // Set selection
                             val selectedCategory = state.categories.find { it.id == state.categoryId }
                             val selectionPosition = if (selectedCategory != null) {
