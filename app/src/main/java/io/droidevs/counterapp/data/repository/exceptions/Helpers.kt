@@ -39,14 +39,14 @@ suspend fun <D> runCatchingDatabaseWithResult(
 /**
  * For flows that emit raw values (wraps in Result)
  */
-fun <D> Flow<D>.asDatabaseResultFlow(): Flow<Result<D, DatabaseError>> = asResultFlow(
+fun <D> Flow<D>.asDatabaseResult(): Flow<Result<D, DatabaseError>> = asResultFlow(
     errorTransform = { e -> e.toDatabaseError() }
 )
 
 /**
  * For flows that already emit Result types (just transforms errors)
  */
-fun <D> Flow<Result<D, DatabaseError>>.asDatabaseResultFlow(): Flow<Result<D, DatabaseError>> = asResultFlow(
+fun <D> Flow<Result<D, DatabaseError>>.asDatabaseResultAlready(): Flow<Result<D, DatabaseError>> = asResultFlow(
     errorTransform = { e -> e.toDatabaseError() }
 )
 
