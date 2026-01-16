@@ -128,3 +128,5 @@ fun <T, E : RootError, R> Flow<Result<T, E>>.flatMapResult(
 }
 
 fun <D> D.asSuccess(): Result.Success<D> = Result.Success(this)
+
+fun <D, E : RootError> Result<D, E>.getOrNull(): D? = if (this is Result.Success) data else null
