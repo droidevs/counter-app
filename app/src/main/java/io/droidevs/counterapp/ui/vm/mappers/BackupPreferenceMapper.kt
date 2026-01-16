@@ -1,8 +1,8 @@
-@Deprecated("This mapper is no longer used and will be removed in a future version.")
 package io.droidevs.counterapp.ui.vm.mappers
 
 import io.droidevs.counterapp.ui.vm.states.BackupPreferenceUiState
 
+@Deprecated("This mapper is no longer used and will be removed in a future version.")
 fun Pair<Boolean, Long>.toBackupPreferenceUiState(): BackupPreferenceUiState {
     return BackupPreferenceUiState(
         autoBackup = first,

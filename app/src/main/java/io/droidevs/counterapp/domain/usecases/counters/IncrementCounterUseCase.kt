@@ -21,7 +21,7 @@ class IncrementCounterUseCase @Inject constructor(
     suspend operator fun invoke(counter: Counter) = withContext(dispatchers.io) {
         val oldValue = counter.currentCount
         // TODO: We will expose the result later
-        val incrementStep = getCounterIncrementStepUseCase().first().getOrNull() ?: 1L
+        val incrementStep = getCounterIncrementStepUseCase().first().getOrNull() ?: 1
         val newValue = oldValue + incrementStep
         updateCounterUseCase(
             UpdateCounterRequest(

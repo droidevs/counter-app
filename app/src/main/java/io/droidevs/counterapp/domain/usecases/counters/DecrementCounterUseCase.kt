@@ -21,7 +21,7 @@ class DecrementCounterUseCase @Inject constructor(
     suspend operator fun invoke(counter: Counter) = withContext(dispatchers.io) {
         val oldValue = counter.currentCount
         // TODO: We will expose the result later
-        val decrementStep = getCounterDecrementStepUseCase().first().getOrNull() ?: 1L
+        val decrementStep = getCounterDecrementStepUseCase().first().getOrNull() ?: 1
         val newValue = oldValue - decrementStep
         updateCounterUseCase(
             UpdateCounterRequest(
