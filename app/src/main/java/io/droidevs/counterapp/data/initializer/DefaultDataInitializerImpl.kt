@@ -3,7 +3,10 @@ package io.droidevs.counterapp.data.initializer
 import io.droidevs.counterapp.data.DefaultData
 import io.droidevs.counterapp.data.dao.CategoryDao
 import io.droidevs.counterapp.data.dao.CounterDao
+import io.droidevs.counterapp.data.repository.exceptions.runCatchingDatabaseResult
 import io.droidevs.counterapp.domain.repository.DataInitializer
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.system.SystemCategory
 import kotlinx.coroutines.flow.firstOrNull
 
@@ -12,7 +15,7 @@ class DefaultDataInitializerImpl(
     private val counterDao: CounterDao
 ) : DataInitializer {
 
-    override suspend fun init() {
+    override suspend fun init(): Result<Unit, DatabaseError> = runCatchingDatabaseResult {
         val existingCategories = categoryDao.getSystemCategories().firstOrNull()
             ?.associateBy { it.kay!! }
 

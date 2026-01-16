@@ -4,6 +4,8 @@ import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
 import io.droidevs.counterapp.domain.repository.CategoryRepository
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
@@ -16,99 +18,109 @@ class FakeCategoryRepository(
     val dummyData: DummyData
 ) : CategoryRepository {
 
-
-    private val categoriesFlow: Flow<List<Category>> =
+    private val categoriesFlow: Flow<Result<List<Category>, DatabaseError>> =
         dummyData.categoriesFlow.asStateFlow()
             .map { categories ->
-                categories.map { 
-                    it.toDomain()
-                }
+                Result.Success(categories.map { it.toDomain() })
             }
 
-    override fun getCategory(categoryId: String): Flow<Category?> {
-        return categoriesFlow.map { list ->
-            list.firstOrNull { it.id == categoryId }
+    override fun getCategory(categoryId: String): Flow<Result<Category, DatabaseError>> {
+        return categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> {
+                    val category = result.data.firstOrNull { it.id == categoryId }
+                    if (category != null) {
+                        Result.Success(category)
+                    } else {
+                        Result.Error(DatabaseError.NotFound("Category not found"))
+                    }
+                }
+                is Result.Error -> result
+            }
         }
     }
 
-    // ---------------- Public API ----------------
-
-    override fun topCategories(limit: Int): Flow<List<Category>> {
-        return categoriesFlow.map { list ->
-            list.filter { !it.isSystem }
-                .sortedByDescending { it.countersCount }
-                .take(limit)
+    override fun topCategories(limit: Int): Flow<Result<List<Category>, DatabaseError>> {
+        return categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(
+                    result.data.filter { !it.isSystem }
+                        .sortedByDescending { it.countersCount }
+                        .take(limit)
+                )
+                is Result.Error -> result
+            }
         }
     }
 
-    override fun getTotalCategoriesCount(): Flow<Int> {
-        return categoriesFlow.map { categories ->
-            categories.filter {
-                !it.isSystem
-            }.size
+    override fun getTotalCategoriesCount(): Flow<Result<Int, DatabaseError>> {
+        return categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { !it.isSystem }.size)
+                is Result.Error -> result
+            }
         }
     }
 
-    override fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters> {
+    override fun categoryWithCounters(categoryId: String): Flow<Result<CategoryWithCounters, DatabaseError>> {
         return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
-
             try {
-                val category = categories.first { 
-                    it.id == categoryId
-                }
-
-                val relatedCounters = counters.filter {
-                    it.categoryId == categoryId
-                }
-
-                CategoryWithCounters(
-                    category = category.toDomain(),
-                    counters = relatedCounters.map { it.toDomain() }
+                val category = categories.first { it.id == categoryId }
+                val relatedCounters = counters.filter { it.categoryId == categoryId }
+                Result.Success(
+                    CategoryWithCounters(
+                        category = category.toDomain(),
+                        counters = relatedCounters.map { it.toDomain() }
+                    )
                 )
             } catch (e: NoSuchElementException) {
-
-                CategoryWithCounters.Companion.default()
+                Result.Error(DatabaseError.NotFound("Category not found"))
             }
         }
     }
 
-    override fun allCategories(): Flow<List<Category>> {
-        return categoriesFlow.map { categories ->
-            categories.filter { !it.isSystem }
+    override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> {
+        return categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { !it.isSystem })
+                is Result.Error -> result
+            }
         }
     }
 
-    override suspend fun createCategory(category: Category) {
+    override suspend fun createCategory(category: Category): Result<Unit, DatabaseError> {
         dummyData.categories.add(category.toEntity())
         dummyData.emitCategoryUpdate()
+        return Result.Success(Unit)
     }
 
-    override fun deleteCategory(categoryId: String) {
+    override suspend fun deleteCategory(categoryId: String): Result<Unit, DatabaseError> {
         dummyData.categories.removeIf { it.id == categoryId }
-        // delete all counters related with that category or set category id to null
-        dummyData.counters.forEach { 
+        dummyData.counters.forEach {
             if (it.categoryId == categoryId) {
-                val newCounter = it.copy(
-                    categoryId = null
-                )
+                val newCounter = it.copy(categoryId = null)
                 dummyData.counters[dummyData.counters.indexOf(it)] = newCounter
             }
             dummyData.emitCounterUpdate()
         }
         dummyData.emitCategoryUpdate()
+        return Result.Success(Unit)
     }
 
-    override suspend fun getExistingCategoryColors(): List<Int> {
-        return dummyData.categories.map { it.color }
+    override suspend fun getExistingCategoryColors(): Result<List<Int>, DatabaseError> {
+        return Result.Success(dummyData.categories.map { it.color })
     }
 
-    override fun getSystemCategories(): Flow<List<Category>> {
-        return categoriesFlow.map { list ->
-            list.filter { it.isSystem }
+    override fun getSystemCategories(): Flow<Result<List<Category>, DatabaseError>> {
+        return categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { it.isSystem })
+                is Result.Error -> result
+            }
         }
     }
 
-    override suspend fun importCategories(categories: List<Category>) {
+    override suspend fun importCategories(categories: List<Category>): Result<Unit, DatabaseError> {
         val categoryEntities = categories.map { it.toEntity() }
         categoryEntities.forEach { categoryEntity ->
             val index = dummyData.categories.indexOfFirst { it.id == categoryEntity.id }
@@ -119,10 +131,14 @@ class FakeCategoryRepository(
             }
         }
         dummyData.emitCategoryUpdate()
+        return Result.Success(Unit)
     }
 
-    override suspend fun exportCategories(): List<Category> {
-        return categoriesFlow.first().filter { !it.isSystem }
+    override suspend fun exportCategories(): Result<List<Category>, DatabaseError> {
+        val categories = categoriesFlow.first()
+        return when (categories) {
+            is Result.Success -> Result.Success(categories.data.filter { !it.isSystem })
+            is Result.Error -> categories
+        }
     }
-
 }

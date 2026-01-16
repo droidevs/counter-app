@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.domain.repository
 
+@Deprecated("Use UseCases instead of SettingsRepository directly.")
 interface SettingsRepository {
 
     /* ---------- Read ---------- */

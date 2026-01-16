@@ -9,14 +9,22 @@ import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.domain.model.Backup
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.services.*
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.FileError
+import io.droidevs.counterapp.domain.services.BackupExport
+import io.droidevs.counterapp.domain.services.CategoryExport
+import io.droidevs.counterapp.domain.services.CounterExport
+import io.droidevs.counterapp.domain.services.ExportFormat
+import io.droidevs.counterapp.domain.services.ExportSuccessResult
+import io.droidevs.counterapp.domain.services.FileExportService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,16 +39,14 @@ class FileExportServiceImpl @Inject constructor(
         private const val FILE_PREFIX = "counters_export"
     }
 
-    override suspend fun export(counters: List<Counter>, categories: List<Category>, format: ExportFormat): ExportResult {
+    override suspend fun export(counters: List<Counter>, categories: List<Category>, format: ExportFormat): Result<ExportSuccessResult, FileError> {
         return withContext(Dispatchers.IO) {
-            try {
+            runCatchingFileResult {
                 val backup = Backup(counters, categories)
                 val backupExport = backup.toBackupExport()
                 val tempFile = createTempExportFile(backupExport, format)
                 val fileUri = getUriForFile(tempFile)
-                ExportResult.Success(fileUri, tempFile.name)
-            } catch (e: Exception) {
-                ExportResult.Error("Failed to create share file: ${e.message}", e)
+                ExportSuccessResult(fileUri, tempFile.name)
             }
         }
     }
@@ -97,6 +103,7 @@ class FileExportServiceImpl @Inject constructor(
                 writer.write(
                     "Category,${escapeCsv(category.id)}," +
                             "${escapeCsv(category.name)}," +
+                            ",," +
                             ",," +
                             ",," +
                             ",," +

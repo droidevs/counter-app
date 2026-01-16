@@ -3,6 +3,7 @@ package io.droidevs.counterapp.data.repository
 import android.content.SharedPreferences
 import io.droidevs.counterapp.domain.repository.SettingsRepository
 
+@Deprecated("Use specific preference classes instead")
 class SettingsRepositoryImpl(
     private val prefs: SharedPreferences
 ) : SettingsRepository {

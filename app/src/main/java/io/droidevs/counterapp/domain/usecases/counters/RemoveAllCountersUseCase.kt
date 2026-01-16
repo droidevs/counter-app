@@ -2,6 +2,8 @@ package io.droidevs.counterapp.domain.usecases.counters
 
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -9,7 +11,7 @@ class RemoveAllCountersUseCase @Inject constructor(
     private val counterRepository: CounterRepository,
     private val dispatchers: DispatcherProvider
 ) {
-    suspend operator fun invoke() = withContext(dispatchers.io) {
+    suspend operator fun invoke(): Result<Unit, DatabaseError> = withContext(dispatchers.io) {
         counterRepository.deleteAllCounters()
     }
 }

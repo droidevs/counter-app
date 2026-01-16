@@ -18,6 +18,15 @@ sealed interface Result<out D, out E : RootError> {
         is Failure -> onFailure(error)
     }
 
+    suspend fun <D, E : RootError, R> Result<D, E>.foldSuspend(
+        onSuccess: suspend (D) -> R,
+        onFailure: suspend (E) -> R
+    ): R = when (this) {
+        is Result.Success -> onSuccess(data)
+        is Result.Failure -> onFailure(error)
+    }
+
+
     fun getOrNull(): D? = fold({ it }, { null })
     fun errorOrNull(): E? = fold({ null }, { it })
 }

@@ -2,6 +2,7 @@ package io.droidevs.counterapp.repository
 
 import io.droidevs.counterapp.domain.repository.SettingsRepository
 
+@Deprecated("Use a mock instance of SettingsRepository instead.")
 class FakeSettingsRepository() : SettingsRepository {
 
     private val data = mutableMapOf<String, Any>()

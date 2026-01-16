@@ -1,22 +1,27 @@
 package io.droidevs.counterapp.domain.usecases.export
 
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
-import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.RootError
+import io.droidevs.counterapp.domain.result.onSuccessWithResult
 import io.droidevs.counterapp.domain.services.ExportFormat
-import io.droidevs.counterapp.domain.services.ExportResult
+import io.droidevs.counterapp.domain.services.ExportSuccessResult
 import io.droidevs.counterapp.domain.services.FileExportService
+import io.droidevs.counterapp.domain.usecases.counter.GetAllCountersUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Deprecated("Use ExportUseCase instead")
 class ExportCountersUseCase @Inject constructor(
-    private val counterRepository: CounterRepository,
+    private val getAllCountersUseCase: GetAllCountersUseCase,
     private val fileExportService: FileExportService,
     private val dispatchers: DispatcherProvider
 ) {
-    suspend operator fun invoke(format: ExportFormat): ExportResult = withContext(dispatchers.io) {
-        val counters = counterRepository.getAllCounters().first()
-        fileExportService.export(counters, emptyList(), format)
-    }
+    suspend operator fun invoke(format: ExportFormat): Result<ExportSuccessResult, RootError> =
+        withContext(dispatchers.io) {
+            getAllCountersUseCase().flatMapSuspended { counters ->
+                fileExportService.export(counters, emptyList(), format)
+            }
+        }
 }

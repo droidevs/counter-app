@@ -2,43 +2,45 @@ package io.droidevs.counterapp.domain.repository
 
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.CounterWithCategory
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import kotlinx.coroutines.flow.Flow
 
 interface CounterRepository {
 
 
-    fun getCounter(id: String): Flow<Counter?>
-    fun getAllCounters(): Flow<List<Counter>>
+    fun getCounter(id: String): Flow<Result<Counter, DatabaseError>>
+    fun getAllCounters(): Flow<Result<List<Counter>, DatabaseError>>
 
-    fun getLastEdited(limit: Int) : Flow<List<Counter>>
+    fun getLastEdited(limit: Int) : Flow<Result<List<Counter>, DatabaseError>>
 
-    fun getTotalCounters() : Flow<Int>
+    fun getTotalCounters() : Flow<Result<Int, DatabaseError>>
 
-    suspend fun saveCounter(counter : Counter)
+    suspend fun saveCounter(counter : Counter): Result<Unit, DatabaseError>
 
-    suspend fun createCounter(counter : Counter)
+    suspend fun createCounter(counter : Counter): Result<Unit, DatabaseError>
 
-    suspend fun deleteCounter(counter : Counter)
+    suspend fun deleteCounter(counter : Counter): Result<Unit, DatabaseError>
 
-    fun getCountersWithCategories(): Flow<List<CounterWithCategory>>
+    fun getCountersWithCategories(): Flow<Result<List<CounterWithCategory>, DatabaseError>>
 
-    fun getLastEditedWithCategory(limit : Int) : Flow<List<CounterWithCategory>>
+    fun getLastEditedWithCategory(limit : Int) : Flow<Result<List<CounterWithCategory>, DatabaseError>>
 
-    fun getSystemCounters(): Flow<List<Counter>>
+    fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>>
 
     suspend fun incrementSystemCounter(
         counterKey: String
-    )
+    ): Result<Unit, DatabaseError>
 
     suspend fun updateSystemCounter(
         counterKey: String,
         count: Int
-    )
+    ): Result<Unit, DatabaseError>
 
-    suspend fun deleteAllCounters()
+    suspend fun deleteAllCounters(): Result<Unit, DatabaseError>
 
-    suspend fun exportCounters(): List<Counter>
+    suspend fun exportCounters(): Result<List<Counter>, DatabaseError>
 
-    suspend fun importCounters(counters: List<Counter>)
+    suspend fun importCounters(counters: List<Counter>): Result<Unit, DatabaseError>
 
 }

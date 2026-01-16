@@ -1,29 +1,31 @@
 package io.droidevs.counterapp.domain.repository
 
-import kotlinx.coroutines.flow.Flow
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
+import kotlinx.coroutines.flow.Flow
 
 interface CategoryRepository {
 
-    fun getCategory(categoryId: String): Flow<Category?>
+    fun getCategory(categoryId: String): Flow<Result<Category, DatabaseError>>
 
-    fun topCategories(limit: Int): Flow<List<Category>>
+    fun topCategories(limit: Int): Flow<Result<List<Category>, DatabaseError>>
 
-    fun getTotalCategoriesCount(): Flow<Int>
+    fun getTotalCategoriesCount(): Flow<Result<Int, DatabaseError>>
 
-    fun categoryWithCounters(categoryId: String): Flow<CategoryWithCounters>
+    fun categoryWithCounters(categoryId: String): Flow<Result<CategoryWithCounters, DatabaseError>>
 
-    fun allCategories(): Flow<List<Category>>
+    fun allCategories(): Flow<Result<List<Category>, DatabaseError>>
 
-    suspend fun createCategory(category: Category)
-    fun deleteCategory(categoryId: String)
+    suspend fun createCategory(category: Category): Result<Unit, DatabaseError>
+    suspend fun deleteCategory(categoryId: String): Result<Unit, DatabaseError>
 
-    suspend fun getExistingCategoryColors(): List<Int>
+    suspend fun getExistingCategoryColors(): Result<List<Int>, DatabaseError>
 
-    fun getSystemCategories(): Flow<List<Category>>
+    fun getSystemCategories(): Flow<Result<List<Category>, DatabaseError>>
 
-    suspend fun importCategories(categories: List<Category>)
+    suspend fun importCategories(categories: List<Category>): Result<Unit, DatabaseError>
 
-    suspend fun exportCategories(): List<Category>
+    suspend fun exportCategories(): Result<List<Category>, DatabaseError>
 }
