@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.HistoryRepository
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.history.ClearHistoryUseCase
@@ -17,15 +18,15 @@ object HistoryUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetHistoryUseCase(repository: HistoryRepository): GetHistoryUseCase = GetHistoryUseCase(repository)
+    fun provideGetHistoryUseCase(repository: HistoryRepository, dispatchers: DispatcherProvider): GetHistoryUseCase = GetHistoryUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideAddHistoryEventUseCase(repository: HistoryRepository): AddHistoryEventUseCase = AddHistoryEventUseCase(repository)
+    fun provideAddHistoryEventUseCase(repository: HistoryRepository, dispatchers: DispatcherProvider): AddHistoryEventUseCase = AddHistoryEventUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideClearHistoryUseCase(repository: HistoryRepository): ClearHistoryUseCase = ClearHistoryUseCase(repository)
+    fun provideClearHistoryUseCase(repository: HistoryRepository, dispatchers: DispatcherProvider): ClearHistoryUseCase = ClearHistoryUseCase(repository, dispatchers)
 
     @Provides
     @Singleton

@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.display.HideControlsPreference
 import io.droidevs.counterapp.domain.preference.display.HideLastUpdatePreference
 import io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference
@@ -25,35 +26,35 @@ object DisplayUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetThemeUseCase(pref: ThemePreference): GetThemeUseCase = GetThemeUseCase(pref)
+    fun provideGetThemeUseCase(pref: ThemePreference, dispatchers: DispatcherProvider): GetThemeUseCase = GetThemeUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetThemeUseCase(pref: ThemePreference): SetThemeUseCase = SetThemeUseCase(pref)
+    fun provideSetThemeUseCase(pref: ThemePreference, dispatchers: DispatcherProvider): SetThemeUseCase = SetThemeUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetHideControlsUseCase(pref: HideControlsPreference): GetHideControlsUseCase = GetHideControlsUseCase(pref)
+    fun provideGetHideControlsUseCase(pref: HideControlsPreference, dispatchers: DispatcherProvider): GetHideControlsUseCase = GetHideControlsUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetHideControlsUseCase(pref: HideControlsPreference): SetHideControlsUseCase = SetHideControlsUseCase(pref)
+    fun provideSetHideControlsUseCase(pref: HideControlsPreference, dispatchers: DispatcherProvider): SetHideControlsUseCase = SetHideControlsUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetHideLastUpdateUseCase(pref: HideLastUpdatePreference): GetHideLastUpdateUseCase = GetHideLastUpdateUseCase(pref)
+    fun provideGetHideLastUpdateUseCase(pref: HideLastUpdatePreference, dispatchers: DispatcherProvider): GetHideLastUpdateUseCase = GetHideLastUpdateUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetHideLastUpdateUseCase(pref: HideLastUpdatePreference): SetHideLastUpdateUseCase = SetHideLastUpdateUseCase(pref)
+    fun provideSetHideLastUpdateUseCase(pref: HideLastUpdatePreference, dispatchers: DispatcherProvider): SetHideLastUpdateUseCase = SetHideLastUpdateUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetKeepScreenOnUseCase(pref: KeepScreenOnPreference): GetKeepScreenOnUseCase = GetKeepScreenOnUseCase(pref)
+    fun provideGetKeepScreenOnUseCase(pref: KeepScreenOnPreference, dispatchers: DispatcherProvider): GetKeepScreenOnUseCase = GetKeepScreenOnUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetKeepScreenOnUseCase(pref: KeepScreenOnPreference): SetKeepScreenOnUseCase = SetKeepScreenOnUseCase(pref)
+    fun provideSetKeepScreenOnUseCase(pref: KeepScreenOnPreference, dispatchers: DispatcherProvider): SetKeepScreenOnUseCase = SetKeepScreenOnUseCase(pref, dispatchers)
 
     @Provides
     @Singleton

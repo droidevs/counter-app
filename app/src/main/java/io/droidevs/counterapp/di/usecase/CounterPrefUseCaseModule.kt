@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.counter.CounterDecrementStepPreference
 import io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference
 import io.droidevs.counterapp.domain.preference.counter.DefaultCounterValuePreference
@@ -28,53 +29,53 @@ object CounterPrefUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference): GetCounterIncrementStepUseCase =
-        GetCounterIncrementStepUseCase(pref)
+    fun provideGetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference, dispatchers: DispatcherProvider): GetCounterIncrementStepUseCase =
+        GetCounterIncrementStepUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference): SetCounterIncrementStepUseCase =
-        SetCounterIncrementStepUseCase(pref)
+    fun provideSetCounterIncrementStepUseCase(pref: CounterIncrementStepPreference, dispatchers: DispatcherProvider): SetCounterIncrementStepUseCase =
+        SetCounterIncrementStepUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetCounterDecrementStepUseCase(pref: CounterDecrementStepPreference): GetCounterDecrementStepUseCase =
-        GetCounterDecrementStepUseCase(pref)
+    fun provideGetCounterDecrementStepUseCase(pref: CounterDecrementStepPreference, dispatchers: DispatcherProvider): GetCounterDecrementStepUseCase =
+        GetCounterDecrementStepUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetCounterDecrementStepUseCase(pref: CounterDecrementStepPreference): SetCounterDecrementStepUseCase =
-        SetCounterDecrementStepUseCase(pref)
+    fun provideSetCounterDecrementStepUseCase(pref: CounterDecrementStepPreference, dispatchers: DispatcherProvider): SetCounterDecrementStepUseCase =
+        SetCounterDecrementStepUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference): GetDefaultCounterValueUseCase =
-        GetDefaultCounterValueUseCase(pref)
+    fun provideGetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference, dispatchers: DispatcherProvider): GetDefaultCounterValueUseCase =
+        GetDefaultCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference): SetDefaultCounterValueUseCase =
-        SetDefaultCounterValueUseCase(pref)
+    fun provideSetDefaultCounterValueUseCase(pref: DefaultCounterValuePreference, dispatchers: DispatcherProvider): SetDefaultCounterValueUseCase =
+        SetDefaultCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference): GetMinimumCounterValueUseCase =
-        GetMinimumCounterValueUseCase(pref)
+    fun provideGetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference, dispatchers: DispatcherProvider): GetMinimumCounterValueUseCase =
+        GetMinimumCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference): SetMinimumCounterValueUseCase =
-        SetMinimumCounterValueUseCase(pref)
+    fun provideSetMinimumCounterValueUseCase(pref: MinimumCounterValuePreference, dispatchers: DispatcherProvider): SetMinimumCounterValueUseCase =
+        SetMinimumCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference): GetMaximumCounterValueUseCase =
-        GetMaximumCounterValueUseCase(pref)
+    fun provideGetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference, dispatchers: DispatcherProvider): GetMaximumCounterValueUseCase =
+        GetMaximumCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference): SetMaximumCounterValueUseCase =
-        SetMaximumCounterValueUseCase(pref)
+    fun provideSetMaximumCounterValueUseCase(pref: MaximumCounterValuePreference, dispatchers: DispatcherProvider): SetMaximumCounterValueUseCase =
+        SetMaximumCounterValueUseCase(pref, dispatchers)
 
     @Provides
     @Singleton

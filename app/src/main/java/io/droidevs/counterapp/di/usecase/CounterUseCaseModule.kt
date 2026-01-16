@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.counters.CreateCounterUseCase
@@ -21,7 +22,6 @@ import io.droidevs.counterapp.domain.usecases.counters.IncrementSystemCounterUse
 import io.droidevs.counterapp.domain.usecases.counters.UpdateCounterUseCase
 import io.droidevs.counterapp.domain.usecases.counters.UpdateSystemCounterUseCase
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
-import io.droidevs.counterapp.domain.usecases.history.GetHistoryUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterIncrementStepUseCase
 import javax.inject.Singleton
@@ -32,85 +32,92 @@ object CounterUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideCreateCounterUseCase(repository: CounterRepository): CreateCounterUseCase =
-        CreateCounterUseCase(repository)
+    fun provideCreateCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): CreateCounterUseCase =
+        CreateCounterUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideDeleteCounterUseCase(repository: CounterRepository): DeleteCounterUseCase =
-        DeleteCounterUseCase(repository)
+    fun provideDeleteCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): DeleteCounterUseCase =
+        DeleteCounterUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetAllCountersUseCase(repository: CounterRepository): GetAllCountersUseCase =
-        GetAllCountersUseCase(repository)
+    fun provideGetAllCountersUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetAllCountersUseCase =
+        GetAllCountersUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetCounterUseCase(repository: CounterRepository): GetCounterUseCase =
-        GetCounterUseCase(repository)
+    fun provideGetCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetCounterUseCase =
+        GetCounterUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetCountersWithCategoriesUseCase(repository: CounterRepository): GetCountersWithCategoriesUseCase =
-        GetCountersWithCategoriesUseCase(repository)
+    fun provideGetCountersWithCategoriesUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetCountersWithCategoriesUseCase =
+        GetCountersWithCategoriesUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetLimitCountersUseCase(repository: CounterRepository): GetLimitCountersUseCase =
-        GetLimitCountersUseCase(repository)
+    fun provideGetLimitCountersUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetLimitCountersUseCase =
+        GetLimitCountersUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetLimitCountersWithCategoryUseCase(repository: CounterRepository): GetLimitCountersWithCategoryUseCase =
-        GetLimitCountersWithCategoryUseCase(repository)
+    fun provideGetLimitCountersWithCategoryUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetLimitCountersWithCategoryUseCase =
+        GetLimitCountersWithCategoryUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetSystemCountersUseCase(repository: CounterRepository): GetSystemCountersUseCase =
-        GetSystemCountersUseCase(repository)
+    fun provideGetSystemCountersUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetSystemCountersUseCase =
+        GetSystemCountersUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetTotalNumberOfCountersUseCase(repository: CounterRepository): GetTotalNumberOfCountersUseCase =
-        GetTotalNumberOfCountersUseCase(repository)
+    fun provideGetTotalNumberOfCountersUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): GetTotalNumberOfCountersUseCase =
+        GetTotalNumberOfCountersUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideIncrementSystemCounterUseCase(repository: CounterRepository): IncrementSystemCounterUseCase =
-        IncrementSystemCounterUseCase(repository)
+    fun provideIncrementSystemCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): IncrementSystemCounterUseCase =
+        IncrementSystemCounterUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideUpdateCounterUseCase(repository: CounterRepository): UpdateCounterUseCase =
-        UpdateCounterUseCase(repository)
+    fun provideUpdateCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): UpdateCounterUseCase =
+        UpdateCounterUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideUpdateSystemCounterUseCase(repository: CounterRepository): UpdateSystemCounterUseCase =
-        UpdateSystemCounterUseCase(repository)
+    fun provideUpdateSystemCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): UpdateSystemCounterUseCase =
+        UpdateSystemCounterUseCase(repository, dispatchers)
 
-
+    @Provides
+    @Singleton
     fun provideIncrementCounterUseCase(
         updateCounterUseCase: UpdateCounterUseCase,
         getCounterIncrementStepUseCase: GetCounterIncrementStepUseCase,
-        addHistoryUseCase: AddHistoryEventUseCase
-    ): IncrementCounterUseCase =
+        addHistoryUseCase: AddHistoryEventUseCase,
+        dispatchers: DispatcherProvider
+    ): IncrementCounterUseCase =_usecase
         IncrementCounterUseCase(
             updateCounterUseCase = updateCounterUseCase,
-            getCounterIncrementStepUseCase =getCounterIncrementStepUseCase,
-            addHistoryEventUseCase = addHistoryUseCase
+            getCounterIncrementStepUseCase = getCounterIncrementStepUseCase,
+            addHistoryEventUseCase = addHistoryUseCase,
+            dispatchers = dispatchers
         )
 
+    @Provides
+    @Singleton
     fun provideDecrementCounterUseCase(
         updateCounterUseCase: UpdateCounterUseCase,
         getCounterDecrementStepUseCase: GetCounterDecrementStepUseCase,
-        addHistoryUseCase: AddHistoryEventUseCase
+        addHistoryUseCase: AddHistoryEventUseCase,
+        dispatchers: DispatcherProvider
     ): DecrementCounterUseCase =
         DecrementCounterUseCase(
             updateCounterUseCase = updateCounterUseCase,
-            getCounterDecrementStepUseCase =getCounterDecrementStepUseCase,
-            addHistoryEventUseCase = addHistoryUseCase
+            getCounterDecrementStepUseCase = getCounterDecrementStepUseCase,
+            addHistoryEventUseCase = addHistoryUseCase,
+            dispatchers = dispatchers
         )
 
     @Provides

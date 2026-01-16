@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.buckup.AutoBackupPreference
 import io.droidevs.counterapp.domain.preference.buckup.BackupIntervalPreference
 import io.droidevs.counterapp.domain.preference.buckup.BackupLocationPreference
@@ -22,27 +23,27 @@ object BackupUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetAutoBackupUseCase(pref: AutoBackupPreference): GetAutoBackupUseCase = GetAutoBackupUseCase(pref)
+    fun provideGetAutoBackupUseCase(pref: AutoBackupPreference, dispatchers: DispatcherProvider): GetAutoBackupUseCase = GetAutoBackupUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetAutoBackupUseCase(pref: AutoBackupPreference): SetAutoBackupUseCase = SetAutoBackupUseCase(pref)
+    fun provideSetAutoBackupUseCase(pref: AutoBackupPreference, dispatchers: DispatcherProvider): SetAutoBackupUseCase = SetAutoBackupUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetBackupIntervalUseCase(pref: BackupIntervalPreference): GetBackupIntervalUseCase = GetBackupIntervalUseCase(pref)
+    fun provideGetBackupIntervalUseCase(pref: BackupIntervalPreference, dispatchers: DispatcherProvider): GetBackupIntervalUseCase = GetBackupIntervalUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetBackupIntervalUseCase(pref: BackupIntervalPreference): SetBackupIntervalUseCase = SetBackupIntervalUseCase(pref)
+    fun provideSetBackupIntervalUseCase(pref: BackupIntervalPreference, dispatchers: DispatcherProvider): SetBackupIntervalUseCase = SetBackupIntervalUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetBackupLocationUseCase(pref: BackupLocationPreference): GetBackupLocationUseCase = GetBackupLocationUseCase(pref)
+    fun provideGetBackupLocationUseCase(pref: BackupLocationPreference, dispatchers: DispatcherProvider): GetBackupLocationUseCase = GetBackupLocationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetBackupLocationUseCase(pref: BackupLocationPreference): SetBackupLocationUseCase = SetBackupLocationUseCase(pref)
+    fun provideSetBackupLocationUseCase(pref: BackupLocationPreference, dispatchers: DispatcherProvider): SetBackupLocationUseCase = SetBackupLocationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton

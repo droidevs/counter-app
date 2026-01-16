@@ -1,8 +1,15 @@
 package io.droidevs.counterapp.domain.usecases.preference.controle
 
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.controle.VibrationOnPreference
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class SetVibrationOnUseCase(private val pref: VibrationOnPreference) {
-    suspend operator fun invoke(value: Boolean) = pref.set(value)
+class SetVibrationOnUseCase @Inject constructor(
+    private val pref: VibrationOnPreference,
+    private val dispatchers: DispatcherProvider
+) {
+    suspend operator fun invoke(value: Boolean) = withContext(dispatchers.io) {
+        pref.set(value)
+    }
 }
-

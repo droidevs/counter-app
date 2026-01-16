@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.notification.CounterLimitNotificationPreference
 import io.droidevs.counterapp.domain.preference.notification.DailySummaryNotificationPreference
 import io.droidevs.counterapp.domain.preference.notification.NotificationSoundPreference
@@ -25,35 +26,35 @@ object NotificationUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference): GetCounterLimitNotificationUseCase = GetCounterLimitNotificationUseCase(pref)
+    fun provideGetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference, dispatchers: DispatcherProvider): GetCounterLimitNotificationUseCase = GetCounterLimitNotificationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference): SetCounterLimitNotificationUseCase = SetCounterLimitNotificationUseCase(pref)
+    fun provideSetCounterLimitNotificationUseCase(pref: CounterLimitNotificationPreference, dispatchers: DispatcherProvider): SetCounterLimitNotificationUseCase = SetCounterLimitNotificationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference): GetDailySummaryNotificationUseCase = GetDailySummaryNotificationUseCase(pref)
+    fun provideGetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference, dispatchers: DispatcherProvider): GetDailySummaryNotificationUseCase = GetDailySummaryNotificationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference): SetDailySummaryNotificationUseCase = SetDailySummaryNotificationUseCase(pref)
+    fun provideSetDailySummaryNotificationUseCase(pref: DailySummaryNotificationPreference, dispatchers: DispatcherProvider): SetDailySummaryNotificationUseCase = SetDailySummaryNotificationUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetNotificationSoundUseCase(pref: NotificationSoundPreference): GetNotificationSoundUseCase = GetNotificationSoundUseCase(pref)
+    fun provideGetNotificationSoundUseCase(pref: NotificationSoundPreference, dispatchers: DispatcherProvider): GetNotificationSoundUseCase = GetNotificationSoundUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetNotificationSoundUseCase(pref: NotificationSoundPreference): SetNotificationSoundUseCase = SetNotificationSoundUseCase(pref)
+    fun provideSetNotificationSoundUseCase(pref: NotificationSoundPreference, dispatchers: DispatcherProvider): SetNotificationSoundUseCase = SetNotificationSoundUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference): GetNotificationVibrationPatternUseCase = GetNotificationVibrationPatternUseCase(pref)
+    fun provideGetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference, dispatchers: DispatcherProvider): GetNotificationVibrationPatternUseCase = GetNotificationVibrationPatternUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference): SetNotificationVibrationPatternUseCase = SetNotificationVibrationPatternUseCase(pref)
+    fun provideSetNotificationVibrationPatternUseCase(pref: NotificationVibrationPatternPreference, dispatchers: DispatcherProvider): SetNotificationVibrationPatternUseCase = SetNotificationVibrationPatternUseCase(pref, dispatchers)
 
     @Provides
     @Singleton

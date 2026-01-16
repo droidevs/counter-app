@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.CreateCategoryUseCase
@@ -22,43 +23,43 @@ object CategoryUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideCreateCategoryUseCase(repository: CategoryRepository): CreateCategoryUseCase =
-        CreateCategoryUseCase(repository)
+    fun provideCreateCategoryUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): CreateCategoryUseCase =
+        CreateCategoryUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideDeleteCategoryUseCase(repository: CategoryRepository): DeleteCategoryUseCase =
-        DeleteCategoryUseCase(repository)
+    fun provideDeleteCategoryUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): DeleteCategoryUseCase =
+        DeleteCategoryUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetAllCategoriesUseCase(repository: CategoryRepository): GetAllCategoriesUseCase =
-        GetAllCategoriesUseCase(repository)
+    fun provideGetAllCategoriesUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetAllCategoriesUseCase =
+        GetAllCategoriesUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetCategoryWithCountersUseCase(repository: CategoryRepository): GetCategoryWithCountersUseCase =
-        GetCategoryWithCountersUseCase(repository)
+    fun provideGetCategoryWithCountersUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetCategoryWithCountersUseCase =
+        GetCategoryWithCountersUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetExistingCategoryColorsUseCase(repository: CategoryRepository): GetExistingCategoryColorsUseCase =
-        GetExistingCategoryColorsUseCase(repository)
+    fun provideGetExistingCategoryColorsUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetExistingCategoryColorsUseCase =
+        GetExistingCategoryColorsUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetSystemCategoriesUseCase(repository: CategoryRepository): GetSystemCategoriesUseCase =
-        GetSystemCategoriesUseCase(repository)
+    fun provideGetSystemCategoriesUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetSystemCategoriesUseCase =
+        GetSystemCategoriesUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetTopCategoriesUseCase(repository: CategoryRepository): GetTopCategoriesUseCase =
-        GetTopCategoriesUseCase(repository)
+    fun provideGetTopCategoriesUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetTopCategoriesUseCase =
+        GetTopCategoriesUseCase(repository, dispatchers)
 
     @Provides
     @Singleton
-    fun provideGetTotalCategoriesCountUseCase(repository: CategoryRepository): GetTotalCategoriesCountUseCase =
-        GetTotalCategoriesCountUseCase(repository)
+    fun provideGetTotalCategoriesCountUseCase(repository: CategoryRepository, dispatchers: DispatcherProvider): GetTotalCategoriesCountUseCase =
+        GetTotalCategoriesCountUseCase(repository, dispatchers)
 
     @Provides
     @Singleton

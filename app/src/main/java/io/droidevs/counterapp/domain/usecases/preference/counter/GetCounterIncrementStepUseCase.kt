@@ -1,9 +1,14 @@
 package io.droidevs.counterapp.domain.usecases.preference.counter
 
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.counter.CounterIncrementStepPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-class GetCounterIncrementStepUseCase(private val pref: CounterIncrementStepPreference) {
-    operator fun invoke(): Flow<Int> = pref.get()
+class GetCounterIncrementStepUseCase @Inject constructor(
+    private val pref: CounterIncrementStepPreference,
+    private val dispatchers: DispatcherProvider
+) {
+    operator fun invoke(): Flow<Int> = pref.get().flowOn(dispatchers.io)
 }
-

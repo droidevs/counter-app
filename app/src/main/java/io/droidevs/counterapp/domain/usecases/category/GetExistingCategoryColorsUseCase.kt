@@ -1,10 +1,16 @@
 package io.droidevs.counterapp.domain.usecases.category
 
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CategoryRepository
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-// Get existing colors
-class GetExistingCategoryColorsUseCase(private val repository: CategoryRepository) {
-    suspend operator fun invoke(): List<Int> {
-        return repository.getExistingCategoryColors()
-    }
+class GetExistingCategoryColorsUseCase @Inject constructor(
+    private val repository: CategoryRepository,
+    private val dispatchers: DispatcherProvider
+) {
+    suspend operator fun invoke(): List<Int> =
+        withContext(dispatchers.io) {
+            repository.getExistingCategoryColors()
+        }
 }

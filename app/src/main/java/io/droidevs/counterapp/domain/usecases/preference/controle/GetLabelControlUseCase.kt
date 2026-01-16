@@ -1,9 +1,14 @@
 package io.droidevs.counterapp.domain.usecases.preference.controle
 
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.controle.LabelControlPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-class GetLabelControlUseCase(private val pref: LabelControlPreference) {
-    operator fun invoke(): Flow<Boolean> = pref.get()
+class GetLabelControlUseCase @Inject constructor(
+    private val pref: LabelControlPreference,
+    private val dispatchers: DispatcherProvider
+) {
+    operator fun invoke(): Flow<Boolean> = pref.get().flowOn(dispatchers.io)
 }
-

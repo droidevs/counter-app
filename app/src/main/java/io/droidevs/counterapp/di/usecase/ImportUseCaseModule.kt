@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.services.FileImportService
@@ -18,9 +19,10 @@ object ImportUseCaseModule {
     fun provideImportUseCase(
         fileImportService: FileImportService,
         counterRepository: CounterRepository,
-        categoryRepository: CategoryRepository
+        categoryRepository: CategoryRepository,
+        dispatchers: DispatcherProvider
     ): ImportUseCase {
-        return ImportUseCase(fileImportService, counterRepository, categoryRepository)
+        return ImportUseCase(fileImportService, counterRepository, categoryRepository, dispatchers)
     }
 
     @Provides

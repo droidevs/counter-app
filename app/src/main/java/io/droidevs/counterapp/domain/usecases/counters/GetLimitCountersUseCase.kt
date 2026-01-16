@@ -1,10 +1,15 @@
 package io.droidevs.counterapp.domain.usecases.counters
 
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-
-class GetLimitCountersUseCase(private val repository: CounterRepository) {
-    operator fun invoke(limit: Int): Flow<List<Counter>> = repository.getLastEdited(limit)
+class GetLimitCountersUseCase @Inject constructor(
+    private val repository: CounterRepository,
+    private val dispatchers: DispatcherProvider
+) {
+    operator fun invoke(limit: Int): Flow<List<Counter>> = repository.getLastEdited(limit).flowOn(dispatchers.io)
 }
