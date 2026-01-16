@@ -93,7 +93,7 @@ class DisplayPreferencesViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_theme)
                         )
                     )
                 }
@@ -113,7 +113,7 @@ class DisplayPreferencesViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_hide_controls)
                         )
                     )
                 }
@@ -133,7 +133,7 @@ class DisplayPreferencesViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_hide_last_update)
                         )
                     )
                 }
@@ -153,7 +153,7 @@ class DisplayPreferencesViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_keep_screen_on)
                         )
                     )
                 }

@@ -83,7 +83,7 @@ class CounterPreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_increment_step))
                     )
                 }
         }
@@ -99,7 +99,7 @@ class CounterPreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_decrement_step))
                     )
                 }
         }
@@ -115,7 +115,7 @@ class CounterPreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_default_value))
                     )
                 }
         }
@@ -131,7 +131,7 @@ class CounterPreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_minimum_value))
                     )
                 }
         }
@@ -147,7 +147,7 @@ class CounterPreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_maximum_value))
                     )
                 }
         }

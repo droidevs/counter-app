@@ -75,7 +75,7 @@ class BackupPreferenceViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_auto_backup)
                         )
                     )
                 }
@@ -96,7 +96,7 @@ class BackupPreferenceViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
-                            message = Message.Resource(R.string.preference_update_failed)
+                            message = Message.Resource(R.string.failed_to_update_backup_interval)
                         )
                     )
                 }

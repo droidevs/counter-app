@@ -79,7 +79,7 @@ class HardwarePreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_hardware_button_control))
                     )
                 }
         }
@@ -95,7 +95,7 @@ class HardwarePreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_sounds))
                     )
                 }
         }
@@ -111,7 +111,7 @@ class HardwarePreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_vibration))
                     )
                 }
         }
@@ -127,7 +127,7 @@ class HardwarePreferencesViewModel @Inject constructor(
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_labels_visibility))
                     )
                 }
         }

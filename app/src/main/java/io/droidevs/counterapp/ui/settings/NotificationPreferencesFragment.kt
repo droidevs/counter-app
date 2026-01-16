@@ -13,14 +13,14 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.ui.vm.NotificationsPreferencesViewModel
+import io.droidevs.counterapp.ui.vm.NotificationPreferencesViewModel
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NotificationPreferencesFragment : PreferenceFragmentCompat() {
 
-    private val viewModel: NotificationsPreferencesViewModel by viewModels()
+    private val viewModel: NotificationPreferencesViewModel by viewModels()
 
     private var limitNotifPref: SwitchPreferenceCompat? = null
     private var dailySummaryPref: SwitchPreferenceCompat? = null

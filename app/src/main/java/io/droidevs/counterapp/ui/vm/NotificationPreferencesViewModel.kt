@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NotificationsPreferencesViewModel @Inject constructor(
+class NotificationPreferencesViewModel @Inject constructor(
     private val useCases: NotificationPreferenceUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
@@ -76,7 +76,7 @@ class NotificationsPreferencesViewModel @Inject constructor(
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.counter_limit_notification_updated)))
                 }
                 .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed)))
+                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_counter_limit_notification)))
                 }
         }
     }
@@ -88,7 +88,7 @@ class NotificationsPreferencesViewModel @Inject constructor(
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.daily_summary_notification_updated)))
                 }
                 .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed)))
+                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_daily_summary_notification)))
                 }
         }
     }
@@ -100,7 +100,7 @@ class NotificationsPreferencesViewModel @Inject constructor(
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.notification_sound_updated)))
                 }
                 .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed)))
+                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_notification_sound)))
                 }
         }
     }
@@ -112,7 +112,7 @@ class NotificationsPreferencesViewModel @Inject constructor(
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.notification_vibration_pattern_updated)))
                 }
                 .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.preference_update_failed)))
+                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_notification_vibration_pattern)))
                 }
         }
     }

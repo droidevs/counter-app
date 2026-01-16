@@ -184,7 +184,7 @@
 
     <string name="initial_value_must_be_positive">Initial value must be greater than 0</string>
 
-    <string name="counter_created">Counter "%1$s" created</string>
+    <string name="counter_created">Counter \"%1$s\" created</string>
 
     <string name="edited_time_ago">Edited %1$s</string>
     <string name="edited_recently">Edited recently</string>
@@ -197,4 +197,23 @@
     <!-- content description -->
     <string name="increase">Increase</string>
     <string name="decrease">Decrease</string>
+    <string name="failed_to_update_increment_step">Failed to update increment step</string>
+    <string name="failed_to_update_decrement_step">Failed to update decrement step</string>
+    <string name="failed_to_update_default_value">Failed to update default value</string>
+    <string name="failed_to_update_minimum_value">Failed to update minimum value</string>
+    <string name="failed_to_update_maximum_value">Failed to update maximum value</string>
+    <string name="failed_to_update_auto_backup">Failed to update auto backup</string>
+    <string name="failed_to_update_backup_interval">Failed to update backup interval</string>
+    <string name="failed_to_update_theme">Failed to update theme</string>
+    <string name="failed_to_update_hide_controls">Failed to update hide controls</string>
+    <string name="failed_to_update_hide_last_update">Failed to update hide last update</string>
+    <string name="failed_to_update_keep_screen_on">Failed to update keep screen on</string>
+    <string name="failed_to_update_hardware_button_control">Failed to update hardware button control</string>
+    <string name="failed_to_update_sounds">Failed to update sounds</string>
+    <string name="failed_to_update_vibration">Failed to update vibration</string>
+    <string name="failed_to_update_labels_visibility">Failed to update labels visibility</string>
+    <string name="failed_to_update_counter_limit_notification">Failed to update counter limit notification</string>
+    <string name="failed_to_update_daily_summary_notification">Failed to update daily summary notification</string>
+    <string name="failed_to_update_notification_sound">Failed to update notification sound</string>
+    <string name="failed_to_update_notification_vibration_pattern">Failed to update notification vibration pattern</string>
 </resources>
