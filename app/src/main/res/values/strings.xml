@@ -216,4 +216,5 @@
     <string name="failed_to_update_daily_summary_notification">Failed to update daily summary notification</string>
     <string name="failed_to_update_notification_sound">Failed to update notification sound</string>
     <string name="failed_to_update_notification_vibration_pattern">Failed to update notification vibration pattern</string>
+    <string name="error_generic">An unexpected error occurred.</string>
 </resources>
