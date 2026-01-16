@@ -97,7 +97,7 @@ object CounterUseCaseModule {
         getCounterIncrementStepUseCase: GetCounterIncrementStepUseCase,
         addHistoryUseCase: AddHistoryEventUseCase,
         dispatchers: DispatcherProvider
-    ): IncrementCounterUseCase =_usecase
+    ): IncrementCounterUseCase =
         IncrementCounterUseCase(
             updateCounterUseCase = updateCounterUseCase,
             getCounterIncrementStepUseCase = getCounterIncrementStepUseCase,
