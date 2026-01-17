@@ -4,30 +4,32 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
+import android.net.NetworkCapabilities
+import android.os.Build
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.domain.system.SystemCounterType
-import io.droidevs.counterapp.internal.worker.SystemEventWorker
+import io.droidevs.counterapp.internal.system.SystemCounterWork
 
 @AndroidEntryPoint
 class ConnectivityReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ConnectivityManager.CONNECTIVITY_ACTION) {
-            val networkType = intent.getIntExtra(ConnectivityManager.EXTRA_NETWORK_TYPE, -1)
-            if (networkType == ConnectivityManager.TYPE_WIFI) {
-                val work = OneTimeWorkRequestBuilder<SystemEventWorker>()
-                    .setInputData(
-                        workDataOf(
-                            SystemEventWorker.COUNTER_KEY to SystemCounterType.WIFI_CONNECTIONS.key
-                        )
-                    )
-                    .build()
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
 
-                WorkManager.getInstance(context).enqueue(work)
-            }
+        val isWifi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = cm.activeNetwork ?: return
+            val caps = cm.getNetworkCapabilities(network) ?: return
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } else {
+            @Suppress("DEPRECATION")
+            cm.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+        }
+
+        if (isWifi) {
+            SystemCounterWork.enqueueIncrement(
+                context = context,
+                counterKey = SystemCounterType.WIFI_CONNECTIONS.key
+            )
         }
     }
 }

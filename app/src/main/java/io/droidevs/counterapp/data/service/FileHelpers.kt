@@ -11,6 +11,10 @@ suspend fun <D> runCatchingFileResult(
     errorTransform = { e ->
         when (e) {
             is IOException -> FileError.ReadError("Error reading or writing file", e)
+            is IllegalArgumentException -> FileError.UnsupportedFormat(
+                message = e.message ?: "Unsupported file format",
+                detectedFormat = null
+            )
             else -> FileError.UnknownError("An unknown file error occurred", e)
         }
     }

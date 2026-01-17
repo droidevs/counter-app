@@ -58,16 +58,15 @@ class ImportViewModel @Inject constructor(
                 }
                 .onFailure { error ->
                     val resId = when (error) {
-                        is io.droidevs.counterapp.domain.result.errors.FileError.ReadError,
-                        is io.droidevs.counterapp.domain.result.errors.FileError.WriteError,
-                        is io.droidevs.counterapp.domain.result.errors.FileError.ShareError,
-                        is io.droidevs.counterapp.domain.result.errors.FileError.UnknownError -> {
-                            // If our parser rejected the selected format (TXT/unknown), we currently surface it as UnknownError.
-                            // Keep user-friendly and specific.
+                        is io.droidevs.counterapp.domain.result.errors.FileError.UnsupportedFormat ->
                             R.string.import_unsupported_format
-                        }
+
+                        is io.droidevs.counterapp.domain.result.errors.FileError.ReadError ->
+                            R.string.failed_to_import_counters
+
                         else -> R.string.failed_to_import_counters
                     }
+
                     uiMessageDispatcher.dispatch(
                         Toast(message = Message.Resource(resId))
                     )
