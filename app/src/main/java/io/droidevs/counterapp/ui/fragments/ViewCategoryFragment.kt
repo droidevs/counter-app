@@ -1,16 +1,14 @@
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,11 +16,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.NavRootDirections
-import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
-import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
+import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
@@ -36,7 +35,7 @@ class ViewCategoryFragment : Fragment() {
     private lateinit var binding: FragmentViewCategoryBinding
     private lateinit var adapter: CategoryCountersAdapter
 
-    private val viewModel : CategoryViewViewModel by viewModels()
+    private val viewModel: CategoryViewViewModel by viewModels()
 
     @Inject
     lateinit var appNavigator: AppNavigator
@@ -45,6 +44,7 @@ class ViewCategoryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,6 +68,39 @@ class ViewCategoryFragment : Fragment() {
         observeViewModel()
     }
 
+    private fun showLoading() {
+        binding.stateContainer.visibility = View.VISIBLE
+        binding.stateContainer.removeAllViews()
+        val loading = LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
+        binding.stateContainer.addView(loading.root)
+    }
+
+    private fun showError() {
+        binding.stateContainer.visibility = View.VISIBLE
+        binding.stateContainer.removeAllViews()
+        val error = ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
+        binding.stateContainer.addView(error.root)
+    }
+
+    private fun showEmptyState(onAction: () -> Unit) {
+        binding.stateContainer.visibility = View.VISIBLE
+        binding.stateContainer.removeAllViews()
+
+        val empty = EmptyStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
+        binding.stateContainer.addView(empty.root)
+        empty.icon.setImageResource(R.drawable.ic_counter)
+        empty.titleText.setText(R.string.empty_category_counters_title)
+        empty.subtitleText.setText(R.string.empty_category_counters_message)
+        empty.createButton.setText(R.string.action_create_counter)
+        empty.createButton.setOnClickListener { onAction() }
+        empty.root.isVisible = true
+    }
+
+    private fun hideState() {
+        binding.stateContainer.removeAllViews()
+        binding.stateContainer.visibility = View.GONE
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -79,19 +112,33 @@ class ViewCategoryFragment : Fragment() {
                         }
 
                         adapter.submitList(state.counters)
-                        
-                        if (state.showEmptyState) {
-                            binding.rvCounters.visibility = View.GONE
-                            binding.fabAddCounter.visibility = View.GONE
-                            binding.stateContainer.visibility = VISIBLE
-                            showEmptyState {
-                                viewModel.onAction(CategoryViewAction.AddCounterClicked)
+
+                        when {
+                            state.isLoading -> {
+                                showLoading()
+                                binding.rvCounters.visibility = View.GONE
+                                binding.fabAddCounter.visibility = View.GONE
                             }
-                        } else {
-                            binding.rvCounters.visibility = VISIBLE
-                            binding.fabAddCounter.visibility = VISIBLE
-                            binding.stateContainer.visibility = View.GONE
-                            binding.stateContainer.removeAllViews()
+
+                            state.isError -> {
+                                showError()
+                                binding.rvCounters.visibility = View.GONE
+                                binding.fabAddCounter.visibility = View.GONE
+                            }
+
+                            state.showEmptyState -> {
+                                binding.rvCounters.visibility = View.GONE
+                                binding.fabAddCounter.visibility = View.GONE
+                                showEmptyState {
+                                    viewModel.onAction(CategoryViewAction.AddCounterClicked)
+                                }
+                            }
+
+                            else -> {
+                                hideState()
+                                binding.rvCounters.visibility = View.VISIBLE
+                                binding.fabAddCounter.visibility = View.VISIBLE
+                            }
                         }
                     }
                 }
@@ -102,10 +149,9 @@ class ViewCategoryFragment : Fragment() {
                             CategoryViewEvent.NavigateBack -> {
                                 appNavigator.back()
                             }
+
                             is CategoryViewEvent.NavigateToCreateCounter -> {
-                                appNavigator.navigate(
-                                    NavRootDirections.actionToCountersGraph()
-                                )
+                                appNavigator.navigate(NavRootDirections.actionToCountersGraph())
                                 appNavigator.navigate(
                                     CounterListFragmentDirections.actionCounterListToCounterCreate(
                                         event.categoryId
@@ -119,36 +165,20 @@ class ViewCategoryFragment : Fragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.menuSettings).isVisible = false
         inflater.inflate(R.menu.menu_category_view, menu)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_delete_category -> {
                 viewModel.onAction(CategoryViewAction.DeleteCategoryClicked)
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun showEmptyState(
-        onAction: () -> Unit,
-    ) {
-        val binding = EmptyStateLayoutBinding.inflate(
-            layoutInflater,
-            this.binding.stateContainer,
-            false
-        )
-        this.binding.stateContainer.addView(binding.root)
-        binding.icon.setImageResource(R.drawable.ic_counter)
-        binding.titleText.setText(R.string.empty_category_counters_title)
-        binding.subtitleText.setText(R.string.empty_category_counters_message)
-        binding.createButton.setText(R.string.action_create_counter)
-
-        binding.createButton.setOnClickListener { onAction() }
-        binding.root.isVisible = true
     }
 }

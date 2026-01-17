@@ -15,10 +15,12 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
-import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentCounterListBinding
-import io.droidevs.counterapp.ui.models.CounterUiModel
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
+import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
@@ -100,20 +102,33 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
 
     private fun observeUiState() {
         viewModel.uiState.onEach { uiState ->
-            // todo : binding.progressBar.isVisible = uiState.isLoading
-            if (!uiState.isLoading) {
-                if (uiState.counters.isEmpty()) {
+            when {
+                uiState.isLoading -> {
+                    showLoadingState()
                     binding.rvCounters.isVisible = false
                     binding.fabAddCounter.isVisible = false
+                }
+
+                uiState.isError -> {
+                    showErrorState()
+                    binding.rvCounters.isVisible = false
+                    binding.fabAddCounter.isVisible = false
+                }
+
+                uiState.counters.isEmpty() -> {
                     binding.stateContainer.isVisible = true
+                    binding.rvCounters.isVisible = false
+                    binding.fabAddCounter.isVisible = false
                     showEmptyState {
                         viewModel.onAction(CounterListAction.AddCounterClicked)
                     }
-                } else {
-                    binding.rvCounters.isVisible = true
-                    binding.fabAddCounter.isVisible = true
+                }
+
+                else -> {
                     binding.stateContainer.removeAllViews()
                     binding.stateContainer.isVisible = false
+                    binding.rvCounters.isVisible = true
+                    binding.fabAddCounter.isVisible = true
                     listAdapter.updateCounters(uiState.counters)
                 }
             }
@@ -136,6 +151,18 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun showLoadingState() {
+        binding.stateContainer.removeAllViews()
+        LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun showErrorState() {
+        binding.stateContainer.removeAllViews()
+        ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
     }
 
     private fun showEmptyState(onAction: () -> Unit) {

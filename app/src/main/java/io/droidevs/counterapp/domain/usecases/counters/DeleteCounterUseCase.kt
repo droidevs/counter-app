@@ -5,7 +5,7 @@ import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -15,8 +15,9 @@ class DeleteCounterUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(request: DeleteCounterRequest): Result<Unit, DatabaseError> =
         withContext(dispatchers.io) {
-            val counter = repository.getCounter(request.counterId)
-                .firstOrNull()
-            counter?.let { repository.deleteCounter(it) }
+            when (val counterResult = repository.getCounter(request.counterId).first()) {
+                is Result.Success -> repository.deleteCounter(counterResult.data)
+                is Result.Failure -> counterResult
+            }
         }
 }

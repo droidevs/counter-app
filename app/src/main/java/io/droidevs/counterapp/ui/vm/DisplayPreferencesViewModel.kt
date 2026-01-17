@@ -6,9 +6,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.data.Theme
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.usecases.preference.DisplayPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -18,11 +19,12 @@ import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,38 +40,51 @@ class DisplayPreferencesViewModel @Inject constructor(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val event: SharedFlow<DisplayPreferenceEvent> = _event.asSharedFlow()
+    val event = _event.asSharedFlow()
+
     val uiState: StateFlow<DisplayPreferenceUiState> = combine(
         useCases.getTheme(),
         useCases.getHideControls(),
         useCases.getHideLastUpdate(),
         useCases.getKeepScreenOn(),
     ) { themeResult, hideControlsResult, hideLastUpdateResult, keepScreenOnResult ->
-        val theme = themeResult.getOrNull() ?: Theme.SYSTEM
-        val hideControls = hideControlsResult.getOrNull() ?: false
-        val hideLastUpdate = hideLastUpdateResult.getOrNull() ?: false
-        val keepScreenOn = keepScreenOnResult.getOrNull() ?: false
 
-        val hasError = listOf(
-            themeResult,
-            hideControlsResult,
-            hideLastUpdateResult,
-            keepScreenOnResult
-        ).any { it is Result.Failure }
-
-        DisplayPreferenceUiState(
-            theme = theme,
-            hideControls = hideControls,
-            hideLastUpdate = hideLastUpdate,
-            keepScreenOn = keepScreenOn,
-            error = hasError,
-            isLoading = false
+        when {
+            themeResult is Result.Failure -> Result.Failure(themeResult.error)
+            hideControlsResult is Result.Failure -> Result.Failure(hideControlsResult.error)
+            hideLastUpdateResult is Result.Failure -> Result.Failure(hideLastUpdateResult.error)
+            keepScreenOnResult is Result.Failure -> Result.Failure(keepScreenOnResult.error)
+            else -> Result.Success(
+                DisplayPreferenceUiState(
+                    theme = themeResult.dataOr { Theme.SYSTEM },
+                    hideControls = hideControlsResult.dataOr { false },
+                    hideLastUpdate = hideLastUpdateResult.dataOr { false },
+                    keepScreenOn = keepScreenOnResult.dataOr { false },
+                    error = false,
+                    isLoading = false
+                )
+            )
+        }
+    }
+        .recoverWith {
+            Result.Success(
+                DisplayPreferenceUiState(
+                    theme = Theme.SYSTEM,
+                    hideControls = false,
+                    hideLastUpdate = false,
+                    keepScreenOn = false,
+                    error = true,
+                    isLoading = false
+                )
+            )
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(DisplayPreferenceUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = DisplayPreferenceUiState(isLoading = true)
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = DisplayPreferenceUiState(isLoading = true)
-    )
 
     fun onAction(action: DisplayPreferenceAction) {
         when (action) {

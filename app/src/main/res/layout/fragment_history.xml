@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.history.HistoryFragment">
+    tools:context=".ui.fragments.HistoryFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_history"
@@ -19,9 +19,19 @@
         android:id="@+id/button_clear_history"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Clear History"
+        android:text="@string/clear_history"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/stateContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

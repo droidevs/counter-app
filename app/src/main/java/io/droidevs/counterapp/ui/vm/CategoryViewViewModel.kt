@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
@@ -16,13 +18,18 @@ import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
-import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
-import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
+import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,19 +57,22 @@ class CategoryViewViewModel @Inject constructor(
         .mapResult { categoryWithCounters ->
             categoryWithCounters
                 .toUiModel(dateFormatter)
-                .toUiState(isLoading = false)
+                .toUiState(isLoading = false, isError = false)
         }
-        .onFailure { _ ->
+        .onFailure {
             uiMessageDispatcher.dispatch(
                 UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_load_category))
             )
         }
-        .map { result -> result.getOrNull() ?: CategoryViewUiState(isLoading = false) }
-        .onStart { emit(CategoryViewUiState(isLoading = true)) }
+        .recoverWith {
+            Result.Success(CategoryViewUiState(isLoading = false, isError = true))
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(CategoryViewUiState(isLoading = true, isError = false)) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CategoryViewUiState(isLoading = true)
+            initialValue = CategoryViewUiState(isLoading = true, isError = false)
         )
 
     fun onAction(action: CategoryViewAction) {
@@ -84,14 +94,14 @@ class CategoryViewViewModel @Inject constructor(
             categoryUseCases.deleteCategory(
                 DeleteCategoryRequest(categoryId = categoryId)
             )
-            .onSuccessSuspend {
-                _event.emit(CategoryViewEvent.NavigateBack)
-            }
-            .onFailure { _ ->
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_delete_category))
-                )
-            }
+                .onSuccessSuspend {
+                    _event.emit(CategoryViewEvent.NavigateBack)
+                }
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_delete_category))
+                    )
+                }
         }
     }
 }

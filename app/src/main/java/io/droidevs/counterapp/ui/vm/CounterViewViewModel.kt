@@ -6,6 +6,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
+import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
@@ -16,14 +21,15 @@ import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
-import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
 import io.droidevs.counterapp.ui.vm.mappers.toViewUiState
-import io.droidevs.counterapp.domain.result.mapResult
-import io.droidevs.counterapp.domain.result.onFailure
-import io.droidevs.counterapp.domain.result.onSuccess
-import io.droidevs.counterapp.domain.result.onSuccessSuspend
-import io.droidevs.counterapp.domain.result.recoverWith
-import kotlinx.coroutines.flow.*
+import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,8 +61,8 @@ class CounterViewViewModel @Inject constructor(
                 else -> uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_load_counter)))
             }
         }
-        .recoverWith { _ ->
-            // Map failure to an error UI state
+        // Convert failure into a SUCCESS ui state with error flags (so UI never needs getOrNull).
+        .recoverWith {
             Result.Success(
                 CounterViewUiState(
                     counter = null,
@@ -65,15 +71,13 @@ class CounterViewViewModel @Inject constructor(
                 )
             )
         }
-        .map { result ->
-            // Unwrap the success value (CounterViewUiState)
-            result.getOrNull() ?: CounterViewUiState(isLoading = false, isError = true)
-        }
-        .onStart { emit(CounterViewUiState(isLoading = true)) }
+        // Now every emission is a Success<CounterViewUiState>
+        .map { (it as Result.Success).data }
+        .onStart { emit(CounterViewUiState(isLoading = true, isError = false)) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CounterViewUiState(isLoading = true)
+            initialValue = CounterViewUiState(isLoading = true, isError = false)
         )
 
     fun onAction(action: CounterViewAction) {
@@ -100,9 +104,9 @@ class CounterViewViewModel @Inject constructor(
                     counterId = counterId,
                     newCount = currentCounter.currentCount + 1
                 )
-            ).onFailure { _ ->
+            ).onFailure {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.error_generic))
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
                 )
             }
         }
@@ -118,9 +122,9 @@ class CounterViewViewModel @Inject constructor(
                     counterId = counterId,
                     newCount = currentCounter.currentCount - 1
                 )
-            ).onFailure { _ ->
+            ).onFailure {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.error_generic))
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
                 )
             }
         }
@@ -135,11 +139,11 @@ class CounterViewViewModel @Inject constructor(
                 )
             ).onSuccess {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.saved_message))
+                    UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
                 )
-            }.onFailure { _ ->
+            }.onFailure {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.error_generic))
+                    UiMessage.Toast(message = Message.Resource(R.string.failed_to_reset_counter))
                 )
             }
         }
@@ -147,17 +151,22 @@ class CounterViewViewModel @Inject constructor(
 
     private fun delete() {
         viewModelScope.launch {
-            val counterName = uiState.value.counter?.name ?: "Counter"
+            val counterName = uiState.value.counter?.name ?: ""
             counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.counter_deleted, args = arrayOf(counterName)))
+                        UiMessage.Toast(
+                            message = Message.Resource(
+                                resId = R.string.counter_deleted,
+                                args = arrayOf(counterName)
+                            )
+                        )
                     )
                     _event.emit(CounterViewEvent.NavigateBack)
                 }
-                .onFailure { _ ->
+                .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.error_generic))
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_delete_counter))
                     )
                 }
         }

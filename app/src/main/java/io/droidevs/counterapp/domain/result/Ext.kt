@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.domain.result
 
-import androidx.annotation.RestrictTo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
@@ -212,6 +212,7 @@ fun <T, R, E : RootError> Flow<Result<T, E>>.mapResult(
     map { it.map(transform) }
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T, R, E : RootError> Flow<Result<T, E>>.flatMapResult(
     transform: (T) -> Flow<Result<R, E>>
 ): Flow<Result<R, E>> =
@@ -232,7 +233,17 @@ fun <T, E : RootError> Flow<Result<T, E>>.catchResult(
     catch { emit(Result.Failure(transform(it))) }
 
 
-fun <D> D.asSuccess(): Result.Success<D> = Result.Success(this)
+/**
+ * Public-friendly API: keep ONLY this helper for now.
+ * NOTE: This preserves the error on the Result itself; do not use it to silently ignore failures.
+ */
+fun <D, E : RootError> Result<D, E>.dataOr(default: () -> D): D = when (this) {
+    is Result.Success -> data
+    is Result.Failure -> default()
+}
 
-fun <D, E : RootError> Result<D, E>.getOrNull(): D? =
-    fold({ it }, { null })
+/**
+ * Convenience for wrapping a value into a [Result.Success].
+ * Intentionally minimal; keeps feature/UI code away from fold/getOrNull.
+ */
+fun <D> D.asSuccess(): Result.Success<D> = Result.Success(this)

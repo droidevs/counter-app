@@ -6,22 +6,23 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.model.Counter
-import io.droidevs.counterapp.domain.result.map
+import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.date.DateFormatter
+import io.droidevs.counterapp.ui.message.Message
+import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
-import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
-import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
-import io.droidevs.counterapp.domain.result.onFailure
-import io.droidevs.counterapp.ui.message.Message
-import io.droidevs.counterapp.ui.message.UiMessage
+import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class CountersListViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter : DateFormatter
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CounterListEvent>(extraBufferCapacity = 1)
@@ -43,14 +44,27 @@ class CountersListViewModel @Inject constructor(
         .mapResult { counters ->
             counters.map { it.toUiModel(dateFormatter) }
         }
-        .map { result -> result.getOrNull() ?: emptyList() }
-        .onStart { emit(emptyList()) } // Emit empty list initially for the mapper
-        .map { counters -> counters.toUiState(isLoading = false) }
-        .onStart { emit(CounterListUiState(isLoading = true)) } // Initial loading state
+        .onFailure {
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_load_counter))
+            )
+        }
+        // Keep failure propagation until this point.
+        .mapResult { counters -> counters.toUiState(isLoading = false, isError = false) }
+        // Single place: Failure -> Success(error UiState)
+        .recoverWith {
+            Result.Success(
+                emptyList<io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel>()
+                    .toUiState(isLoading = false, isError = true)
+            )
+        }
+        // After recoverWith, always Success.
+        .map { (it as Result.Success).data }
+        .onStart { emit(CounterListUiState(isLoading = true, isError = false)) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CounterListUiState() // Default empty state
+            initialValue = CounterListUiState(isLoading = true, isError = false)
         )
 
     fun onAction(action: CounterListAction) {

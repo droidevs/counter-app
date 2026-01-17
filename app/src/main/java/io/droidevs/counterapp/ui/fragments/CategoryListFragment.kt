@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,11 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
-import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
-import io.droidevs.counterapp.ui.fragments.CategoryListFragmentArgs
-import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
+import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
@@ -27,9 +24,8 @@ import io.droidevs.counterapp.ui.vm.CategoryListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject 
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
@@ -54,12 +50,9 @@ class CategoryListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val isSystem = arguments?.let { CategoryListFragmentArgs.fromBundle(it).isSystem } ?: false
-
-        // Set initial system mode in ViewModel
         viewModel.onAction(CategoryListAction.SetSystemMode(isSystem))
 
         setupRecyclerView()
-        setupListeners()
         observeViewModel()
     }
 
@@ -77,23 +70,15 @@ class CategoryListFragment : Fragment() {
         binding.rvCategories.setHasFixedSize(true)
     }
 
-    private fun setupListeners() {
-//        binding.fabAction.setOnClickListener {
-//            viewModel.onAction(CategoryListAction.CreateCategoryClicked)
-//        }
-    }
-
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Observe UI State
                 launch {
                     viewModel.uiState.collect { state ->
                         updateUi(state)
                     }
                 }
 
-                // Observe Events
                 launch {
                     viewModel.event.collect { event ->
                         handleEvent(event)
@@ -105,14 +90,9 @@ class CategoryListFragment : Fragment() {
 
     private fun updateUi(state: CategoryListUiState) {
         when {
-            state.isLoading -> {
-                showLoading()
-            }
-            state.categories.isEmpty() -> {
-                showEmptyState {
-                    viewModel.onAction(CategoryListAction.CreateCategoryClicked)
-                }
-            }
+            state.isLoading -> showLoading()
+            state.isError -> showError()
+            state.categories.isEmpty() -> showEmptyState { viewModel.onAction(CategoryListAction.CreateCategoryClicked) }
             else -> {
                 hideStateContainer()
                 adapter.submitList(state.categories)
@@ -125,12 +105,17 @@ class CategoryListFragment : Fragment() {
         binding.stateContainer.visibility = View.VISIBLE
         binding.stateContainer.removeAllViews()
 
-        val loadingBinding = LoadingStateLayoutBinding.inflate(
-            layoutInflater,
-            binding.stateContainer,
-            false
-        )
+        val loadingBinding = LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
         binding.stateContainer.addView(loadingBinding.root)
+    }
+
+    private fun showError() {
+        binding.rvCategories.visibility = View.GONE
+        binding.stateContainer.visibility = View.VISIBLE
+        binding.stateContainer.removeAllViews()
+
+        val errorBinding = ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
+        binding.stateContainer.addView(errorBinding.root)
     }
 
     private fun showEmptyState(onAction: () -> Unit) {
@@ -138,11 +123,7 @@ class CategoryListFragment : Fragment() {
         binding.stateContainer.visibility = View.VISIBLE
         binding.stateContainer.removeAllViews()
 
-        val emptyBinding = EmptyStateLayoutBinding.inflate(
-            layoutInflater,
-            binding.stateContainer,
-            false
-        )
+        val emptyBinding = EmptyStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, false)
         emptyBinding.icon.setImageResource(R.drawable.ic_category)
         emptyBinding.titleText.setText(R.string.empty_categories_title)
         emptyBinding.subtitleText.setText(R.string.empty_categories_message)

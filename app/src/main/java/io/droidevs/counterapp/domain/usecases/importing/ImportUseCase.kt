@@ -23,12 +23,8 @@ class ImportUseCase @Inject constructor(
     suspend operator fun invoke(fileUri: Uri): Result<Unit, RootError> = withContext(dispatchers.io) {
         resultSuspend {
             // Import from file -> save categories -> save counters
-            ResultBuilder<Unit, RootError>().combineSuspended(
-                first = {
-                    // Import file data and map service errors to FileError
-                    fileImportService.import(fileUri)
-                },
-                block = { imported ->
+            fileImportService.import(fileUri)
+                .combineSuspended { imported ->
                     // Persist categories
                     categoryRepository.importCategories(imported.categories)
                         .combineSuspended {
@@ -36,7 +32,6 @@ class ImportUseCase @Inject constructor(
                             counterRepository.importCounters(imported.counters)
                         }
                 }
-            )
         }
     }
 }

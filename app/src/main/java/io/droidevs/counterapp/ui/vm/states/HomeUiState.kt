@@ -9,5 +9,7 @@ data class HomeUiState(
     val countersCount: Int = 0,
     val categoriesCount: Int = 0,
     val isLoadingCounters: Boolean = false,
-    val isLoadingCategories: Boolean = false
+    val isLoadingCategories: Boolean = false,
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

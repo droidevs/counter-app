@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.usecases.preference.CounterPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -17,6 +18,8 @@ import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,34 +37,46 @@ class CounterPreferencesViewModel @Inject constructor(
         useCases.getMinimumCounterValue(),
         useCases.getMaximumCounterValue()
     ) { incrementStepResult, decrementStepResult, defaultValueResult, minimumValueResult, maximumValueResult ->
-        val incrementStep = incrementStepResult.getOrNull() ?: 1
-        val decrementStep = decrementStepResult.getOrNull() ?: 1
-        val defaultValue = defaultValueResult.getOrNull() ?: 0
-        val minimumValue = minimumValueResult.getOrNull()
-        val maximumValue = maximumValueResult.getOrNull()
 
-        val hasError = listOf(
-            incrementStepResult,
-            decrementStepResult,
-            defaultValueResult,
-            minimumValueResult,
-            maximumValueResult
-        ).any { it is Result.Failure }
-
-        CounterBehaviorPreferenceUiState(
-            counterIncrementStep = incrementStep,
-            counterDecrementStep = decrementStep,
-            defaultCounterValue = defaultValue,
-            minimumCounterValue = minimumValue,
-            maximumCounterValue = maximumValue,
-            error = hasError,
-            isLoading = false
+        when {
+            incrementStepResult is Result.Failure -> Result.Failure(incrementStepResult.error)
+            decrementStepResult is Result.Failure -> Result.Failure(decrementStepResult.error)
+            defaultValueResult is Result.Failure -> Result.Failure(defaultValueResult.error)
+            minimumValueResult is Result.Failure -> Result.Failure(minimumValueResult.error)
+            maximumValueResult is Result.Failure -> Result.Failure(maximumValueResult.error)
+            else -> Result.Success(
+                CounterBehaviorPreferenceUiState(
+                    counterIncrementStep = incrementStepResult.dataOr { 1 },
+                    counterDecrementStep = decrementStepResult.dataOr { 1 },
+                    defaultCounterValue = defaultValueResult.dataOr { 0 },
+                    minimumCounterValue = minimumValueResult.dataOr { null },
+                    maximumCounterValue = maximumValueResult.dataOr { null },
+                    error = false,
+                    isLoading = false
+                )
+            )
+        }
+    }
+        .recoverWith {
+            Result.Success(
+                CounterBehaviorPreferenceUiState(
+                    counterIncrementStep = 1,
+                    counterDecrementStep = 1,
+                    defaultCounterValue = 0,
+                    minimumCounterValue = null,
+                    maximumCounterValue = null,
+                    error = true,
+                    isLoading = false
+                )
+            )
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(CounterBehaviorPreferenceUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CounterBehaviorPreferenceUiState(isLoading = true)
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = CounterBehaviorPreferenceUiState(isLoading = true)
-    )
 
     fun onAction(action: CounterBehaviorPreferenceAction) {
         when (action) {

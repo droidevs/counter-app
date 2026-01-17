@@ -10,5 +10,7 @@ data class CreateCounterUiState(
     val isInitialValueInputVisible: Boolean = false,
     val categoryId: String? = null,
     val categories: List<CategoryUiModel> = emptyList(),
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

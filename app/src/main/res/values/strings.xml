@@ -235,4 +235,13 @@
     <string name="failed_to_create_category">Failed to create category</string>
     <string name="failed_to_load_history">Failed to load history</string>
     <string name="failed_to_clear_history">Failed to clear history</string>
+
+    <string name="counter_reset_success">Counter reset</string>
+    <string name="failed_to_reset_counter">Failed to reset counter</string>
+    <string name="failed_to_delete_counter">Failed to delete counter</string>
+
+    <string name="clear_history">Clear History</string>
+    <string name="home_recent_counters_title">Recent Counters</string>
+    <string name="home_categories_title">Categories</string>
+    <string name="home_view_all">View All ›</string>
 </resources>

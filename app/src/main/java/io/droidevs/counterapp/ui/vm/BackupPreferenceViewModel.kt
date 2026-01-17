@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,22 +41,41 @@ class BackupPreferenceViewModel @Inject constructor(
         backup.getAutoBackup(),
         backup.getBackupInterval()
     ) { autoBackupResult, backupIntervalResult ->
-        val autoBackup = autoBackupResult.getOrNull() ?: false
-        val backupInterval = backupIntervalResult.getOrNull() ?: 24L
-
-        val hasError = autoBackupResult is Result.Failure || backupIntervalResult is Result.Failure
-
-        BackupPreferenceUiState(
-            autoBackup = autoBackup,
-            backupInterval = backupInterval,
-            error = hasError,
-            isLoading = false
+        // If any input is Failure, emit Failure so it can propagate to recoverWith.
+        when {
+            autoBackupResult is Result.Failure -> Result.Failure(autoBackupResult.error)
+            backupIntervalResult is Result.Failure -> Result.Failure(backupIntervalResult.error)
+            else -> {
+                val autoBackup = autoBackupResult.dataOr { false }
+                val interval = backupIntervalResult.dataOr { 24L }
+                Result.Success(
+                    BackupPreferenceUiState(
+                        autoBackup = autoBackup,
+                        backupInterval = interval,
+                        error = false,
+                        isLoading = false
+                    )
+                )
+            }
+        }
+    }
+        .recoverWith {
+            Result.Success(
+                BackupPreferenceUiState(
+                    autoBackup = false,
+                    backupInterval = 24L,
+                    error = true,
+                    isLoading = false
+                )
+            )
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(BackupPreferenceUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = BackupPreferenceUiState(isLoading = true)
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = BackupPreferenceUiState(isLoading = true)
-    )
 
     fun onAction(action: BackupPreferenceAction) {
         when (action) {

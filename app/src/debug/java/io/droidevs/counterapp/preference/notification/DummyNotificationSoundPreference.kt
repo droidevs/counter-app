@@ -2,7 +2,6 @@ package io.droidevs.counterapp.preference.notification
 
 import io.droidevs.counterapp.domain.preference.notification.NotificationSoundPreference
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.asSuccess
 import io.droidevs.counterapp.domain.result.errors.PreferenceError
 import io.droidevs.counterapp.preference.DummyPreferenceDelegates
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +18,10 @@ class DummyNotificationSoundPreference(
         )
     }
 
-    override fun get(): Flow<Result<String, PreferenceError>> = delegate.flow.map { it.asSuccess() }
+    override fun get(): Flow<Result<String, PreferenceError>> = delegate.flow.map { Result.Success(it) }
 
     override suspend fun set(value: String): Result<Unit, PreferenceError> {
         delegate.set(value)
-        return Unit.asSuccess()
+        return Result.Success(Unit)
     }
 }

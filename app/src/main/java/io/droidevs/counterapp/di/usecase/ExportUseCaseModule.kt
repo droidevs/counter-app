@@ -5,9 +5,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
-import io.droidevs.counterapp.domain.repository.CategoryRepository
-import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.services.FileExportService
+import io.droidevs.counterapp.domain.usecases.category.GetAllCategoriesUseCase
+import io.droidevs.counterapp.domain.usecases.counters.GetAllCountersUseCase
 import io.droidevs.counterapp.domain.usecases.export.ExportUseCase
 import io.droidevs.counterapp.domain.usecases.export.ExportUseCases
 import io.droidevs.counterapp.domain.usecases.export.GetAvailableExportFormatsUseCase
@@ -18,12 +18,12 @@ object ExportUseCaseModule {
 
     @Provides
     fun provideExportUseCase(
-        counterRepository: CounterRepository,
-        categoryRepository: CategoryRepository,
+        getAllCountersUseCase: GetAllCountersUseCase,
+        getAllCategoriesUseCase: GetAllCategoriesUseCase,
         fileExportService: FileExportService,
         dispatchers: DispatcherProvider
     ): ExportUseCase {
-        return ExportUseCase(counterRepository, categoryRepository, fileExportService, dispatchers)
+        return ExportUseCase(getAllCountersUseCase, getAllCategoriesUseCase, fileExportService, dispatchers)
     }
 
     @Provides

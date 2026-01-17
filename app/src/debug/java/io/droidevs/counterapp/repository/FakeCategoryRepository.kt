@@ -1,6 +1,6 @@
 package io.droidevs.counterapp.repository
 
-import io.droidevs.counterapp.data.toDomain
+import io.droidevs.counterapp.data.toDomain as counterEntityToDomain
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
 import io.droidevs.counterapp.domain.repository.CategoryRepository
@@ -32,10 +32,11 @@ class FakeCategoryRepository(
                     if (category != null) {
                         Result.Success(category)
                     } else {
-                        Result.Error(DatabaseError.NotFound("Category not found"))
+                        Result.Failure(DatabaseError.NotFound)
                     }
                 }
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
@@ -48,7 +49,8 @@ class FakeCategoryRepository(
                         .sortedByDescending { it.countersCount }
                         .take(limit)
                 )
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
@@ -57,25 +59,23 @@ class FakeCategoryRepository(
         return categoriesFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { !it.isSystem }.size)
-                is Result.Error -> result
+                is Result.Failure -> result
             }
         }
     }
 
     override fun categoryWithCounters(categoryId: String): Flow<Result<CategoryWithCounters, DatabaseError>> {
         return combine(dummyData.categoriesFlow, dummyData.countersFlow) { categories, counters ->
-            try {
-                val category = categories.first { it.id == categoryId }
-                val relatedCounters = counters.filter { it.categoryId == categoryId }
-                Result.Success(
-                    CategoryWithCounters(
-                        category = category.toDomain(),
-                        counters = relatedCounters.map { it.toDomain() }
-                    )
+            val category = categories.firstOrNull { it.id == categoryId }
+                ?: return@combine Result.Failure(DatabaseError.NotFound)
+
+            val relatedCounters = counters.filter { it.categoryId == categoryId }
+            Result.Success(
+                CategoryWithCounters(
+                    category = category.toDomain(),
+                    counters = relatedCounters.map { it.counterEntityToDomain() }
                 )
-            } catch (e: NoSuchElementException) {
-                Result.Error(DatabaseError.NotFound("Category not found"))
-            }
+            )
         }
     }
 
@@ -83,7 +83,7 @@ class FakeCategoryRepository(
         return categoriesFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { !it.isSystem })
-                is Result.Error -> result
+                is Result.Failure -> result
             }
         }
     }
@@ -96,13 +96,13 @@ class FakeCategoryRepository(
 
     override suspend fun deleteCategory(categoryId: String): Result<Unit, DatabaseError> {
         dummyData.categories.removeIf { it.id == categoryId }
-        dummyData.counters.forEach {
-            if (it.categoryId == categoryId) {
-                val newCounter = it.copy(categoryId = null)
-                dummyData.counters[dummyData.counters.indexOf(it)] = newCounter
+        dummyData.counters.forEach { entity ->
+            if (entity.categoryId == categoryId) {
+                val newCounter = entity.copy(categoryId = null)
+                dummyData.counters[dummyData.counters.indexOf(entity)] = newCounter
             }
-            dummyData.emitCounterUpdate()
         }
+        dummyData.emitCounterUpdate()
         dummyData.emitCategoryUpdate()
         return Result.Success(Unit)
     }
@@ -115,7 +115,7 @@ class FakeCategoryRepository(
         return categoriesFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { it.isSystem })
-                is Result.Error -> result
+                is Result.Failure -> result
             }
         }
     }
@@ -138,7 +138,7 @@ class FakeCategoryRepository(
         val categories = categoriesFlow.first()
         return when (categories) {
             is Result.Success -> Result.Success(categories.data.filter { !it.isSystem })
-            is Result.Error -> categories
+            is Result.Failure -> categories
         }
     }
 }

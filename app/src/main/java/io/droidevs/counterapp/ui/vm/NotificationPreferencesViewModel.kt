@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.usecases.preference.NotificationPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -26,7 +27,7 @@ class NotificationPreferencesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<NotificationPreferenceEvent>(extraBufferCapacity = 1)
-    val event: SharedFlow<NotificationPreferenceEvent> = _event.asSharedFlow()
+    val event = _event.asSharedFlow()
 
     val uiState: StateFlow<NotificationPreferenceUiState> = combine(
         useCases.getCounterLimitNotification(),
@@ -34,31 +35,43 @@ class NotificationPreferencesViewModel @Inject constructor(
         useCases.getNotificationSound(),
         useCases.getNotificationVibrationPattern()
     ) { limitResult, dailyResult, soundResult, vibrationResult ->
-        val limit = limitResult.getOrNull() ?: false
-        val daily = dailyResult.getOrNull() ?: false
-        val sound = soundResult.getOrNull() ?: ""
-        val vibration = vibrationResult.getOrNull() ?: ""
-
-        val hasError = listOf(
-            limitResult,
-            dailyResult,
-            soundResult,
-            vibrationResult
-        ).any { it is Result.Failure }
-
-        NotificationPreferenceUiState(
-            counterLimitNotification = limit,
-            dailySummaryNotification = daily,
-            notificationSound = sound,
-            notificationVibrationPattern = vibration,
-            error = hasError,
-            isLoading = false
+        // propagate failures explicitly
+        when {
+            limitResult is Result.Failure -> Result.Failure(limitResult.error)
+            dailyResult is Result.Failure -> Result.Failure(dailyResult.error)
+            soundResult is Result.Failure -> Result.Failure(soundResult.error)
+            vibrationResult is Result.Failure -> Result.Failure(vibrationResult.error)
+            else -> Result.Success(
+                NotificationPreferenceUiState(
+                    counterLimitNotification = limitResult.dataOr { false },
+                    dailySummaryNotification = dailyResult.dataOr { false },
+                    notificationSound = soundResult.dataOr { "" },
+                    notificationVibrationPattern = vibrationResult.dataOr { "" },
+                    error = false,
+                    isLoading = false
+                )
+            )
+        }
+    }
+        .recoverWith {
+            Result.Success(
+                NotificationPreferenceUiState(
+                    counterLimitNotification = false,
+                    dailySummaryNotification = false,
+                    notificationSound = "",
+                    notificationVibrationPattern = "",
+                    error = true,
+                    isLoading = false
+                )
+            )
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(NotificationPreferenceUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = NotificationPreferenceUiState(isLoading = true)
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = NotificationPreferenceUiState(isLoading = true)
-    )
 
     fun onAction(action: NotificationPreferenceAction) {
         when (action) {

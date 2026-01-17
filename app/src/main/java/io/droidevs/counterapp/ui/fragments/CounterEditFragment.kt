@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,7 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentCounterEditBinding
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
@@ -26,9 +29,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CounterEditFragment : Fragment() {
 
-    private lateinit var binding : FragmentCounterEditBinding
+    private lateinit var binding: FragmentCounterEditBinding
 
-    private val viewModel : CounterEditViewModel by viewModels()
+    private val viewModel: CounterEditViewModel by viewModels()
 
     @Inject
     lateinit var appNavigator: AppNavigator
@@ -75,28 +78,62 @@ class CounterEditFragment : Fragment() {
         }
     }
 
+    private fun showLoading() {
+        binding.stateContainer.removeAllViews()
+        LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun showError() {
+        binding.stateContainer.removeAllViews()
+        ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun hideState() {
+        binding.stateContainer.removeAllViews()
+        binding.stateContainer.isVisible = false
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
-                        state.counter?.let { counter ->
-                            if (binding.etName.text.toString() != counter.name) {
-                                binding.etName.setText(counter.name)
-                            }
-                            if (binding.etCurrentCount.text.toString() != counter.currentCount.toString()) {
-                                binding.etCurrentCount.setText(counter.currentCount.toString())
+                        when {
+                            state.isLoading -> {
+                                showLoading()
+                                binding.content.isVisible = false
                             }
 
-                            if (binding.switchCanIncrease.isChecked != counter.canIncrease) {
-                                binding.switchCanIncrease.isChecked = counter.canIncrease
-                            }
-                            if (binding.switchCanDecrease.isChecked != counter.canDecrease) {
-                                binding.switchCanDecrease.isChecked = counter.canDecrease
+                            state.isError -> {
+                                showError()
+                                binding.content.isVisible = false
                             }
 
-                            binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdTime.toString())
-                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.editedTime.toString())
+                            else -> {
+                                hideState()
+                                binding.content.isVisible = true
+
+                                state.counter?.let { counter ->
+                                    if (binding.etName.text.toString() != counter.name) {
+                                        binding.etName.setText(counter.name)
+                                    }
+                                    if (binding.etCurrentCount.text.toString() != counter.currentCount.toString()) {
+                                        binding.etCurrentCount.setText(counter.currentCount.toString())
+                                    }
+
+                                    if (binding.switchCanIncrease.isChecked != counter.canIncrease) {
+                                        binding.switchCanIncrease.isChecked = counter.canIncrease
+                                    }
+                                    if (binding.switchCanDecrease.isChecked != counter.canDecrease) {
+                                        binding.switchCanDecrease.isChecked = counter.canDecrease
+                                    }
+
+                                    binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdTime.toString())
+                                    binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, counter.editedTime.toString())
+                                }
+                            }
                         }
                     }
                 }
@@ -121,8 +158,9 @@ class CounterEditFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+        return when (item.itemId) {
             R.id.action_save -> {
                 viewModel.onAction(CounterEditAction.SaveClicked)
                 true

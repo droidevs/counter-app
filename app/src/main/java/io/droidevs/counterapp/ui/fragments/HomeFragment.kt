@@ -5,30 +5,29 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.droidevs.counterapp.R
-import io.droidevs.counterapp.ui.adapter.HomeCategoryAdapter
-import io.droidevs.counterapp.ui.adapter.HomeCounterAdapter
-import io.droidevs.counterapp.databinding.FragmentHomeBinding
-import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
-import io.droidevs.counterapp.ui.models.CounterUiModel
-import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
-import io.droidevs.counterapp.ui.models.CategoryUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.NavRootDirections
-import io.droidevs.counterapp.ui.vm.HomeViewModel
-import io.droidevs.counterapp.ui.fragments.CounterListFragmentDirections
-import io.droidevs.counterapp.ui.fragments.CategoryListFragmentDirections
+import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
+import io.droidevs.counterapp.databinding.FragmentHomeBinding
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
+import io.droidevs.counterapp.ui.adapter.HomeCategoryAdapter
+import io.droidevs.counterapp.ui.adapter.HomeCounterAdapter
+import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
+import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.models.CategoryUiModel
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
+import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
 import kotlinx.coroutines.launch
@@ -39,14 +38,13 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
 
-    lateinit var binding : FragmentHomeBinding
+    lateinit var binding: FragmentHomeBinding
 
     @Inject
     lateinit var appNavigator: AppNavigator
 
-    var recentCountersRecycler : RecyclerView? = null
-    var categoriesRecycler : RecyclerView? = null
-
+    var recentCountersRecycler: RecyclerView? = null
+    var categoriesRecycler: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +88,7 @@ class HomeFragment : Fragment() {
                 viewModel.onAction(HomeAction.DecrementCounter(counter.counter))
             }
         )
+
         categoriesRecycler?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         categoriesRecycler?.adapter = HomeCategoryAdapter(
@@ -105,13 +104,30 @@ class HomeFragment : Fragment() {
     }
 
     private fun setUpButtons() {
-        binding.txtViewAllCounters.setOnClickListener { _ ->
+        binding.txtViewAllCounters.setOnClickListener {
             viewModel.onAction(HomeAction.ViewAllCountersClicked)
         }
 
-        binding.txtViewAllCategories.setOnClickListener { _ ->
+        binding.txtViewAllCategories.setOnClickListener {
             viewModel.onAction(HomeAction.ViewAllCategoriesClicked)
         }
+    }
+
+    private fun showLoading() {
+        binding.stateContainer.removeAllViews()
+        LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun showError() {
+        binding.stateContainer.removeAllViews()
+        ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun hideState() {
+        binding.stateContainer.removeAllViews()
+        binding.stateContainer.isVisible = false
     }
 
     private fun observeViewModel() {
@@ -119,9 +135,22 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
+                        when {
+                            state.isLoading -> {
+                                showLoading()
+                            }
+
+                            state.isError -> {
+                                showError()
+                            }
+
+                            else -> {
+                                hideState()
+                            }
+                        }
+
                         (recentCountersRecycler?.adapter as? HomeCounterAdapter)?.updateCounters(state.recentCounters)
                         (categoriesRecycler?.adapter as? HomeCategoryAdapter)?.submitList(state.categories)
-                        // You can update loading indicators or empty states here if needed
                         Log.d("HomeFragment", "Counters Count: ${state.countersCount}, Categories Count: ${state.categoriesCount}")
                     }
                 }
@@ -130,35 +159,36 @@ class HomeFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             is HomeEvent.NavigateToCounterView -> {
-                                //appNavigator.navigateRoot(R.id.action_to_counters_graph)
                                 appNavigator.navigate(
                                     NavRootDirections.actionToCounterView(
                                         counterId = event.counterId
                                     )
                                 )
                             }
+
                             HomeEvent.NavigateToCreateCounter -> {
-                                //appNavigator.navigateRoot(R.id.action_to_counters_graph)
                                 appNavigator.navigateRoot(
                                     R.id.action_to_counterView
                                 )
                             }
+
                             is HomeEvent.NavigateToCategoryView -> {
-                                //appNavigator.navigateRoot(R.id.action_to_categories_graph)
                                 appNavigator.navigateRoot(
-                                   R.id.action_to_categoryView,
+                                    R.id.action_to_categoryView,
                                     bundleOf("categoryId" to event.categoryId)
                                 )
                             }
+
                             HomeEvent.NavigateToCreateCategory -> {
-                                //appNavigator.navigateRoot(R.id.action_to_categories_graph)
                                 appNavigator.navigateRoot(
                                     R.id.action_to_categoryCreate
                                 )
                             }
+
                             HomeEvent.NavigateToCounterList -> {
                                 appNavigator.navigateRoot(R.id.action_to_counters_graph)
                             }
+
                             HomeEvent.NavigateToCategoryList -> {
                                 appNavigator.navigateRoot(R.id.action_to_categories_graph)
                             }

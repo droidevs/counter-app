@@ -6,6 +6,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
@@ -18,9 +23,6 @@ import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import io.droidevs.counterapp.ui.vm.mappers.toCreateCounterUiState
 import io.droidevs.counterapp.ui.vm.states.CreateCounterUiState
-import io.droidevs.counterapp.domain.result.mapResult
-import io.droidevs.counterapp.domain.result.onFailure
-import io.droidevs.counterapp.domain.result.onSuccess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,7 +42,7 @@ import javax.inject.Inject
 class CreateCounterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
-    private val categoryUseCases: CategoryUseCases,
+    categoryUseCases: CategoryUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val dateFormatter: DateFormatter
 ) : ViewModel() {
@@ -62,27 +64,47 @@ class CreateCounterViewModel @Inject constructor(
     private val _event = MutableSharedFlow<CreateCounterEvent>(extraBufferCapacity = 1)
     val event: SharedFlow<CreateCounterEvent> = _event.asSharedFlow()
 
+    private data class CategoriesState(
+        val categories: List<io.droidevs.counterapp.ui.models.CategoryUiModel> = emptyList(),
+        val isError: Boolean = false
+    )
+
     private val _categoriesFlow = categoryUseCases.getAllCategories()
         .mapResult { categories -> categories.map { it.toUiModel(dateFormatter) } }
-        .map { result -> result.getOrNull() ?: emptyList() }
-        .onStart { emit(emptyList()) }
+        .onFailure {
+            uiMessageDispatcher.dispatch(
+                UiMessage.Toast(message = Message.Resource(R.string.failed_to_load_categories))
+            )
+        }
+        .mapResult { categories ->
+            CategoriesState(categories = categories, isError = false)
+        }
+        .recoverWith {
+            Result.Success(CategoriesState(categories = emptyList(), isError = true))
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(CategoriesState()) }
 
     val uiState: StateFlow<CreateCounterUiState> = combine(
         _editModel,
         _categoriesFlow
-    ) { editModel: EditModel, categories: List<io.droidevs.counterapp.ui.models.CategoryUiModel> ->
+    ) { editModel: EditModel, categoriesState: CategoriesState ->
         Triple(editModel.name, editModel.canIncrease, editModel.canDecrease).toCreateCounterUiState(
             categoryId = editModel.selectedCategoryId,
-            categories = categories,
+            categories = categoriesState.categories,
             isSaving = editModel.isSaving,
             initialValue = editModel.initialValue,
-            isInitialValueInputVisible = !editModel.canIncrease && editModel.canDecrease
+            isInitialValueInputVisible = !editModel.canIncrease && editModel.canDecrease,
+            isLoading = false,
+            isError = categoriesState.isError
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = CreateCounterUiState(
-            categoryId = initialCategoryId
+            categoryId = initialCategoryId,
+            isLoading = true,
+            isError = false
         )
     )
 
@@ -90,12 +112,16 @@ class CreateCounterViewModel @Inject constructor(
         when (action) {
             is CreateCounterAction.NameChanged -> _editModel.update { it.copy(name = action.name) }
             is CreateCounterAction.CanIncreaseChanged -> {
-                val newState = _editModel.value.copy(canIncrease = action.canIncrease)
-                if (!newState.canIncrease) newState.copy(canDecrease = true) else newState
-                _editModel.update { if (!action.canIncrease) it.copy(canIncrease = false, canDecrease = true) else it.copy(canIncrease = true) }
+                _editModel.update {
+                    if (!action.canIncrease) it.copy(canIncrease = false, canDecrease = true)
+                    else it.copy(canIncrease = true)
+                }
             }
             is CreateCounterAction.CanDecreaseChanged -> {
-                _editModel.update { if (!action.canDecrease) it.copy(canDecrease = false, canIncrease = true) else it.copy(canDecrease = true) }
+                _editModel.update {
+                    if (!action.canDecrease) it.copy(canDecrease = false, canIncrease = true)
+                    else it.copy(canDecrease = true)
+                }
             }
             is CreateCounterAction.CategorySelected -> _editModel.update { it.copy(selectedCategoryId = action.categoryId) }
             is CreateCounterAction.InitialValueChanged -> _editModel.update { it.copy(initialValue = action.value) }
@@ -118,7 +144,7 @@ class CreateCounterViewModel @Inject constructor(
             return
         }
 
-        val initialValue = currentModel.initialValue ?: 0
+        val initialValue = currentModel.initialValue
 
         if (!currentModel.canIncrease && currentModel.canDecrease && initialValue <= 0) {
             viewModelScope.launch {
@@ -157,7 +183,7 @@ class CreateCounterViewModel @Inject constructor(
                     )
                     _event.tryEmit(CreateCounterEvent.NavigateBack)
                 }
-                .onFailure { _: io.droidevs.counterapp.domain.result.RootError ->
+                .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
                             message = Message.Resource(R.string.failed_to_create_counter)

@@ -13,16 +13,19 @@ class HomeViewModelFactory(
     private val counterUseCases: CounterUseCases,
     private val categoryUseCases: CategoryUseCases,
     private val dateFormatter: DateFormatter,
+    private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
             return HomeViewModel(
                 counterUseCases = counterUseCases,
                 categoryUseCases = categoryUseCases,
-                dateFormatter = dateFormatter
+                dateFormatter = dateFormatter,
+                uiMessageDispatcher = uiMessageDispatcher
             ) as T
         }
-         throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

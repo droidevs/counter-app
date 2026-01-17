@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -11,7 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentHistoryBinding
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.HistoryAdapter
 import io.droidevs.counterapp.ui.vm.HistoryViewModel
 import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
@@ -55,11 +58,47 @@ class HistoryFragment : Fragment() {
         }
     }
 
+    private fun showLoading() {
+        binding.stateContainer.removeAllViews()
+        LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun showError() {
+        binding.stateContainer.removeAllViews()
+        ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun hideState() {
+        binding.stateContainer.removeAllViews()
+        binding.stateContainer.isVisible = false
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    historyAdapter.submitList(state.history)
+                    when {
+                        state.isLoading -> {
+                            showLoading()
+                            binding.recyclerViewHistory.isVisible = false
+                            binding.buttonClearHistory.isVisible = false
+                        }
+
+                        state.isError -> {
+                            showError()
+                            binding.recyclerViewHistory.isVisible = false
+                            binding.buttonClearHistory.isVisible = false
+                        }
+
+                        else -> {
+                            hideState()
+                            binding.recyclerViewHistory.isVisible = true
+                            binding.buttonClearHistory.isVisible = true
+                            historyAdapter.submitList(state.history)
+                        }
+                    }
                 }
             }
         }

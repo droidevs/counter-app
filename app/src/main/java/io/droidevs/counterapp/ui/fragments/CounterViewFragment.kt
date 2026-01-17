@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,7 +18,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentCounterViewBinding
+import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
@@ -29,7 +32,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
-    lateinit var binding : FragmentCounterViewBinding
+    lateinit var binding: FragmentCounterViewBinding
     private val viewModel: CounterViewViewModel by viewModels()
 
     @Inject
@@ -62,20 +65,54 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
         observeViewModel()
     }
 
+    private fun showLoading() {
+        binding.stateContainer.removeAllViews()
+        LoadingStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun showError() {
+        binding.stateContainer.removeAllViews()
+        ErrorStateLayoutBinding.inflate(layoutInflater, binding.stateContainer, true)
+        binding.stateContainer.isVisible = true
+    }
+
+    private fun hideState() {
+        binding.stateContainer.removeAllViews()
+        binding.stateContainer.isVisible = false
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
-                        state.counter?.let { c ->
-                            (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
-                            binding.tvCounterName.text = c.name
-                            updateCount(binding.tvCurrentCount, c.currentCount)
-                            binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdTime.toString())
-                            binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.editedTime.toString())
+                        when {
+                            state.isLoading -> {
+                                showLoading()
+                                binding.content.isVisible = false
+                            }
 
-                            binding.ivIncrement.isEnabled = c.canIncrease
-                            binding.ivDecrement.isEnabled = c.canDecrease
+                            state.isError -> {
+                                showError()
+                                binding.content.isVisible = false
+                            }
+
+                            else -> {
+                                hideState()
+                                binding.content.isVisible = true
+
+                                state.counter?.let { c ->
+                                    (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
+                                    binding.tvCounterName.text = c.name
+                                    updateCount(binding.tvCurrentCount, c.currentCount)
+                                    binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdTime.toString())
+                                    binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.editedTime.toString())
+
+                                    binding.ivIncrement.isEnabled = c.canIncrease
+                                    binding.ivDecrement.isEnabled = c.canDecrease
+                                }
+                            }
                         }
                     }
                 }
@@ -117,7 +154,7 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+        return when (item.itemId) {
             R.id.menu_edit -> {
                 viewModel.onAction(CounterViewAction.EditCounterClicked)
                 true

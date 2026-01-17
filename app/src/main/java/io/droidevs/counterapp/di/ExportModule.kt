@@ -11,7 +11,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.droidevs.counterapp.BuildConfig
 import io.droidevs.counterapp.data.service.FileExportServiceImpl
 import io.droidevs.counterapp.data.service.FileImportServiceImpl
 import io.droidevs.counterapp.domain.services.FileExportService
@@ -29,11 +28,7 @@ object ExportModule {
         @ApplicationContext context: Context,
         gson: Gson
     ): FileExportService {
-        return if (BuildConfig.DEBUG) {
-            TODO()
-        } else {
-            FileExportServiceImpl(context, gson)
-        }
+        return FileExportServiceImpl(context, gson)
     }
 
     @Provides

@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.getOrNull
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.usecases.preference.HardwarePreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -26,7 +27,7 @@ class HardwarePreferencesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<HardwarePreferenceEvent>(extraBufferCapacity = 1)
-    val event: SharedFlow<HardwarePreferenceEvent> = _event.asSharedFlow()
+    val event = _event.asSharedFlow()
 
     val uiState: StateFlow<HardwarePreferenceUiState> = combine(
         useCases.getHardwareButtonControl(),
@@ -34,31 +35,43 @@ class HardwarePreferencesViewModel @Inject constructor(
         useCases.getVibrationOn(),
         useCases.getLabelControl()
     ) { hardwareButtonControlResult, soundsOnResult, vibrationOnResult, showLabelsResult ->
-        val hardwareButtonControl = hardwareButtonControlResult.getOrNull() ?: false
-        val soundsOn = soundsOnResult.getOrNull() ?: false
-        val vibrationOn = vibrationOnResult.getOrNull() ?: false
-        val showLabels = showLabelsResult.getOrNull() ?: false
 
-        val hasError = listOf(
-            hardwareButtonControlResult,
-            soundsOnResult,
-            vibrationOnResult,
-            showLabelsResult
-        ).any { it is Result.Failure }
-
-        HardwarePreferenceUiState(
-            hardwareButtonControl = hardwareButtonControl,
-            soundsOn = soundsOn,
-            vibrationOn = vibrationOn,
-            showLabels = showLabels,
-            error = hasError,
-            isLoading = false
+        when {
+            hardwareButtonControlResult is Result.Failure -> Result.Failure(hardwareButtonControlResult.error)
+            soundsOnResult is Result.Failure -> Result.Failure(soundsOnResult.error)
+            vibrationOnResult is Result.Failure -> Result.Failure(vibrationOnResult.error)
+            showLabelsResult is Result.Failure -> Result.Failure(showLabelsResult.error)
+            else -> Result.Success(
+                HardwarePreferenceUiState(
+                    hardwareButtonControl = hardwareButtonControlResult.dataOr { false },
+                    soundsOn = soundsOnResult.dataOr { false },
+                    vibrationOn = vibrationOnResult.dataOr { false },
+                    showLabels = showLabelsResult.dataOr { false },
+                    error = false,
+                    isLoading = false
+                )
+            )
+        }
+    }
+        .recoverWith {
+            Result.Success(
+                HardwarePreferenceUiState(
+                    hardwareButtonControl = false,
+                    soundsOn = false,
+                    vibrationOn = false,
+                    showLabels = false,
+                    error = true,
+                    isLoading = false
+                )
+            )
+        }
+        .map { (it as Result.Success).data }
+        .onStart { emit(HardwarePreferenceUiState(isLoading = true)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = HardwarePreferenceUiState(isLoading = true)
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = HardwarePreferenceUiState(isLoading = true)
-    )
 
     fun onAction(action: HardwarePreferenceAction) {
         when (action) {

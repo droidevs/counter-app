@@ -30,7 +30,8 @@ class FakeCounterRepository(
                         .sortedByDescending { it.orderAnchorAt }
                         .take(limit)
                 )
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
@@ -39,19 +40,19 @@ class FakeCounterRepository(
         return countersFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { !it.isSystem }.size)
-                is Result.Error -> result
+                is Result.Failure -> result
             }
         }
     }
 
     override suspend fun saveCounter(counter: Counter): Result<Unit, DatabaseError> {
         val index = dummyData.counters.indexOfFirst { it.id == counter.id }
-        if (index != -1) {
+        return if (index != -1) {
             dummyData.counters[index] = counter.toEntity()
             dummyData.emitCounterUpdate()
-            return Result.Success(Unit)
+            Result.Success(Unit)
         } else {
-            return Result.Error(DatabaseError.NotFound("Counter not found"))
+            Result.Failure(DatabaseError.NotFound)
         }
     }
 
@@ -92,17 +93,18 @@ class FakeCounterRepository(
                     val countersWithCategories = result.data.filter { !it.isSystem }
                         .sortedByDescending { it.orderAnchorAt }
                         .map { counter ->
-                            val category = dummyData.categories.find { category ->
+                            val categoryEntity = dummyData.categories.find { category ->
                                 category.id == counter.categoryId
                             }
                             CounterWithCategory(
                                 counter = counter,
-                                category = category?.toDomain()
+                                category = categoryEntity?.toDomain()
                             )
                         }
                     Result.Success(countersWithCategories)
                 }
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
@@ -117,15 +119,16 @@ class FakeCounterRepository(
                     val categoriesMap = dummyData.categories.filter { !it.isSystem }
                         .associateBy { it.id }
                     val countersWithCategories = counters.map { counter ->
-                        val category = categoriesMap[counter.categoryId]
+                        val categoryEntity = categoriesMap[counter.categoryId]
                         CounterWithCategory(
                             counter = counter,
-                            category = category?.toDomain()
+                            category = categoryEntity?.toDomain()
                         )
                     }
                     Result.Success(countersWithCategories)
                 }
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
@@ -134,7 +137,7 @@ class FakeCounterRepository(
         return countersFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { it.isSystem })
-                is Result.Error -> result
+                is Result.Failure -> result
             }
         }
     }
@@ -179,10 +182,11 @@ class FakeCounterRepository(
                     if (counter != null) {
                         Result.Success(counter)
                     } else {
-                        Result.Error(DatabaseError.NotFound("Counter not found"))
+                        Result.Failure(DatabaseError.NotFound)
                     }
                 }
-                is Result.Error -> result
+
+                is Result.Failure -> result
             }
         }
     }
