@@ -18,6 +18,9 @@ import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import io.droidevs.counterapp.ui.vm.mappers.toCreateCounterUiState
 import io.droidevs.counterapp.ui.vm.states.CreateCounterUiState
+import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,13 +63,14 @@ class CreateCounterViewModel @Inject constructor(
     val event: SharedFlow<CreateCounterEvent> = _event.asSharedFlow()
 
     private val _categoriesFlow = categoryUseCases.getAllCategories()
-        .map { categories -> categories.map { it.toUiModel(dateFormatter) } }
+        .mapResult { categories -> categories.map { it.toUiModel(dateFormatter) } }
+        .map { result -> result.getOrNull() ?: emptyList() }
         .onStart { emit(emptyList()) }
 
     val uiState: StateFlow<CreateCounterUiState> = combine(
         _editModel,
         _categoriesFlow
-    ) { editModel, categories ->
+    ) { editModel: EditModel, categories: List<io.droidevs.counterapp.ui.models.CategoryUiModel> ->
         Triple(editModel.name, editModel.canIncrease, editModel.canDecrease).toCreateCounterUiState(
             categoryId = editModel.selectedCategoryId,
             categories = categories,
@@ -142,17 +146,26 @@ class CreateCounterViewModel @Inject constructor(
             )
 
             counterUseCases.createCounter(CreateCounterRequest.of(counter))
-            _editModel.update { it.copy(isSaving = false) }
-
-            uiMessageDispatcher.dispatch(
-                UiMessage.Toast(
-                    message = Message.Resource(
-                        R.string.counter_created,
-                        arrayOf(name)
+                .onSuccess { _: Unit ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(
+                                R.string.counter_created,
+                                arrayOf(name)
+                            )
+                        )
                     )
-                )
-            )
-            _event.tryEmit(CreateCounterEvent.NavigateBack)
+                    _event.tryEmit(CreateCounterEvent.NavigateBack)
+                }
+                .onFailure { _: io.droidevs.counterapp.domain.result.RootError ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(
+                            message = Message.Resource(R.string.failed_to_create_counter)
+                        )
+                    )
+                }
+
+            _editModel.update { it.copy(isSaving = false) }
         }
     }
 }

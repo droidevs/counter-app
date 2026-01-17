@@ -5,10 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.domain.services.ImportResult
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.usecases.importing.ImportUseCases
 import io.droidevs.counterapp.ui.message.Message
-import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ImportAction
@@ -43,21 +44,22 @@ class ImportViewModel @Inject constructor(
 
     private fun import(fileUri: Uri) {
         viewModelScope.launch {
-            when (val result = importUseCases.import(fileUri)) {
-                is ImportResult.Success -> {
+            val result: Result<Unit, *> = importUseCases.import(fileUri)
+            result
+                .onSuccess {
                     uiMessageDispatcher.dispatch(
                         Toast(
                             message = Message.Resource(R.string.counters_imported_successfully)
                         )
                     )
-
-
                 }
-                is ImportResult.Error -> {
-                    uiMessageDispatcher.dispatch(Toast(message = Message.Text(result.message)))
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        Toast(
+                            message = Message.Resource(R.string.failed_to_import_counters)
+                        )
+                    )
                 }
-                ImportResult.Cancelled -> Unit
-            }
         }
     }
 }

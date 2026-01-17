@@ -59,7 +59,7 @@ fun <D, E : RootError, R> Flow<Result<D, E>>.flatMapSuspended(
 // Error recovery
 fun <D, E : RootError> Result<D, E>.recover(
     transform: (E) -> D
-): Result<D, Nothing> =
+): Result<D, E> =
     fold(
         onSuccess = { Result.Success(it) },
         onFailure = { Result.Success(transform(it)) }

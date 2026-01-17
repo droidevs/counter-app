@@ -3,9 +3,13 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.services.ExportFormat
-import io.droidevs.counterapp.domain.services.ExportResult
+import io.droidevs.counterapp.domain.services.ExportSuccessResult
 import io.droidevs.counterapp.domain.usecases.export.ExportUseCases
+import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ExportAction
@@ -41,11 +45,19 @@ class ExportViewModel @Inject constructor(
 
     private fun export(format: ExportFormat) {
         viewModelScope.launch {
-            when (val result = exportUseCases.export(format)) {
-                is ExportResult.Success -> _event.tryEmit(ExportEvent.ShareExportFile(result.fileUri))
-                is ExportResult.Error -> uiMessageDispatcher.dispatch(UiMessage.Snackbar(text = result.message))
-                ExportResult.Cancelled -> Unit
-            }
+            val result: Result<ExportSuccessResult, *> = exportUseCases.export(format)
+            result
+                .onSuccess { success ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = io.droidevs.counterapp.R.string.export_success))
+                    )
+                    _event.tryEmit(ExportEvent.ShareExportFile(success.fileUri))
+                }
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = io.droidevs.counterapp.R.string.export_failed))
+                    )
+                }
         }
     }
 }

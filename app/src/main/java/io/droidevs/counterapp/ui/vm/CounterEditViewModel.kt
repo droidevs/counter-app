@@ -17,6 +17,9 @@ import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import io.droidevs.counterapp.ui.vm.mappers.toEditUiState
 import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
+import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -51,9 +54,19 @@ class CounterEditViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            counterUseCases.getCounter(counterId).collect { domainCounter ->
-                _editableCounter.value = domainCounter?.toUiModel(dateFormatter)
-            }
+            counterUseCases.getCounter(counterId)
+                .mapResult { domainCounter -> domainCounter.toUiModel(dateFormatter) }
+                .onFailure { error ->
+                    when (error) {
+                        is io.droidevs.counterapp.domain.result.errors.DatabaseError.NotFound ->
+                            uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.counter_not_found)))
+                        is io.droidevs.counterapp.domain.result.errors.DatabaseError.QueryFailed ->
+                            uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_load_counter)))
+                        else -> uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_load_counter)))
+                    }
+                }
+                .map { result -> result.getOrNull() }
+                .collect { uiModel -> _editableCounter.value = uiModel }
         }
     }
 
@@ -108,13 +121,17 @@ class CounterEditViewModel @Inject constructor(
                     orderAnchorAt = Instant.now()
                 )
                 counterUseCases.updateCounter(request)
+                    .onSuccess {
+                        uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.counter_saved)))
+                        _event.tryEmit(CounterEditEvent.NavigateBack)
+                    }
+                    .onFailure { _ ->
+                        // For analytics you may handle specifics internally, but user-facing message is unified
+                        uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(R.string.failed_to_save_counter))
+                        )
+                    }
                 _isSaving.value = false
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(
-                        message = Message.Resource(R.string.counter_saved)
-                    )
-                )
-                _event.emit(CounterEditEvent.NavigateBack)
             }
         }
     }

@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.result.mapResult
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.history.HistoryUseCases
 import io.droidevs.counterapp.ui.date.DateFormatter
@@ -49,10 +52,18 @@ class HistoryViewModel @Inject constructor(
 
     private fun getHistory() {
         historyUseCases.getHistoryUseCase()
+            .mapResult { list -> list.map { it.toUiModel(dateFormatter) } }
+            .onFailure { _ ->
+                uiMessageDispatcher.dispatch(
+                    Toast(
+                        message = Message.Resource(R.string.failed_to_load_history)
+                    )
+                )
+            }
             .onEach { result ->
                 _uiState.update { state ->
                     state.copy(
-                        history = result.map { it.toUiModel(dateFormatter) },
+                        history = result.getOrNull() ?: emptyList(),
                         isLoading = false
                     )
                 }
@@ -63,12 +74,20 @@ class HistoryViewModel @Inject constructor(
     private fun clearHistory() {
         viewModelScope.launch {
             historyUseCases.clearHistoryUseCase()
-            uiMessageDispatcher.dispatch(
-                Toast(
-                    message = Message.Resource(R.string.history_cleared)
-                )
-            )
-
+                .onSuccess {
+                    uiMessageDispatcher.dispatch(
+                        Toast(
+                            message = Message.Resource(R.string.history_cleared)
+                        )
+                    )
+                }
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        Toast(
+                            message = Message.Resource(R.string.failed_to_clear_history)
+                        )
+                    )
+                }
         }
     }
 }

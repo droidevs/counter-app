@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.model.Counter
+import io.droidevs.counterapp.domain.result.map
+import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
@@ -16,6 +19,9 @@ import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.ui.message.Message
+import io.droidevs.counterapp.ui.message.UiMessage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,9 +40,10 @@ class CountersListViewModel @Inject constructor(
     private val pendingReorderCounters = mutableMapOf<String, Counter>()
 
     val uiState: StateFlow<CounterListUiState> = counterUseCases.getCountersWithCategories()
-        .map { counters ->
+        .mapResult { counters ->
             counters.map { it.toUiModel(dateFormatter) }
         }
+        .map { result -> result.getOrNull() ?: emptyList() }
         .onStart { emit(emptyList()) } // Emit empty list initially for the mapper
         .map { counters -> counters.toUiState(isLoading = false) }
         .onStart { emit(CounterListUiState(isLoading = true)) } // Initial loading state
@@ -70,6 +77,11 @@ class CountersListViewModel @Inject constructor(
         c.increment()
         viewModelScope.launch {
             counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = c.id, newCount = c.currentCount))
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                    )
+                }
         }
         pendingReorderCounters[c.id] = c
         Log.i("CountersListViewModel", "increment: ${pendingReorderCounters.size}")
@@ -80,6 +92,11 @@ class CountersListViewModel @Inject constructor(
         c.decrement()
         viewModelScope.launch {
             counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = c.id, newCount = c.currentCount))
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                    )
+                }
         }
         pendingReorderCounters[c.id] = c
     }
@@ -108,7 +125,11 @@ class CountersListViewModel @Inject constructor(
                     counterId = counter.id,
                     newCount = counter.currentCount
                 )
-            )
+            ).onFailure { _ ->
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                )
+            }
         }
     }
 

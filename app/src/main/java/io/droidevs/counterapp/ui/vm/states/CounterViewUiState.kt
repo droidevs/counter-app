@@ -4,5 +4,6 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 
 data class CounterViewUiState(
     val counter: CounterUiModel? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

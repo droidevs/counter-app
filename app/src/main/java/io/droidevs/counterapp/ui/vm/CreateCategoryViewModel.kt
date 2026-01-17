@@ -13,6 +13,8 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
 import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
 import io.droidevs.counterapp.ui.vm.states.CreateCategoryUiState
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -78,9 +80,16 @@ class CreateCategoryViewModel @Inject constructor(
         viewModelScope.launch {
             _isSaving.value = true
             categoryUseCases.createCategory(CreateCategoryRequest.of(name = name, color = _selectedColor.value))
+                .onSuccess {
+                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.category_created_message, args = arrayOf(name))))
+                    _event.tryEmit(CreateCategoryEvent.NavigateBack)
+                }
+                .onFailure { _ ->
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_create_category))
+                    )
+                }
             _isSaving.value = false
-            uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.category_created_message, args = arrayOf(name))))
-            _event.emit(CreateCategoryEvent.NavigateBack)
         }
     }
 }

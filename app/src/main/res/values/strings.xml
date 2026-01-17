@@ -216,5 +216,23 @@
     <string name="failed_to_update_daily_summary_notification">Failed to update daily summary notification</string>
     <string name="failed_to_update_notification_sound">Failed to update notification sound</string>
     <string name="failed_to_update_notification_vibration_pattern">Failed to update notification vibration pattern</string>
+    <string name="failed_to_update_counter">Failed to update counter</string>
     <string name="error_generic">An unexpected error occurred.</string>
+    <string name="export_success">Export completed successfully</string>
+    <string name="export_failed">Failed to export counters</string>
+    <string name="failed_to_import_counters">Failed to import counters</string>
+    <string name="counter_not_found">Counter not found</string>
+    <string name="failed_to_load_counter">Failed to load counter</string>
+    <string name="failed_to_load_categories">Failed to load categories</string>
+
+    <string name="failed_to_save_counter">Failed to save counter</string>
+    <string name="failed_to_save_counter_constraint">Failed to save counter due to constraint</string>
+    <string name="failed_to_save_counter_locked">Failed to save counter: database is locked</string>
+    <string name="failed_to_save_counter_timeout">Failed to save counter due to timeout</string>
+    <string name="failed_to_create_counter">Failed to create counter</string>
+    <string name="failed_to_load_category">Failed to load category</string>
+    <string name="failed_to_delete_category">Failed to delete category</string>
+    <string name="failed_to_create_category">Failed to create category</string>
+    <string name="failed_to_load_history">Failed to load history</string>
+    <string name="failed_to_clear_history">Failed to clear history</string>
 </resources>
