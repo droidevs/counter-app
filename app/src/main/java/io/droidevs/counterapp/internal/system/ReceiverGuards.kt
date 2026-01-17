@@ -1,10 +1,12 @@
 package io.droidevs.counterapp.internal.system
 
 import android.Manifest
+import android.app.role.RoleManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Build
+import android.provider.Telephony
 import androidx.core.content.ContextCompat
 
 /**
@@ -57,13 +59,48 @@ internal object ReceiverGuards {
     }
 
     /**
+     * True if this app is the current default dialer.
+     *
+     * On modern Android versions, outgoing call broadcast visibility is heavily restricted to the default dialer.
+     */
+    fun isDefaultDialer(context: Context): Boolean {
+        val appContext = context.applicationContext
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = appContext.getSystemService(RoleManager::class.java)
+            roleManager?.isRoleHeld(RoleManager.ROLE_DIALER) == true
+        } else {
+            // Best-effort fallback for older devices.
+            try {
+                val telecom = appContext.getSystemService(Context.TELECOM_SERVICE) as? android.telecom.TelecomManager
+                telecom?.defaultDialerPackage == appContext.packageName
+            } catch (_: Throwable) {
+                false
+            }
+        }
+    }
+
+    /**
+     * True if this app is the current default SMS app.
+     *
+     * Even with RECEIVE_SMS, some capabilities are restricted unless you are the default SMS app.
+     */
+    fun isDefaultSmsApp(context: Context): Boolean {
+        val appContext = context.applicationContext
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = appContext.getSystemService(RoleManager::class.java)
+            roleManager?.isRoleHeld(RoleManager.ROLE_SMS) == true
+        } else {
+            @Suppress("DEPRECATION")
+            Telephony.Sms.getDefaultSmsPackage(appContext) == appContext.packageName
+        }
+    }
+
+    /**
      * Outgoing call broadcast has been restricted/deprecated for years.
      * Keep receiver defensive so it doesn't count "impossible" events.
      */
-    fun outgoingCallBroadcastSupported(): Boolean {
-        // Very conservative: still allow on older devices.
-        // On modern Android, this is often blocked unless you are default dialer.
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+    fun outgoingCallBroadcastSupported(context: Context): Boolean {
+        // Modern reality: treat it as supported only for the default dialer.
+        return isDefaultDialer(context)
     }
 }
-

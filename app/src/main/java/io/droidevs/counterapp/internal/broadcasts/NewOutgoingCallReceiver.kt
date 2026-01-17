@@ -12,8 +12,9 @@ import io.droidevs.counterapp.internal.system.SystemCounterWork
 class NewOutgoingCallReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        @Suppress("DEPRECATION")
         if (intent.action != Intent.ACTION_NEW_OUTGOING_CALL) return
-        if (!ReceiverGuards.outgoingCallBroadcastSupported()) return
+        if (!ReceiverGuards.outgoingCallBroadcastSupported(context)) return
 
         SystemCounterWork.enqueueIncrement(
             context = context,
