@@ -1,28 +1,28 @@
 package io.droidevs.counterapp
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.preference.PreferenceManager
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import io.droidevs.counterapp.data.AppDatabase
 import io.droidevs.counterapp.domain.coroutines.ApplicationCoroutineScope
 import io.droidevs.counterapp.internal.scheduleSystemCounterSync
-import kotlinx.coroutines.DelicateCoroutinesApi
-import io.droidevs.counterapp.domain.usecases.category.*
-import io.droidevs.counterapp.domain.usecases.counters.*
 import javax.inject.Inject
 
-
 @HiltAndroidApp
-class CounterApp : Application() {
+class CounterApp : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
     lateinit var appScopeHolder: ApplicationCoroutineScope
 
-    @OptIn(DelicateCoroutinesApi::class)
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
     override fun onCreate() {
         super.onCreate()
 
@@ -31,9 +31,5 @@ class CounterApp : Application() {
             .addObserver(appScopeHolder)
 
         scheduleSystemCounterSync(this)
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
     }
 }

@@ -67,6 +67,10 @@ class MainActivity : AppCompatActivity(), TabHost {
 
     private lateinit var tabsController: MultiNavHostController
 
+    private var isProgrammaticTabSelection = false
+
+    private var destinationListener: NavController.OnDestinationChangedListener? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +129,11 @@ class MainActivity : AppCompatActivity(), TabHost {
         // Create + show the initial tab host.
         navController = tabsController.setup(initialTab)
 
+        destinationListener = NavController.OnDestinationChangedListener { _, _, _ ->
+            updateToolbarNavIcon()
+        }
+        navController.addOnDestinationChangedListener(destinationListener!!)
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.homeFragment,
@@ -139,22 +148,28 @@ class MainActivity : AppCompatActivity(), TabHost {
 
         // Hook bottom nav + rail to tab switching (NOT to a single NavController).
         fun selectTab(menuId: Int): Boolean {
+            if (isProgrammaticTabSelection) return true
             val tab = Tab.fromMenuId(menuId) ?: return false
-            navController = tabsController.switchTo(tab)
 
-            if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
-            if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+            // Switch active tab host.
+            val newController = tabsController.switchTo(tab)
 
-            setupActionBarWithNavController(navController, appBarConfiguration)
+            // Move listener from old controller to new.
+            destinationListener?.let { navController.removeOnDestinationChangedListener(it) }
+            navController = newController
+            destinationListener?.let { navController.addOnDestinationChangedListener(it) }
 
-            // Update toolbar immediately after switching tabs.
-            updateToolbarNavIcon()
-
-            // Ensure destination listener is attached to the active controller only.
-            navController.addOnDestinationChangedListener { _, _, _ ->
-                updateToolbarNavIcon()
+            // Update UI selection without re-triggering listeners.
+            isProgrammaticTabSelection = true
+            try {
+                if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
+                if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+            } finally {
+                isProgrammaticTabSelection = false
             }
 
+            setupActionBarWithNavController(navController, appBarConfiguration)
+            updateToolbarNavIcon()
             return true
         }
 
@@ -185,6 +200,15 @@ class MainActivity : AppCompatActivity(), TabHost {
 
         updateToolbarNavIcon()
         updateNavigationForSize()
+
+        // Ensure the initial tab selection matches UI without triggering recursion.
+        isProgrammaticTabSelection = true
+        try {
+            bottomNav.selectedItemId = initialTab.menuId
+            navRail.selectedItemId = initialTab.menuId
+        } finally {
+            isProgrammaticTabSelection = false
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -393,9 +417,19 @@ class MainActivity : AppCompatActivity(), TabHost {
     }
 
     override fun switchToTab(tab: Tab) {
-        navController = tabsController.switchTo(tab)
-        if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
-        if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+        val newController = tabsController.switchTo(tab)
+        destinationListener?.let { navController.removeOnDestinationChangedListener(it) }
+        navController = newController
+        destinationListener?.let { navController.addOnDestinationChangedListener(it) }
+
+        isProgrammaticTabSelection = true
+        try {
+            if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
+            if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+        } finally {
+            isProgrammaticTabSelection = false
+        }
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         updateToolbarNavIcon()
     }

@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.window)
     implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.hilt.work.alias)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
