@@ -2,12 +2,11 @@ package io.droidevs.counterapp.trackers
 
 import io.droidevs.counterapp.domain.trackers.MediaStorageTracker
 
+@Deprecated("Replaced by PhotosTakenTracker/VideosTakenTracker; kept for compatibility.")
 class FakeMediaStorageTracker : MediaStorageTracker {
-    override fun getPhotosCount(): Int {
-        return 200
-    }
+    private val photos = FakePhotosTakenTracker()
+    private val videos = FakeVideosTakenTracker()
 
-    override fun getVideosCount(): Int {
-        return 50
-    }
+    override fun getPhotosCount(): Int = photos.track()
+    override fun getVideosCount(): Int = videos.track()
 }

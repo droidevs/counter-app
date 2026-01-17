@@ -2,8 +2,8 @@ package io.droidevs.counterapp.trackers
 
 import io.droidevs.counterapp.domain.trackers.NetworkConnectivityTracker
 
+@Deprecated("Replaced by MobileDataUsageTracker; kept for compatibility.")
 class FakeNetworkConnectivityTracker : NetworkConnectivityTracker {
-    override fun getMobileDataUsage(): Int {
-        return 1024
-    }
+    private val mobile = FakeMobileDataUsageTracker()
+    override fun getMobileDataUsage(): Int = mobile.track()
 }

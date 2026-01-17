@@ -2,8 +2,8 @@ package io.droidevs.counterapp.trackers
 
 import io.droidevs.counterapp.domain.trackers.DeviceUsageTracker
 
+@Deprecated("Replaced by ScreenTimeMinutesTracker; kept for compatibility.")
 class FakeDeviceUsageTracker : DeviceUsageTracker {
-    override fun getScreenTime(): Int {
-        return 7200
-    }
+    private val screenTime = FakeScreenTimeMinutesTracker()
+    override fun getScreenTime(): Int = screenTime.track()
 }

@@ -11,9 +11,9 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.system.SystemCounterManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
@@ -22,10 +22,11 @@ class SystemCounterSyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val systemCounterManager: SystemCounterManager,
-    private val repository: CounterRepository
+    private val repository: CounterRepository,
+    private val dispatchers: DispatcherProvider
 ) : CoroutineWorker(context, params) {
 
-    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+    override suspend fun doWork(): Result = withContext(dispatchers.io) {
         try {
             val counters = systemCounterManager.fetchSystemCounters()
 
