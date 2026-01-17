@@ -8,12 +8,15 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.domain.system.SystemCounterType
+import io.droidevs.counterapp.internal.system.ReceiverGuards
 import io.droidevs.counterapp.internal.system.SystemCounterWork
 
 @AndroidEntryPoint
 class ConnectivityReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (!ReceiverGuards.canCheckNetwork(context)) return
+
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
 
         val isWifi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

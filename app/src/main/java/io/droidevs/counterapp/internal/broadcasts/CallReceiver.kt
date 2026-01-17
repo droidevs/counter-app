@@ -6,12 +6,15 @@ import android.content.Intent
 import android.telephony.TelephonyManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.domain.system.SystemCounterType
+import io.droidevs.counterapp.internal.system.ReceiverGuards
 import io.droidevs.counterapp.internal.system.SystemCounterWork
 
 @AndroidEntryPoint
 class CallReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (!ReceiverGuards.hasReadPhoneState(context)) return
+
         if (intent.action == TelephonyManager.ACTION_PHONE_STATE_CHANGED) {
             val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
             if (state == TelephonyManager.EXTRA_STATE_RINGING) {
