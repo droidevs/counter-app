@@ -4,10 +4,11 @@ import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.errors.RootError
+import io.droidevs.counterapp.domain.result.RootError
 import io.droidevs.counterapp.domain.result.flatMap
-import io.droidevs.counterapp.domain.result.onSuccessWithResult
+import io.droidevs.counterapp.domain.result.flatMapSuspended
 import io.droidevs.counterapp.domain.result.resultSuspend
+import io.droidevs.counterapp.domain.result.resultSuspendFromFlow
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterIncrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
@@ -23,18 +24,19 @@ class IncrementCounterUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider
 ) {
     suspend operator fun invoke(counter: Counter): Result<Unit, RootError> = withContext(dispatchers.io) {
-        resultSuspend { // ResultBuilder<Unit, RootError> scope
-            getCounterIncrementStepUseCase() // Returns Result<Int, PreferenceError>
-                .flatMapSuspended { incrementStep -> // flatMap to change D type from Int to Unit
+        resultSuspendFromFlow { // ResultBuilder<Unit, RootError> scope
+            getCounterIncrementStepUseCase()
+                .combineSuspended { incrementStep ->
                     val oldValue = counter.currentCount
                     val newValue = oldValue + incrementStep
+
                     updateCounterUseCase(
                         UpdateCounterRequest(
                             counterId = counter.id,
                             newCount = newValue,
                             lastUpdatedAt = Instant.now()
                         )
-                    ).flatMapSuspended { // Chaining with onSuccessWithResult for the subsequent operation
+                    ).combineSuspended {
                         addHistoryEventUseCase(
                             HistoryEvent(
                                 counterId = counter.id,

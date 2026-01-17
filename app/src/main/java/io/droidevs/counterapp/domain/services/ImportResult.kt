@@ -1,5 +1,7 @@
 package io.droidevs.counterapp.domain.services
 
+
+@Deprecated("Use Result<T, E> instead")
 sealed class ImportResult<out T> {
     data object Cancelled : ImportResult<Nothing>()
 

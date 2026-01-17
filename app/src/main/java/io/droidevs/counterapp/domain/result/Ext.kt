@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.domain.result
 
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
@@ -25,28 +26,28 @@ fun <D, E : RootError, R> Result<D, E>.flatMap(
         onFailure = { Result.Failure(it) }
     )
 
-suspend fun <D, E : RootError> Result<D, E>.flatMapSuspended(
-    action: suspend (D) -> Result<D, E>
-): Result<D, E> =
+suspend fun <D, E : RootError, R> Result<D, E>.flatMapSuspended(
+    action: suspend (D) -> Result<R, E>
+): Result<R, E> =
     foldSuspend(
         onSuccess = action,
-        onFailure = { this }
+        onFailure = { Result.Failure(it) }
     )
 
-fun <D, E : RootError> Flow<Result<D, E>>.flatMap(
-    action: (D) -> Result<D, E>
-): Flow<Result<D, E>> =
+fun <D, E : RootError, R> Flow<Result<D, E>>.flatMap(
+    action: (D) -> Result<R, E>
+): Flow<Result<R, E>> =
     transform { result ->
         emit(
             result.flatMap(
-                action = action
+                transform  = action
             )
         )
     }
 
-fun <D, E : RootError> Flow<Result<D, E>>.flatMapSuspended(
-    action: suspend (D) -> Result<D, E>
-): Flow<Result<D, E>> =
+fun <D, E : RootError, R> Flow<Result<D, E>>.flatMapSuspended(
+    action: suspend (D) -> Result<R, E>
+): Flow<Result<R, E>> =
     transform { result ->
         emit(
             result.flatMapSuspended(

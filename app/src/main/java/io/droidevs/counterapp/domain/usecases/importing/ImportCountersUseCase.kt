@@ -3,6 +3,9 @@ package io.droidevs.counterapp.domain.usecases.importing
 import android.net.Uri
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.repository.CounterRepository
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.services.FileImportService
 import io.droidevs.counterapp.domain.services.ImportResult
 import io.droidevs.counterapp.domain.services.ImportResult.*
@@ -16,13 +19,12 @@ class ImportCountersUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider
 ) {
     suspend operator fun invoke(fileUri: Uri): ImportResult<Unit> = withContext(dispatchers.io) {
-        when (val result = fileImportService.import(fileUri)) {
-            is Success -> {
-                counterRepository.importCounters(result.data.counters)
-                Success(Unit)
-            }
-            is Error -> result
-            is Cancelled -> result
+        val result = fileImportService.import(fileUri)
+
+        if (result is Result.Success) {
+            counterRepository.importCounters(result.data.counters)
         }
+
+        return@withContext Error("Failed to import")
     }
 }

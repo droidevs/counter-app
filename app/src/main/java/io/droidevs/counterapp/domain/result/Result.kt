@@ -18,7 +18,7 @@ sealed interface Result<out D, out E : RootError> {
         is Failure -> onFailure(error)
     }
 
-    suspend fun <D, E : RootError, R> Result<D, E>.foldSuspend(
+    suspend fun <R> foldSuspend(
         onSuccess: suspend (D) -> R,
         onFailure: suspend (E) -> R
     ): R = when (this) {

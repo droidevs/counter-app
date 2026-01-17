@@ -2,7 +2,9 @@ package io.droidevs.counterapp.domain.result
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retry
 import java.io.IOException
 
@@ -17,6 +19,20 @@ suspend fun <D, E : RootError> resultSuspend(
 ): Result<D, E> {
     return ResultBuilder<D, E>().block()
 }
+
+suspend fun <D, E : RootError> resultSuspendFromFlow(
+    @ResultBuild block: suspend ResultBuilder<D, E>.() -> Flow<Result<D, E>>
+): Result<D, E> {
+    return ResultBuilder<D, E>().block().first()
+}
+
+
+fun <D, E : RootError> resultFlow(
+    @ResultBuild block: ResultBuilder<D, E>.() -> Flow<Result<D, E>>
+): Flow<Result<D, E>> {
+    return ResultBuilder<D, E>().block()
+}
+
 
 
 suspend fun <D , E : RootError> runCatchingResult(
