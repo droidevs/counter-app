@@ -97,10 +97,13 @@ internal object ReceiverGuards {
 
     /**
      * Outgoing call broadcast has been restricted/deprecated for years.
-     * Keep receiver defensive so it doesn't count "impossible" events.
+     *
+     * We do NOT require being the default dialer, because you explicitly want the counter to work
+     * for normal users when the system still delivers the broadcast.
      */
-    fun outgoingCallBroadcastSupported(context: Context): Boolean {
-        // Modern reality: treat it as supported only for the default dialer.
-        return isDefaultDialer(context)
+    fun outgoingCallBroadcastSupported(): Boolean {
+        // Very conservative: allow only on older devices where this broadcast historically works.
+        // On newer Android versions, if the broadcast is not delivered, the receiver simply won't run.
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
     }
 }

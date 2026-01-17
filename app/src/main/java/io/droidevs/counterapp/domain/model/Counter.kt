@@ -15,6 +15,7 @@ class Counter(
 
     var categoryId: String? = null,
     var isSystem: Boolean = false,
+    var systemKey: String? = null,
 
     val createdAt: Instant = Instant.now(),
     var lastUpdatedAt: Instant? = null,
@@ -53,4 +54,3 @@ class Counter(
     }
 
 }
-

@@ -342,5 +342,56 @@
     <string name="increase">Increase</string>
     <string name="decrease">Decrease</string>
 
+    <!-- ========================================================= -->
+    <!-- System counters: availability hints + dialogs               -->
+    <!-- ========================================================= -->
+    <string name="system_counter_hint_sms">SMS tracking</string>
+    <string name="system_counter_hint_calls">Outgoing calls</string>
+
+    <string name="system_counter_working_title">System counter is working</string>
+    <string name="system_counter_not_working_title">System counter may not work</string>
+
+    <string name="system_counter_working_message">This counter should update normally on this device.</string>
+
+    <string name="system_counter_requires_receive_sms">SMS tracking requires the SMS permission. Enable "Receive SMS" permission for the app.</string>
+    <string name="system_counter_sms_working_message">SMS tracking is enabled. Incoming SMS events should update this counter.</string>
+
+    <string name="system_counter_outgoing_call_restricted">Outgoing-call tracking is restricted on this Android version. The system may not deliver outgoing-call events to this app.</string>
+    <string name="system_counter_call_made_working_message">Outgoing-call tracking is supported on this device. Placing calls should update this counter.</string>
+
+    <string name="system_counter_hint_generic">%1$s</string>
+
+    <string name="system_counter_activity_tracker_working">This counter is provided by the built-in activity tracker.</string>
+    <string name="system_counter_screen_time_working">This counter depends on the screen-time tracker available on this device.</string>
+    <string name="system_counter_unlocks_working">This counter is updated from system "screen unlock" events.</string>
+
+    <string name="system_counter_notifications_working">Notification tracking is enabled. Notifications should update this counter.</string>
+    <string name="system_counter_requires_notification_listener">Notification tracking requires Notification Access. Enable the app in Notification Access settings.</string>
+
+    <string name="system_counter_calls_received_working">Call-state tracking is enabled. Incoming calls should update this counter.</string>
+    <string name="system_counter_requires_read_phone_state">Call tracking requires the Phone permission. Enable "Phone" permission for the app.</string>
+
+    <string name="system_counter_sms_sent_working">SMS sending tracking requires the SMS permission and device support.</string>
+    <string name="system_counter_requires_send_sms">SMS sent tracking requires the "Send SMS" permission.</string>
+
+    <string name="system_counter_media_working">Media tracking is enabled. New photos/videos should update this counter.</string>
+    <string name="system_counter_requires_media_permission">Media tracking requires media/storage permission to read your photos/videos.</string>
+
+    <string name="system_counter_downloads_working">Downloads tracking is updated by system download completion events.</string>
+
+    <string name="system_counter_wifi_working">Wi‑Fi connection tracking is enabled.</string>
+    <string name="system_counter_requires_access_network_state">Wi‑Fi tracking requires access to network state.</string>
+
+    <string name="system_counter_bluetooth_working">Bluetooth connection tracking is enabled.</string>
+    <string name="system_counter_requires_bluetooth_connect">Bluetooth tracking requires Bluetooth connect permission on Android 12+.</string>
+
+    <string name="system_counter_mobile_data_working">Mobile data usage is provided by the network usage tracker.</string>
+
+    <string name="system_counter_battery_charges_working">Battery charge tracking is updated from power connection events.</string>
+    <string name="system_counter_restarts_working">Device restart tracking is updated from boot events.</string>
+    <string name="system_counter_shutdowns_working">Device shutdown tracking is updated from shutdown events.</string>
+
+    <string name="system_counter_not_implemented">This system counter isn’t implemented yet in this build.</string>
+
 </resources>
 

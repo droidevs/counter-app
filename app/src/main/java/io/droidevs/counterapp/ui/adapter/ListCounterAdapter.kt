@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
@@ -17,6 +18,8 @@ import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 import io.droidevs.counterapp.ui.utils.getRelativeTime
+import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
+import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
 
 class ListCounterAdapter(
     var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
@@ -32,6 +35,7 @@ class ListCounterAdapter(
         val tvCount: TextView = binding.tvCounterValue
         val tvEditTime : TextView = binding.tvEditedTime
         val tvCategory : TextView = binding.tvCategory
+        val tvSystemHint: TextView = binding.tvSystemHint
 
         fun bind(
             data: CounterWithCategoryUiModel,
@@ -81,6 +85,40 @@ class ListCounterAdapter(
                     tvEditTime.isVisible = false
                 }
             }
+
+            val ctx = itemView.context
+
+            val hint = if (data.counter.isSystem) SystemCounterSupportUi.hintText(ctx, data.counter.systemKey) else null
+
+            if (hint != null) {
+                tvSystemHint.text = hint
+                tvSystemHint.visibility = android.view.View.VISIBLE
+                tvSystemHint.animate().cancel()
+                tvSystemHint.alpha = 0f
+                tvSystemHint.animate().alpha(1f).setDuration(220L).start()
+
+                tvSystemHint.setOnClickListener {
+                    val status = SystemCounterSupportStatus.evaluate(ctx, data.counter.systemKey)
+                    MaterialAlertDialogBuilder(ctx)
+                        .setTitle(status.titleRes)
+                        .setMessage(status.messageRes)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
+            } else {
+                tvSystemHint.animate().cancel()
+                tvSystemHint.visibility = android.view.View.GONE
+            }
+
+            // Disable +/- if a known system counter is not supported (prevents misleading UI interactions).
+            val allowControls = if (data.counter.isSystem && hint != null) {
+                SystemCounterSupportStatus.evaluate(ctx, data.counter.systemKey).isSupported
+            } else true
+
+            binding.btnPlus.isEnabled = allowControls
+            binding.btnMinus.isEnabled = allowControls
+            binding.btnPlus.alpha = if (allowControls) 1f else 0.5f
+            binding.btnMinus.alpha = if (allowControls) 1f else 0.5f
         }
     }
 

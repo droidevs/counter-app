@@ -10,6 +10,8 @@ data class CounterUiModel(
     // Flags copied from domain
     val canIncrease: Boolean,
     val canDecrease: Boolean,
+    val isSystem: Boolean = false,
+    val systemKey: String? = null,
     val createdTime: String? = null,
     val editedTime : String? = null
 )

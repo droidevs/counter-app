@@ -15,6 +15,8 @@ fun Counter.toUiModel(
         categoryId = categoryId,
         canIncrease = canIncrease,
         canDecrease = canDecrease,
+        isSystem = isSystem,
+        systemKey = systemKey,
         createdTime = createdAt?.let { formatter.format(it) },
         editedTime = lastUpdatedAt?.let { formatter.format(it) }
     )
@@ -28,6 +30,8 @@ fun CounterUiModel.toDomain(): Counter {
         currentCount = currentCount,
         canIncrease = canIncrease,
         canDecrease = canDecrease,
-        categoryId = categoryId
+        categoryId = categoryId,
+        isSystem = isSystem,
+        systemKey = systemKey
     )
 }

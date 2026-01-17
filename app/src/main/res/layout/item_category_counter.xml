@@ -39,6 +39,24 @@
         app:layout_constraintTop_toBottomOf="@id/tvCounterName"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <!-- System Counter Hint (shown only for system counters that may not work) -->
+    <TextView
+        android:id="@+id/tvSystemHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Requires permission"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="6dp"
+        android:background="@drawable/bg_system_hint"
+        android:alpha="0.0"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/tvEditedTime"
+        app:layout_constraintTop_toTopOf="@id/tvEditedTime"
+        android:layout_marginStart="8dp" />
+
     <!-- Counter value -->
     <TextView
         android:id="@+id/tvCounterValue"

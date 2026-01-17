@@ -14,7 +14,6 @@ class SmsReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!ReceiverGuards.hasReceiveSms(context)) return
-        if (!ReceiverGuards.isDefaultSmsApp(context)) return
 
         if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             SystemCounterWork.enqueueIncrement(
