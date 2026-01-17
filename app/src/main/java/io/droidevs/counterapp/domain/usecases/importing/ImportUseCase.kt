@@ -6,9 +6,6 @@ import io.droidevs.counterapp.domain.repository.CategoryRepository
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.RootError
-import io.droidevs.counterapp.domain.result.ResultBuilder
-import io.droidevs.counterapp.domain.result.errors.DatabaseError
-import io.droidevs.counterapp.domain.result.errors.FileError
 import io.droidevs.counterapp.domain.result.resultSuspend
 import io.droidevs.counterapp.domain.services.FileImportService
 import kotlinx.coroutines.withContext
@@ -22,13 +19,11 @@ class ImportUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(fileUri: Uri): Result<Unit, RootError> = withContext(dispatchers.io) {
         resultSuspend {
-            // Import from file -> save categories -> save counters
             fileImportService.import(fileUri)
                 .combineSuspended { imported ->
-                    // Persist categories
+                    // Persist categories first to satisfy potential FK relations
                     categoryRepository.importCategories(imported.categories)
                         .combineSuspended {
-                            // Persist counters
                             counterRepository.importCounters(imported.counters)
                         }
                 }

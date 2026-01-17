@@ -8,6 +8,7 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccess
+import io.droidevs.counterapp.domain.services.FileImportService
 import io.droidevs.counterapp.domain.usecases.importing.ImportUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage.Toast
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ImportViewModel @Inject constructor(
     private val importUseCases: ImportUseCases,
+    private val fileImportService: FileImportService,
     private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
 
@@ -38,7 +40,8 @@ class ImportViewModel @Inject constructor(
 
     private fun requestImport() {
         viewModelScope.launch {
-            _event.tryEmit(ImportEvent.ShowImportFileChooser)
+            val mimeTypes = fileImportService.getAvailableImportFormats().map { it.mimeType }.distinct().toTypedArray()
+            _event.tryEmit(ImportEvent.ShowImportFileChooser(mimeTypes = mimeTypes))
         }
     }
 
@@ -53,11 +56,20 @@ class ImportViewModel @Inject constructor(
                         )
                     )
                 }
-                .onFailure { _ ->
+                .onFailure { error ->
+                    val resId = when (error) {
+                        is io.droidevs.counterapp.domain.result.errors.FileError.ReadError,
+                        is io.droidevs.counterapp.domain.result.errors.FileError.WriteError,
+                        is io.droidevs.counterapp.domain.result.errors.FileError.ShareError,
+                        is io.droidevs.counterapp.domain.result.errors.FileError.UnknownError -> {
+                            // If our parser rejected the selected format (TXT/unknown), we currently surface it as UnknownError.
+                            // Keep user-friendly and specific.
+                            R.string.import_unsupported_format
+                        }
+                        else -> R.string.failed_to_import_counters
+                    }
                     uiMessageDispatcher.dispatch(
-                        Toast(
-                            message = Message.Resource(R.string.failed_to_import_counters)
-                        )
+                        Toast(message = Message.Resource(resId))
                     )
                 }
         }

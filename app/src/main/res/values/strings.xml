@@ -244,4 +244,5 @@
     <string name="home_recent_counters_title">Recent Counters</string>
     <string name="home_categories_title">Categories</string>
     <string name="home_view_all">View All ›</string>
+    <string name="import_unsupported_format">Unsupported file format. Please choose JSON, CSV, or XML export.</string>
 </resources>

@@ -7,4 +7,7 @@ import io.droidevs.counterapp.domain.result.errors.FileError
 
 interface FileImportService {
     suspend fun import(fileUri: Uri): Result<Backup, FileError>
+
+    /** Formats that this app can successfully parse on import. */
+    fun getAvailableImportFormats(): List<ExportFormat>
 }

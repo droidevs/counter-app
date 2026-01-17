@@ -9,7 +9,6 @@ import io.droidevs.counterapp.domain.services.ExportSuccessResult
 import io.droidevs.counterapp.domain.services.FileExportService
 import io.droidevs.counterapp.domain.usecases.category.GetAllCategoriesUseCase
 import io.droidevs.counterapp.domain.usecases.counters.GetAllCountersUseCase
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -19,12 +18,17 @@ class ExportUseCase @Inject constructor(
     private val fileExportService: FileExportService,
     private val dispatchers: DispatcherProvider
 ) {
-    suspend operator fun invoke(format: ExportFormat): Result<ExportSuccessResult, RootError> =
+    suspend operator fun invoke(
+        format: ExportFormat,
+        exportOnlyNonSystem: Boolean = false
+    ): Result<ExportSuccessResult, RootError> =
         withContext(dispatchers.io) {
             resultSuspendFromFlow {
                 getAllCountersUseCase().combineFlow { counters ->
                     getAllCategoriesUseCase().combineSuspended { categories ->
-                        fileExportService.export(counters, categories, format)
+                        val filteredCounters = if (exportOnlyNonSystem) counters.filter { !it.isSystem } else counters
+                        val filteredCategories = if (exportOnlyNonSystem) categories.filter { !it.isSystem } else categories
+                        fileExportService.export(filteredCounters, filteredCategories, format)
                     }
                 }
             }

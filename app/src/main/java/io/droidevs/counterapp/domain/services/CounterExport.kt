@@ -9,6 +9,8 @@ data class CounterExport(
     val category: String? = null,
     val createdAt: Instant,
     val updatedAt: Instant? = null,
+    val orderAnchorAt: Instant? = null,
     val canIncrease: Boolean = true,
-    val canDecrease: Boolean = false
+    val canDecrease: Boolean = false,
+    val isSystem: Boolean = false
 )

@@ -150,7 +150,7 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
 
     private fun handleImportEvent(event: ImportEvent) {
         when (event) {
-            is ImportEvent.ShowImportFileChooser -> showImportFileChooser()
+            is ImportEvent.ShowImportFileChooser -> showImportFileChooser(event.mimeTypes)
         }
     }
 
@@ -177,10 +177,13 @@ class BackupPreferenceFragment : PreferenceFragmentCompat() {
         startActivity(Intent.createChooser(shareIntent, "Share Counters"))
     }
 
-    private fun showImportFileChooser() {
+    private fun showImportFileChooser(mimeTypes: Array<String>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
+
+            // Only allow formats we can actually import.
+            putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         }
         importFileResult.launch(intent)
     }

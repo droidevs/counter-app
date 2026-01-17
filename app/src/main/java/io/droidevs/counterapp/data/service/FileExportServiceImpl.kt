@@ -84,7 +84,9 @@ class FileExportServiceImpl @Inject constructor(
 
     private fun exportToCsv(backup: BackupExport, file: File) {
         file.bufferedWriter().use { writer ->
-            writer.write("Type,ID,Name,Value,Category,Created At,Updated At,Can Increase,Can Decrease,Color\n")
+            // Stable schema v2:
+            // Type,ID,Name,Value,Category,Created At,Updated At,Order Anchor At,Can Increase,Can Decrease,Is System,Color
+            writer.write("Type,ID,Name,Value,Category,Created At,Updated At,Order Anchor At,Can Increase,Can Decrease,Is System,Color\n")
 
             backup.counters.forEach { counter ->
                 writer.write(
@@ -93,23 +95,24 @@ class FileExportServiceImpl @Inject constructor(
                             "${counter.value}," +
                             "${escapeCsv(counter.category ?: "")}," +
                             "${counter.createdAt}," +
-                            "${counter.updatedAt}," +
+                            "${counter.updatedAt ?: ""}," +
+                            "${counter.orderAnchorAt ?: ""}," +
                             "${counter.canIncrease}," +
                             "${counter.canDecrease}," +
-                            "\n"
+                            "${counter.isSystem}," +
+                            ",\n" // Color column reserved for Category rows
                 )
             }
+
             backup.categories.forEach { category ->
                 writer.write(
                     "Category,${escapeCsv(category.id)}," +
                             "${escapeCsv(category.name)}," +
+                            ",,," +
+                            ",,," +
                             ",," +
-                            ",," +
-                            ",," +
-                            ",," +
-                            ",," +
-                            ",," +
-                            "${category.color}\n"
+                            "${category.isSystem}," +
+                            "${escapeCsv(category.color)}\n"
                 )
             }
         }
@@ -125,13 +128,13 @@ class FileExportServiceImpl @Inject constructor(
                 writer.write("      <id>${escapeXml(counter.id)}</id>\n")
                 writer.write("      <name>${escapeXml(counter.name)}</name>\n")
                 writer.write("      <value>${counter.value}</value>\n")
-                counter.category?.let {
-                    writer.write("      <category>${escapeXml(it)}</category>\n")
-                }
+                writer.write("      <category>${escapeXml(counter.category ?: "")}</category>\n")
                 writer.write("      <createdAt>${counter.createdAt}</createdAt>\n")
-                writer.write("      <updatedAt>${counter.updatedAt}</updatedAt>\n")
+                writer.write("      <updatedAt>${counter.updatedAt ?: ""}</updatedAt>\n")
+                writer.write("      <orderAnchorAt>${counter.orderAnchorAt ?: ""}</orderAnchorAt>\n")
                 writer.write("      <canIncrease>${counter.canIncrease}</canIncrease>\n")
                 writer.write("      <canDecrease>${counter.canDecrease}</canDecrease>\n")
+                writer.write("      <isSystem>${counter.isSystem}</isSystem>\n")
                 writer.write("    </counter>\n")
             }
             writer.write("  </counters>\n")
@@ -141,6 +144,7 @@ class FileExportServiceImpl @Inject constructor(
                 writer.write("      <id>${escapeXml(category.id)}</id>\n")
                 writer.write("      <name>${escapeXml(category.name)}</name>\n")
                 writer.write("      <color>${escapeXml(category.color)}</color>\n")
+                writer.write("      <isSystem>${category.isSystem}</isSystem>\n")
                 writer.write("    </category>\n")
             }
             writer.write("  </categories>\n")
@@ -160,11 +164,13 @@ class FileExportServiceImpl @Inject constructor(
                 writer.write("  ID: ${counter.id}\n")
                 writer.write("  Name: ${counter.name}\n")
                 writer.write("  Value: ${counter.value}\n")
+                writer.write("  Is System: ${counter.isSystem}\n")
                 counter.category?.let {
                     writer.write("  Category ID: $it\n")
                 }
                 writer.write("  Created: ${counter.createdAt}\n")
                 writer.write("  Updated: ${counter.updatedAt}\n")
+                writer.write("  Order Anchor: ${counter.orderAnchorAt}\n")
                 writer.write("-".repeat(30) + "\n")
             }
 
@@ -175,6 +181,7 @@ class FileExportServiceImpl @Inject constructor(
                 writer.write("  ID: ${category.id}\n")
                 writer.write("  Name: ${category.name}\n")
                 writer.write("  Color: ${category.color}\n")
+                writer.write("  Is System: ${category.isSystem}\n")
                 writer.write("-".repeat(30) + "\n")
             }
         }
@@ -235,8 +242,10 @@ class FileExportServiceImpl @Inject constructor(
             category = categoryId,
             createdAt = createdAt,
             updatedAt = lastUpdatedAt,
+            orderAnchorAt = orderAnchorAt,
             canIncrease = canIncrease,
-            canDecrease = canDecrease
+            canDecrease = canDecrease,
+            isSystem = isSystem
         )
     }
 
@@ -244,7 +253,8 @@ class FileExportServiceImpl @Inject constructor(
         return CategoryExport(
             id = id,
             name = name,
-            color = color.colorInt.toString()
+            color = color.colorInt.toString(),
+            isSystem = isSystem
         )
     }
 
