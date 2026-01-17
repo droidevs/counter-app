@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -23,24 +24,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.window.layout.WindowMetricsCalculator
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.ActivityMainBinding
-import io.droidevs.counterapp.ui.fragments.CategoryListFragment
 import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -50,6 +44,8 @@ import io.droidevs.counterapp.ui.message.mappers.toSnackbarLength
 import io.droidevs.counterapp.ui.message.mappers.toToastLength
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.window.layout.WindowMetricsCalculator
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 
 
 @AndroidEntryPoint
@@ -60,9 +56,11 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var actionHandler: UiActionHandler
 
+    @Inject lateinit var appNavigator: AppNavigator
+
     private var toolbar : MaterialToolbar? = null
-    private lateinit var navController : NavController;
-    private lateinit var appBarConfiguration : AppBarConfiguration;
+    private lateinit var navController : NavController
+    private lateinit var appBarConfiguration : AppBarConfiguration
 
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var navRail: NavigationRailView
@@ -74,12 +72,19 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Enable edge-to-edge drawing (draw behind system bars)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        
         setContentView(binding!!.root)
+
+        // Start collecting global UI messages once per Activity.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                messageDispatcher.flow().collect { message ->
+                    handleMessage(message)
+                }
+            }
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -88,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         toolbar = binding!!.mainToolbar
-        //toolbar?.setOnMenuItemClickListener(this)
         setSupportActionBar(toolbar)
 
         drawer = binding!!.drawerLayout
@@ -103,14 +107,8 @@ class MainActivity : AppCompatActivity() {
 
         setupDrawer()
 
-        var navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        // Restore state if activity was recreated
-        if (savedInstanceState != null) {
-            navController.restoreState(savedInstanceState.getBundle("nav_state"))
-        }
 
         val topLevelDestinations = setOf(
             R.id.homeFragment,
@@ -119,42 +117,48 @@ class MainActivity : AppCompatActivity() {
             R.id.historyFragment,
             R.id.settingsFragment
         )
+
         appBarConfiguration = AppBarConfiguration(
             topLevelDestinations,
             drawer
         )
 
-//        NavigationUI.setupActionBarWithNavController(
-//            this,
-//            navController = navController,
-//            configuration = appBarConfiguration
-//        )
         bottomNav = binding!!.bottomNavigation
-
-        //NavigationUI.setupWithNavController(bottomNav, navController)
+        navRail = binding!!.navRail
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNav.setupWithNavController(navController)
-        //setupBottomNav()
+        navRail.setupWithNavController(navController)
+
+        // Proper back behavior: close drawer first if open.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START)
+                } else {
+                    isEnabled = navController.popBackStack()
+                    if (!isEnabled) {
+                        finish()
+                    }
+                }
+            }
+        })
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
             if (dest.id in topLevelDestinations) {
                 toolbar?.setNavigationOnClickListener { drawer.openDrawer(GravityCompat.START) }
             } else {
-                toolbar?.setNavigationOnClickListener { navController.navigateUp() }
-            }
-        }
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                messageDispatcher.flow().collect { message ->
-                    handleMessage(message)
+                toolbar?.setNavigationOnClickListener {
+                    NavigationUI.navigateUp(navController, appBarConfiguration)
                 }
             }
         }
+
+        updateNavigationForSize()
+    }
+
+    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
+        // Keep onCreateView lightweight: do not restart message collectors here.
         return super.onCreateView(name, context, attrs)
     }
 
@@ -220,30 +224,6 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchKeyEvent(event)
     }
 
-//    private fun setupBottomNav() {
-//        bottomNav.setOnItemSelectedListener { item ->
-//            when(item.itemId) {
-//                R.id.home_graph -> {
-//                    navController.navigate(R.id.action_to_home_graph)
-//                    true
-//                }
-//                R.id.counters_graph -> {
-//                    navController.navigate(R.id.action_to_home_graph)
-//                    true
-//                }
-//                R.id.categories_graph -> {
-//                    navController.navigate(R.id.categories_graph)
-//                    true
-//                }
-//                R.id.settings_graph -> {
-//                    navController.navigate(R.id.settingsFragment)
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-//    }
-
     private fun setupDrawer() {
         binding!!.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -274,19 +254,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    // Navigate from drawer with arguments
-    fun NavController.navigateFromDrawer(destinationId: Int, args: Bundle? = null) {
-        val navOptions = NavOptions.Builder()
-            .setLaunchSingleTop(true) // Avoid multiple instances
-            .setPopUpTo(
-                destinationId = navController.graph.startDestinationId,
-                inclusive = false
-            ) // Keep bottom nav root intact
-            .build()
-
-        navController.navigate(destinationId, args, navOptions)
-    }
 
     private fun updateNavigationForSize() {
         val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
@@ -332,28 +299,18 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(
-            appBarConfiguration = appBarConfiguration
-        ) || super.onSupportNavigateUp()
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp()
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        val bundle = findNavController(R.id.nav_host_fragment).saveState()
-        outState.putBundle("nav_state", bundle)
-    }
-
 
     private fun openHistory() {
-        navController.navigate(R.id.action_to_history_graph)
+        appNavigator.navigateRoot(R.id.action_to_history_graph)
     }
 
     private fun openSystemCategories() {
-        navController.navigate(
+        appNavigator.navigateRoot(
             R.id.categories_graph,
             bundleOf("isSystem" to true)
         )
-
     }
 
     private fun rateApp() {
@@ -361,10 +318,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openAbout() {
-        navController.navigate(R.id.action_to_about_graph)
+        appNavigator.navigateRoot(R.id.action_to_about_graph)
     }
 
     private fun openSettings() {
-        navController.navigate(R.id.action_to_settings_graph)
+        appNavigator.navigateRoot(R.id.action_to_settings_graph)
     }
 }
