@@ -4,6 +4,8 @@ import io.droidevs.counterapp.domain.trackers.ActivityTracker
 import io.droidevs.counterapp.domain.trackers.DeviceUsageTracker
 import io.droidevs.counterapp.domain.trackers.MediaStorageTracker
 import io.droidevs.counterapp.domain.trackers.NetworkConnectivityTracker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SystemCounterManagerImpl(
     private val activityTracker: ActivityTracker,
@@ -12,17 +14,18 @@ class SystemCounterManagerImpl(
     private val networkConnectivityTracker: NetworkConnectivityTracker
 ) : SystemCounterManager {
 
-    override fun fetchSystemCounters(): Map<SystemCounterType, Int> {
-        return mapOf(
-            SystemCounterType.STEPS to activityTracker.getSteps(),
-            SystemCounterType.DISTANCE to activityTracker.getDistance(),
-            SystemCounterType.FLOORS to activityTracker.getFloors(),
-            SystemCounterType.ACTIVE_MINUTES to activityTracker.getActiveMinutes(),
-            SystemCounterType.CALORIES to activityTracker.getCalories(),
-            SystemCounterType.SCREEN_TIME to deviceUsageTracker.getScreenTime(),
-            SystemCounterType.PHOTOS_TAKEN to mediaStorageTracker.getPhotosCount(),
-            SystemCounterType.VIDEOS_TAKEN to mediaStorageTracker.getVideosCount(),
-            SystemCounterType.MOBILE_DATA_USAGE to networkConnectivityTracker.getMobileDataUsage()
+    override suspend fun fetchSystemCounters(): Map<SystemCounterType, Int> = withContext(Dispatchers.Default) {
+        // Each value is isolated so one tracker failure doesn't prevent others from syncing.
+        mapOf(
+            SystemCounterType.STEPS to runCatching { activityTracker.getSteps() }.getOrDefault(0),
+            SystemCounterType.DISTANCE to runCatching { activityTracker.getDistance() }.getOrDefault(0),
+            SystemCounterType.FLOORS to runCatching { activityTracker.getFloors() }.getOrDefault(0),
+            SystemCounterType.ACTIVE_MINUTES to runCatching { activityTracker.getActiveMinutes() }.getOrDefault(0),
+            SystemCounterType.CALORIES to runCatching { activityTracker.getCalories() }.getOrDefault(0),
+            SystemCounterType.SCREEN_TIME to runCatching { deviceUsageTracker.getScreenTime() }.getOrDefault(0),
+            SystemCounterType.PHOTOS_TAKEN to runCatching { mediaStorageTracker.getPhotosCount() }.getOrDefault(0),
+            SystemCounterType.VIDEOS_TAKEN to runCatching { mediaStorageTracker.getVideosCount() }.getOrDefault(0),
+            SystemCounterType.MOBILE_DATA_USAGE to runCatching { networkConnectivityTracker.getMobileDataUsage() }.getOrDefault(0)
         )
     }
 }
