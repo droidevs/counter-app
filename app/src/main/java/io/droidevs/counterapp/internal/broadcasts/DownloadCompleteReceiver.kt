@@ -12,11 +12,17 @@ import io.droidevs.counterapp.internal.system.SystemCounterWork
 class DownloadCompleteReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
-            SystemCounterWork.enqueueIncrement(
-                context = context,
-                counterKey = SystemCounterType.FILES_DOWNLOADED.key
-            )
-        }
+        if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
+
+        val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
+        val eventId = if (downloadId > 0L) downloadId.toString() else null
+
+        SystemCounterWork.enqueueIncrement(
+            context = context,
+            counterKey = SystemCounterType.FILES_DOWNLOADED.key,
+            // de-bounce duplicates for the same downloadId, but allow many downloads quickly.
+            debounceWindowMs = 60_000L,
+            eventId = eventId
+        )
     }
 }

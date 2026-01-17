@@ -25,18 +25,23 @@ object SystemCounterWork {
      *
      * @param unique If true, work is enqueued as unique work per counterKey to reduce spam.
      * @param debounceWindowMs If > 0, repeated events within this window are ignored.
+     * @param eventId Optional stable id for the event (e.g. DownloadManager downloadId). When present,
+     * debouncing keys become per-(counterKey,eventId) so multiple different events can be counted
+     * even if they arrive close together.
      */
     fun enqueueIncrement(
         context: Context,
         counterKey: String,
         unique: Boolean = true,
-        debounceWindowMs: Long = defaultDebounceWindowMs(counterKey)
+        debounceWindowMs: Long = defaultDebounceWindowMs(counterKey),
+        eventId: String? = null
     ) {
         val appContext = context.applicationContext
 
         // Per-event throttling to prevent double-counting bursts.
         val debouncer = SystemEventDebouncer(appContext)
-        if (!debouncer.shouldAccept(eventKey = counterKey, windowMs = debounceWindowMs)) {
+        val debounceKey = if (eventId.isNullOrBlank()) counterKey else "${counterKey}_$eventId"
+        if (!debouncer.shouldAccept(eventKey = debounceKey, windowMs = debounceWindowMs)) {
             return
         }
 
@@ -65,7 +70,7 @@ object SystemCounterWork {
      * Keep these conservative: we want accuracy but also avoid jitter/double dispatch.
      */
     private fun defaultDebounceWindowMs(counterKey: String): Long {
-        val type = SystemCounterType.values().firstOrNull { it.key == counterKey }
+        val type = SystemCounterType.entries.firstOrNull { it.key == counterKey }
 
         return when (type) {
             // Network events can fire multiple times during one transition.
