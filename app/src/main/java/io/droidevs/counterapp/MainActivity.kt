@@ -24,11 +24,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import io.droidevs.counterapp.ui.navigation.tabs.MultiNavHostController
+import io.droidevs.counterapp.ui.navigation.tabs.Tab
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigationrail.NavigationRailView
@@ -45,18 +44,16 @@ import io.droidevs.counterapp.ui.message.mappers.toToastLength
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.window.layout.WindowMetricsCalculator
-import io.droidevs.counterapp.ui.navigation.AppNavigator
+import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TabHost {
     var binding : ActivityMainBinding? = null
 
     @Inject lateinit var messageDispatcher: UiMessageDispatcher
 
     @Inject lateinit var actionHandler: UiActionHandler
-
-    @Inject lateinit var appNavigator: AppNavigator
 
     private var toolbar : MaterialToolbar? = null
     private lateinit var navController : NavController
@@ -67,6 +64,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawer : DrawerLayout
 
     private var currentWidthClass = WindowWidthSizeClass.Compact
+
+    private lateinit var tabsController: MultiNavHostController
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,54 +106,106 @@ class MainActivity : AppCompatActivity() {
 
         setupDrawer()
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
-
-        val topLevelDestinations = setOf(
-            R.id.homeFragment,
-            R.id.counterListFragment,
-            R.id.categoryListFragment,
-            R.id.historyFragment,
-            R.id.settingsFragment
-        )
-
-        appBarConfiguration = AppBarConfiguration(
-            topLevelDestinations,
-            drawer
-        )
-
+        // Setup bottom nav / rail before NavController hookup.
         bottomNav = binding!!.bottomNavigation
         navRail = binding!!.navRail
 
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        bottomNav.setupWithNavController(navController)
-        navRail.setupWithNavController(navController)
+        tabsController = MultiNavHostController(
+            fragmentManager = supportFragmentManager,
+            containerId = R.id.tab_nav_host_container,
+            lifecycle = lifecycle
+        )
 
-        // Proper back behavior: close drawer first if open.
+        // Restore selected tab (default HOME).
+        val initialTab = savedInstanceState
+            ?.getInt(KEY_SELECTED_TAB_ID)
+            ?.let { Tab.fromMenuId(it) }
+            ?: Tab.HOME
+
+        // Create + show the initial tab host.
+        navController = tabsController.setup(initialTab)
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.homeFragment,
+                R.id.counterListFragment,
+                R.id.categoryListFragment,
+                R.id.settingsFragment
+            ),
+            drawer
+        )
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Hook bottom nav + rail to tab switching (NOT to a single NavController).
+        fun selectTab(menuId: Int): Boolean {
+            val tab = Tab.fromMenuId(menuId) ?: return false
+            navController = tabsController.switchTo(tab)
+
+            if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
+            if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+
+            setupActionBarWithNavController(navController, appBarConfiguration)
+
+            // Update toolbar immediately after switching tabs.
+            updateToolbarNavIcon()
+
+            // Ensure destination listener is attached to the active controller only.
+            navController.addOnDestinationChangedListener { _, _, _ ->
+                updateToolbarNavIcon()
+            }
+
+            return true
+        }
+
+        bottomNav.setOnItemSelectedListener { item ->
+            selectTab(item.itemId)
+        }
+        navRail.setOnItemSelectedListener { item ->
+            selectTab(item.itemId)
+        }
+
+        // Proper back behavior: close drawer first if open, else pop within current tab.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.closeDrawer(GravityCompat.START)
-                } else {
-                    isEnabled = navController.popBackStack()
-                    if (!isEnabled) {
-                        finish()
-                    }
+                    return
                 }
+
+                val consumed = tabsController.popBackStack()
+                if (!consumed) finish()
             }
         })
 
-        navController.addOnDestinationChangedListener { _, dest, _ ->
-            if (dest.id in topLevelDestinations) {
-                toolbar?.setNavigationOnClickListener { drawer.openDrawer(GravityCompat.START) }
-            } else {
-                toolbar?.setNavigationOnClickListener {
-                    NavigationUI.navigateUp(navController, appBarConfiguration)
-                }
-            }
+        // Navigation icon behavior depends on whether we can navigate up in the current tab.
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            updateToolbarNavIcon()
         }
 
+        updateToolbarNavIcon()
         updateNavigationForSize()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_SELECTED_TAB_ID, bottomNav.selectedItemId)
+    }
+
+    private fun isAtCurrentTabRoot(): Boolean {
+        val currentDestId = navController.currentDestination?.id ?: return true
+        val startDestId = navController.graph.startDestinationId
+        return currentDestId == startDestId
+    }
+
+    private fun updateToolbarNavIcon() {
+        if (isAtCurrentTabRoot()) {
+            toolbar?.setNavigationOnClickListener { drawer.openDrawer(GravityCompat.START) }
+        } else {
+            toolbar?.setNavigationOnClickListener {
+                navController.popBackStack()
+            }
+        }
     }
 
     override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
@@ -288,27 +339,39 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.menuSettings -> {
-                navController.navigate(R.id.action_to_settings_graph)
+                switchToTab(Tab.SETTINGS)
                 true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp()
+        // For tab navigation, treat navigate-up as back within the current tab.
+        return navController.popBackStack() || super.onSupportNavigateUp()
     }
 
+    // Drawer navigation should switch tabs or perform global navigation against the active tab.
     private fun openHistory() {
-        appNavigator.navigateRoot(R.id.action_to_history_graph)
+        // History is not a tab. Route it through a chosen tab; Settings is a good place.
+        switchToTabAndNavigate(
+            tab = Tab.SETTINGS,
+            destinationId = R.id.historyFragment,
+            args = null
+        )
     }
 
     private fun openSystemCategories() {
-        appNavigator.navigateRoot(
-            R.id.categories_graph,
+        // Switch to Categories tab then open system mode.
+        navController = tabsController.switchTo(Tab.CATEGORIES)
+        if (bottomNav.selectedItemId != Tab.CATEGORIES.menuId) bottomNav.selectedItemId = Tab.CATEGORIES.menuId
+        if (navRail.selectedItemId != Tab.CATEGORIES.menuId) navRail.selectedItemId = Tab.CATEGORIES.menuId
+
+        navController.navigate(
+            R.id.categoryListFragment,
             bundleOf("isSystem" to true)
         )
     }
@@ -318,10 +381,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openAbout() {
-        appNavigator.navigateRoot(R.id.action_to_about_graph)
+        switchToTabAndNavigate(
+            tab = Tab.SETTINGS,
+            destinationId = R.id.aboutFragment,
+            args = null
+        )
     }
 
     private fun openSettings() {
-        appNavigator.navigateRoot(R.id.action_to_settings_graph)
+        switchToTab(Tab.SETTINGS)
+    }
+
+    override fun switchToTab(tab: Tab) {
+        navController = tabsController.switchTo(tab)
+        if (bottomNav.selectedItemId != tab.menuId) bottomNav.selectedItemId = tab.menuId
+        if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        updateToolbarNavIcon()
+    }
+
+    override fun switchToTabAndNavigate(tab: Tab, destinationId: Int, args: Bundle?) {
+        switchToTab(tab)
+        navController.navigate(destinationId, args)
+    }
+
+    private companion object {
+        private const val KEY_SELECTED_TAB_ID = "selected_tab_id"
     }
 }

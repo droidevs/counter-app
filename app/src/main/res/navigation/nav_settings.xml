@@ -9,30 +9,39 @@
         android:id="@+id/settingsFragment"
         android:name="io.droidevs.counterapp.ui.SettingsFragment"
         android:label="Settings">
-        
+
         <action
             android:id="@+id/action_to_hardware_preferences"
             app:destination="@id/hardwarePreferencesFragment" />
-        
+
         <action
             android:id="@+id/action_to_display_preferences"
             app:destination="@id/displayPreferencesFragment" />
-        
+
         <action
             android:id="@+id/action_to_counter_preferences"
             app:destination="@id/counterPreferencesFragment" />
-        
+
         <action
             android:id="@+id/action_to_notification_preferences"
             app:destination="@id/notificationPreferencesFragment" />
-        
+
         <action
             android:id="@+id/action_to_backup_preferences"
             app:destination="@id/backupPreferencesFragment" />
-        
+
         <action
             android:id="@+id/action_to_other_preferences"
             app:destination="@id/otherPreferencesFragment" />
+
+        <!-- Drawer-linked screens live in Settings tab to keep multi-backstack architecture simple. -->
+        <action
+            android:id="@+id/action_to_history"
+            app:destination="@id/historyFragment" />
+
+        <action
+            android:id="@+id/action_to_about"
+            app:destination="@id/aboutFragment" />
     </fragment>
 
     <fragment
@@ -57,12 +66,23 @@
 
     <fragment
         android:id="@+id/backupPreferencesFragment"
-        android:name="io.droidevs.counterapp.ui.settings.BackupPreferencesFragment"
+        android:name="io.droidevs.counterapp.ui.settings.BackupPreferenceFragment"
         android:label="@string/settings_backup" />
 
     <fragment
         android:id="@+id/otherPreferencesFragment"
         android:name="io.droidevs.counterapp.ui.settings.OtherPreferencesFragment"
         android:label="@string/settings_other" />
+
+    <!-- embedded from legacy standalone graphs -->
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.HistoryFragment"
+        android:label="History" />
+
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="io.droidevs.counterapp.ui.fragments.AboutFragment"
+        android:label="About" />
 
 </navigation>

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
@@ -14,13 +16,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateCounterFragment : Fragment() {
@@ -29,10 +32,10 @@ class CreateCounterFragment : Fragment() {
     private val viewModel: CreateCounterViewModel by viewModels()
     private lateinit var categoryAdapter: ArrayAdapter<String>
 
+    private val noCategoryString by lazy { "No Category" } // Define const
+
     @Inject
     lateinit var appNavigator: AppNavigator
-
-    private val noCategoryString by lazy { "No Category" } // Define const
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +65,8 @@ class CreateCounterFragment : Fragment() {
         }
 
         binding.etInitialValue.doAfterTextChanged {
-            viewModel.onAction(CreateCounterAction.InitialValueChanged(Integer.parseInt(it.toString())))
+            val value = it?.toString()?.toIntOrNull() ?: 0
+            viewModel.onAction(CreateCounterAction.InitialValueChanged(value))
         }
 
         binding.switchCanIncrease.setOnCheckedChangeListener { _, checked ->
@@ -118,7 +122,10 @@ class CreateCounterFragment : Fragment() {
                             binding.spinnerCategory.isVisible = false
                             binding.tvCategoryChip.isVisible = true
                             val category = state.categories.find { it.id == state.categoryId }
-                            binding.tvCategoryChip.text = "Category: ${category?.name}"
+                            binding.tvCategoryChip.text = getString(
+                                R.string.label_category_chip,
+                                category?.name.orEmpty()
+                            )
                         } else {
                             binding.spinnerCategory.isVisible = true
                             binding.tvCategoryChip.isVisible = false

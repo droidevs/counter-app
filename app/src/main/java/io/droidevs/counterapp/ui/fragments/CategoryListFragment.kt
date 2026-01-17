@@ -148,8 +148,11 @@ class CategoryListFragment : Fragment() {
                     )
                 )
             }
+
             is CategoryListEvent.NavigateToCreateCategory -> {
-                appNavigator.navigate(R.id.action_categoryList_to_categoryCreate)
+                appNavigator.navigate(
+                    CategoryListFragmentDirections.actionCategoryListToCategoryCreate()
+                )
             }
         }
     }

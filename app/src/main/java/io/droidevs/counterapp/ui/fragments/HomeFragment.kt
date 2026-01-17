@@ -15,7 +15,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import io.droidevs.counterapp.NavRootDirections
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentHomeBinding
@@ -27,11 +26,13 @@ import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
+import io.droidevs.counterapp.ui.navigation.tabs.Tab
+import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -40,11 +41,11 @@ class HomeFragment : Fragment() {
 
     lateinit var binding: FragmentHomeBinding
 
-    @Inject
-    lateinit var appNavigator: AppNavigator
-
     var recentCountersRecycler: RecyclerView? = null
     var categoriesRecycler: RecyclerView? = null
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,38 +160,44 @@ class HomeFragment : Fragment() {
                     viewModel.event.collect { event ->
                         when (event) {
                             is HomeEvent.NavigateToCounterView -> {
-                                appNavigator.navigate(
-                                    NavRootDirections.actionToCounterView(
-                                        counterId = event.counterId
-                                    )
+                                // Ensure we are on the Counters tab, then navigate within its graph.
+                                (activity as? TabHost)?.switchToTabAndNavigate(
+                                    tab = Tab.COUNTERS,
+                                    destinationId = R.id.counterViewFragment,
+                                    args = bundleOf("counterId" to event.counterId)
                                 )
                             }
 
                             HomeEvent.NavigateToCreateCounter -> {
-                                appNavigator.navigateRoot(
-                                    R.id.action_to_counterView
+                                (activity as? TabHost)?.switchToTabAndNavigate(
+                                    tab = Tab.COUNTERS,
+                                    destinationId = R.id.counterCreateFragment,
+                                    args = null
                                 )
                             }
 
                             is HomeEvent.NavigateToCategoryView -> {
-                                appNavigator.navigateRoot(
-                                    R.id.action_to_categoryView,
-                                    bundleOf("categoryId" to event.categoryId)
+                                (activity as? TabHost)?.switchToTabAndNavigate(
+                                    tab = Tab.CATEGORIES,
+                                    destinationId = R.id.categoryViewFragment,
+                                    args = bundleOf("categoryId" to event.categoryId)
                                 )
                             }
 
                             HomeEvent.NavigateToCreateCategory -> {
-                                appNavigator.navigateRoot(
-                                    R.id.action_to_categoryCreate
+                                (activity as? TabHost)?.switchToTabAndNavigate(
+                                    tab = Tab.CATEGORIES,
+                                    destinationId = R.id.createCategoryFragment,
+                                    args = null
                                 )
                             }
 
                             HomeEvent.NavigateToCounterList -> {
-                                appNavigator.navigateRoot(R.id.action_to_counters_graph)
+                                (activity as? TabHost)?.switchToTab(Tab.COUNTERS)
                             }
 
                             HomeEvent.NavigateToCategoryList -> {
-                                appNavigator.navigateRoot(R.id.action_to_categories_graph)
+                                (activity as? TabHost)?.switchToTab(Tab.CATEGORIES)
                             }
                         }
                     }

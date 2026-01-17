@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
@@ -23,8 +25,8 @@ import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterEditViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CounterEditFragment : Fragment() {

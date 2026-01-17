@@ -5,14 +5,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<!--    <action-->
-<!--        android:id="@+id/action_to_categoryView"-->
-<!--        app:destination="@id/categoryViewFragment" />-->
-
-<!--    <action-->
-<!--        android:id="@+id/action_to_categoryCreate"-->
-<!--        app:destination="@id/createCategoryFragment" />-->
-
     <fragment
         android:id="@+id/categoryListFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CategoryListFragment"
@@ -39,17 +31,11 @@
         <argument
             android:name="categoryId"
             app:argType="string" />
-
-        <action
-            android:id="@+id/action_categoryView_to_counterCreate"
-            app:destination="@id/counterCreateFragment"/>
-
     </fragment>
 
     <fragment
         android:id="@+id/createCategoryFragment"
         android:name="io.droidevs.counterapp.ui.fragments.CreateCategoryFragment"
         android:label="Create Category"/>
-
 
 </navigation>

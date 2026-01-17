@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
@@ -26,8 +28,8 @@ import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CounterViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CounterViewFragment : Fragment(), VolumeKeyHandler {
@@ -153,6 +155,7 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_edit -> {

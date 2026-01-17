@@ -1,12 +1,13 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,16 +15,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
-import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.data.repository.CategoryColorProvider
 import io.droidevs.counterapp.databinding.FragmentCreateCategoryBinding
+import io.droidevs.counterapp.ui.adapter.CategoryColorAdapter
 import io.droidevs.counterapp.ui.decoration.GridSpacingItemDecoration
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CreateCategoryViewModel
 import io.droidevs.counterapp.ui.vm.actions.CreateCategoryAction
 import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateCategoryFragment : Fragment() {
@@ -31,10 +32,10 @@ class CreateCategoryFragment : Fragment() {
     private lateinit var binding: FragmentCreateCategoryBinding
     private val viewModel: CreateCategoryViewModel by viewModels()
 
+    private lateinit var adapter: CategoryColorAdapter
+
     @Inject
     lateinit var appNavigator: AppNavigator
-
-    private lateinit var adapter: CategoryColorAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +59,7 @@ class CreateCategoryFragment : Fragment() {
                 numColors = 8
             )
             viewModel.onAction(CreateCategoryAction.LoadPalette(colors))
-            
+
             val suggested = CategoryColorProvider.generateColorForCategory(
                 context = requireContext(),
                 categoryName = ""
@@ -83,7 +84,7 @@ class CreateCategoryFragment : Fragment() {
         binding.etCategoryName.doAfterTextChanged {
             val name = it?.toString().orEmpty()
             viewModel.onAction(CreateCategoryAction.NameChanged(name))
-            
+
             val suggested = CategoryColorProvider.generateColorForCategory(
                 context = requireContext(),
                 categoryName = name.trim()

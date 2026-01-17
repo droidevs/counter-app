@@ -5,13 +5,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import androidx.savedstate.savedState
 import io.droidevs.counterapp.ui.navigation.host.NavHostProvider
-import io.droidevs.counterapp.ui.navigation.policy.NavigationPolicy
 
 class AppNavigatorImpl(
-    private val navHostProvider: NavHostProvider,
-    private val policy: NavigationPolicy
+    private val navHostProvider: NavHostProvider
 ) : AppNavigator {
 
     private val navController: NavController
@@ -23,12 +20,7 @@ class AppNavigatorImpl(
         extras: Navigator.Extras?,
         options: NavOptions?
     ) {
-        navController.navigate(
-            actionId,
-            args,
-            options ?: policy.defaultOptions(),
-            extras
-        )
+        navController.navigate(actionId, args, options, extras)
     }
 
     override fun navigateRoot(
@@ -37,29 +29,20 @@ class AppNavigatorImpl(
         extras: Navigator.Extras?,
         options: NavOptions?
     ) {
-        navController.navigate(
-            actionId,
-            args,
-            options ?: policy.rootReplacementOptions(),
-            extras
-        )
+        // No global root in multi-backstack mode. Behaves like navigate unless options provided.
+        navController.navigate(actionId, args, options, extras)
     }
 
-    override fun navigate(directions: NavDirections) {
-        navController.navigate(
-            directions,
-            policy.defaultOptions()
-        )
+    override fun navigate(directions: NavDirections, options: NavOptions?) {
+        if (options != null) navController.navigate(directions, options)
+        else navController.navigate(directions)
     }
 
-    override fun navigateRoot(directions: NavDirections) {
-        navController.navigate(
-            directions,
-            policy.rootReplacementOptions()
-        )
+    override fun navigateRoot(directions: NavDirections, options: NavOptions?) {
+        // No global root in multi-backstack mode. Behaves like navigate unless options provided.
+        if (options != null) navController.navigate(directions, options)
+        else navController.navigate(directions)
     }
 
-    override fun back() {
-        navController.popBackStack()
-    }
+    override fun back(): Boolean = navController.popBackStack()
 }

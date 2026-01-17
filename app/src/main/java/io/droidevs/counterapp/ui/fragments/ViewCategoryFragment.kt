@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
@@ -15,7 +17,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import io.droidevs.counterapp.NavRootDirections
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
@@ -23,11 +24,13 @@ import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.ui.navigation.AppNavigator
+import io.droidevs.counterapp.ui.navigation.tabs.Tab
+import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ViewCategoryFragment : Fragment() {
@@ -151,11 +154,13 @@ class ViewCategoryFragment : Fragment() {
                             }
 
                             is CategoryViewEvent.NavigateToCreateCounter -> {
-                                appNavigator.navigate(NavRootDirections.actionToCountersGraph())
-                                appNavigator.navigate(
-                                    CounterListFragmentDirections.actionCounterListToCounterCreate(
-                                        event.categoryId
-                                    )
+                                // Cross-tab: still must use TabHost.
+                                (activity as? TabHost)?.switchToTabAndNavigate(
+                                    tab = Tab.COUNTERS,
+                                    destinationId = R.id.counterCreateFragment,
+                                    args = Bundle().apply {
+                                        putString("categoryId", event.categoryId)
+                                    }
                                 )
                             }
                         }

@@ -4,74 +4,15 @@
     android:id="@+id/nav_root"
     app:startDestination="@id/home_graph">
 
+    <!--
+      Legacy (single-NavHost) root graph.
+      The app now uses one NavHostFragment per tab (multi-backstack), so this graph is not used.
+      Kept only for backward compatibility while migration is ongoing.
+    -->
+
     <include app:graph="@navigation/nav_home"/>
-    <include app:graph="@navigation/nav_settings"/>
     <include app:graph="@navigation/nav_counters"/>
     <include app:graph="@navigation/nav_categories"/>
-    <include app:graph="@navigation/nav_history"/>
-    <include app:graph="@navigation/nav_about"/>
-
-    <action
-        android:id="@+id/action_global_categoryList"
-        app:destination="@id/categoryListFragment">
-        <argument
-            android:name="isSystem"
-            app:argType="boolean"
-            android:defaultValue="false" />
-    </action>
-
-    <action
-        android:id="@+id/action_to_counterView"
-        app:destination="@id/counterViewFragment"
-        >
-        <argument
-            android:name="counterId"
-            app:argType="string"
-            android:defaultValue="-1" />
-    </action>
-
-    <action
-        android:id="@+id/action_to_counterCreate"
-        app:destination="@id/counterCreateFragment"
-        app:popUpToSaveState="true"/>
-
-    <action
-        android:id="@+id/action_to_categoryView"
-        app:destination="@id/categoryViewFragment">
-        <argument
-            android:name="categoryId"
-            app:argType="string"
-            android:defaultValue="-1" />
-    </action>
-
-    <action
-        android:id="@+id/action_to_categoryCreate"
-        app:destination="@id/createCategoryFragment"/>
-
-    <action
-        android:id="@+id/action_to_settings_graph"
-        app:destination="@id/settings_graph"
-        />
-
-    <action
-        android:id="@+id/action_to_counters_graph"
-        app:destination="@id/counters_graph" />
-
-    <action
-        android:id="@+id/action_to_categories_graph"
-        app:destination="@id/categories_graph" />
-
-    <action
-        android:id="@+id/action_to_home_graph"
-        app:destination="@id/home_graph"
-        />
-
-    <action
-        android:id="@+id/action_to_history_graph"
-        app:destination="@id/nav_history" />
-
-    <action
-        android:id="@+id/action_to_about_graph"
-        app:destination="@id/nav_about" />
+    <include app:graph="@navigation/nav_settings"/>
 
 </navigation>

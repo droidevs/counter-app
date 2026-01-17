@@ -9,16 +9,10 @@ import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.navigation.AppNavigatorImpl
 import io.droidevs.counterapp.ui.navigation.host.NavHostProvider
 import io.droidevs.counterapp.ui.navigation.host.impl.NavHostProviderImpl
-import io.droidevs.counterapp.ui.navigation.policy.NavigationPolicy
-import io.droidevs.counterapp.ui.navigation.policy.impl.AppNavigationPolicy
 
 @Module
 @InstallIn(ActivityComponent::class)
 object NavigationModule {
-
-    @Provides
-    fun provideNavigationPolicy(): NavigationPolicy =
-        AppNavigationPolicy()
 
     @Provides
     fun provideNavHostProvider(
@@ -28,8 +22,7 @@ object NavigationModule {
 
     @Provides
     fun provideAppNavigator(
-        provider: NavHostProvider,
-        policy: NavigationPolicy
+        provider: NavHostProvider
     ): AppNavigator =
-        AppNavigatorImpl(provider, policy)
+        AppNavigatorImpl(provider)
 }

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.droidevs.counterapp.ui.fragments
 
 import android.os.Bundle
@@ -25,11 +27,12 @@ import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
+import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
 @AndroidEntryPoint
+@Suppress("DEPRECATION")
 class CounterListFragment : Fragment(), OnCounterClickListener {
 
     private var _binding: FragmentCounterListBinding? = null
@@ -37,11 +40,12 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
 
     private val viewModel: CountersListViewModel by viewModels()
 
+    private lateinit var listAdapter: ListCounterAdapter
+
     @Inject
     lateinit var appNavigator: AppNavigator
 
-    private lateinit var listAdapter: ListCounterAdapter
-
+    @Suppress("DEPRECATION")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -139,7 +143,9 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         viewModel.event.onEach { event ->
             when (event) {
                 is CounterListEvent.NavigateToCreateCounter -> {
-                    appNavigator.navigate(R.id.action_counterList_to_counterCreate)
+                    appNavigator.navigate(
+                        CounterListFragmentDirections.actionCounterListToCounterCreate(null)
+                    )
                 }
 
                 is CounterListEvent.NavigateToCounterView -> {
@@ -189,6 +195,8 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         _binding = null
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.findItem(R.id.menu_settings)?.isVisible = true
         super.onCreateOptionsMenu(menu, inflater)
