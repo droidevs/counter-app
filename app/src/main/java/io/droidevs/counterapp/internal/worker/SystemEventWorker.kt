@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.usecases.counters.IncrementSystemCounterUseCase
 import io.droidevs.counterapp.domain.usecases.requests.IncrementSystemCounterRequest
 
@@ -21,10 +22,23 @@ class SystemEventWorker @AssistedInject constructor(
             ?: return Result.failure()
 
         return try {
-            incrementSystemCounterUseCase(IncrementSystemCounterRequest.of(counterKey))
-            Result.success()
-        } catch (e: Exception) {
-            Result.failure()
+            val domainResult = incrementSystemCounterUseCase(IncrementSystemCounterRequest.of(counterKey))
+
+            when (domainResult) {
+                is io.droidevs.counterapp.domain.result.Result.Success -> Result.success()
+                is io.droidevs.counterapp.domain.result.Result.Failure -> {
+                    when (val error = domainResult.error) {
+                        is DatabaseError.DatabaseLocked -> if (error.retryable) Result.retry() else Result.failure()
+                        is DatabaseError.TimeOut -> Result.retry()
+                        is DatabaseError.TransientError -> Result.retry()
+                        // Anything else is considered non-retryable.
+                        else -> Result.failure()
+                    }
+                }
+            }
+        } catch (_: Throwable) {
+            // If we got an unexpected crash here, retry once WorkManager applies backoff.
+            Result.retry()
         }
     }
 
