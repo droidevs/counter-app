@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRepository {
     override fun getCategory(categoryId: String): Flow<Result<Category, DatabaseError>> =
         flowRunCatchingDatabase {
-            categoryDao.getCategory(categoryId).map { it?.toDomain() ?: throw DatabaseException.NoElementFound() }
+            categoryDao.getCategory(categoryId).map { it.toDomain() }
         }
 
     override fun topCategories(limit: Int): Flow<Result<List<Category>, DatabaseError>> =
@@ -33,17 +33,9 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
 
     override fun categoryWithCounters(categoryId: String): Flow<Result<CategoryWithCounters, DatabaseError>> =
         flowRunCatchingDatabase {
-            categoryDao.getCategoryWithCounters(categoryId = categoryId).map { it.toDomain() }
-        }
-
-    override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> =
-        flowRunCatchingDatabase {
-            categoryDao.getUserCategories().map { list -> list.map { it.toDomain() } }
-        }
-
-    override suspend fun createCategory(category: Category): Result<Unit, DatabaseError> =
-        runCatchingDatabaseResult {
-            categoryDao.insert(category.toEntity())
+            categoryDao.getCategoryWithCounters(categoryId = categoryId).map { rows ->
+                rows.firstOrNull()?.toDomain() ?: throw DatabaseException.NoElementFound()
+            }
         }
 
     override suspend fun deleteCategory(categoryId: String): Result<Unit, DatabaseError> =
@@ -69,5 +61,15 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
     override suspend fun exportCategories(): Result<List<Category>, DatabaseError> =
         runCatchingDatabaseResult {
             categoryDao.getUserCategories().first().map { it.toDomain() }
+        }
+
+    override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> =
+        flowRunCatchingDatabase {
+            categoryDao.getUserCategories().map { list -> list.map { it.toDomain() } }
+        }
+
+    override suspend fun createCategory(category: Category): Result<Unit, DatabaseError> =
+        runCatchingDatabaseResult {
+            categoryDao.insert(category.toEntity())
         }
 }

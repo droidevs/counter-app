@@ -13,8 +13,9 @@ class CreateCategoryUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider
 ) {
 
-    suspend operator fun invoke(request: CreateCategoryRequest): Result<Unit, DatabaseError> =
-        withContext(dispatchers.io) {
+    suspend operator fun invoke(request: CreateCategoryRequest): Result<Unit, DatabaseError> {
+        return withContext(dispatchers.io) {
             repository.createCategory(request.category)
         }
+    }
 }

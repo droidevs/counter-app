@@ -64,8 +64,8 @@ interface CategoryDao {
     suspend fun getByKey(key: String): CategoryEntity?
 
     @Transaction
-    @Query("SELECT * FROM categories WHERE id = :categoryId AND is_system = 0")
-    fun getCategoryWithCounters(categoryId: String): Flow<CategoryWithCountersEntity>
+    @Query("SELECT * FROM categories WHERE id = :categoryId")
+    fun getCategoryWithCounters(categoryId: String): Flow<List<CategoryWithCountersEntity>>
 
     @Update
     fun updateCategory(category : CategoryEntity)

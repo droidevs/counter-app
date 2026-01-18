@@ -16,9 +16,6 @@ interface CategoryRepository {
 
     fun categoryWithCounters(categoryId: String): Flow<Result<CategoryWithCounters, DatabaseError>>
 
-    fun allCategories(): Flow<Result<List<Category>, DatabaseError>>
-
-    suspend fun createCategory(category: Category): Result<Unit, DatabaseError>
     suspend fun deleteCategory(categoryId: String): Result<Unit, DatabaseError>
 
     suspend fun getExistingCategoryColors(): Result<List<Int>, DatabaseError>
@@ -28,4 +25,8 @@ interface CategoryRepository {
     suspend fun importCategories(categories: List<Category>): Result<Unit, DatabaseError>
 
     suspend fun exportCategories(): Result<List<Category>, DatabaseError>
+
+    fun allCategories(): Flow<Result<List<Category>, DatabaseError>>
+
+    suspend fun createCategory(category: Category): Result<Unit, DatabaseError>
 }
