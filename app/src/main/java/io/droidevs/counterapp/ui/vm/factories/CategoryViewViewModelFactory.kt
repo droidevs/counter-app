@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
@@ -12,6 +13,7 @@ import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 class CategoryViewViewModelFactory(
     private val savedStateHandle: SavedStateHandle,
     private val categoryUseCases: CategoryUseCases,
+    private val counterUseCases: CounterUseCases,
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModelProvider.Factory {
@@ -23,7 +25,8 @@ class CategoryViewViewModelFactory(
                 savedStateHandle = savedStateHandle,
                 categoryUseCases = categoryUseCases,
                 dateFormatter = dateFormatter,
-                uiMessageDispatcher = uiMessageDispatcher
+                uiMessageDispatcher = uiMessageDispatcher,
+                counterUseCases = counterUseCases
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
