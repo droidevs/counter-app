@@ -14,14 +14,15 @@ import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.NoCategoryUi
-
+import io.droidevs.counterapp.ui.label.LabelControlManager
 
 internal class HomeCounterAdapter(
     private val counters: MutableList<CounterWithCategoryUiModel>,
     private val listener: OnCounterClickListener? = null,
     private val onAddCounter : () -> Unit = {},
     private val onIncrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
-    private val onDecrement : (counter: CounterWithCategoryUiModel) -> Unit = {}
+    private val onDecrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
+    private val labelControlManager: LabelControlManager,
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -53,11 +54,13 @@ internal class HomeCounterAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            var cwg = counters[position]
+            val cwg = counters[position]
+            val labelsEnabled = labelControlManager.enabled.value
             holder.bind(
                 cwg = cwg,
                 onIncrement = onIncrement,
-                onDecrement = onDecrement
+                onDecrement = onDecrement,
+                labelsEnabled = labelsEnabled,
             )
             holder.itemView.setOnClickListener {
                 listener?.onCounterClick(cwg.counter)
@@ -88,10 +91,14 @@ internal class HomeCounterAdapter(
         fun bind(
             cwg: CounterWithCategoryUiModel,
             onIncrement: (CounterWithCategoryUiModel) -> Unit,
-            onDecrement: (CounterWithCategoryUiModel) -> Unit
+            onDecrement: (CounterWithCategoryUiModel) -> Unit,
+            labelsEnabled: Boolean,
         ) {
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
+
+            // Label == category chip
+            category.isVisible = labelsEnabled
 
             btnPlus.setOnClickListener { onIncrement(cwg) }
             btnMinus.setOnClickListener { onDecrement(cwg) }
@@ -130,6 +137,10 @@ internal class HomeCounterAdapter(
                 drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
                 category.background = drawable
                 tvEditTime.isVisible = false
+            }
+
+            if (!labelsEnabled) {
+                category.isVisible = false
             }
         }
     }

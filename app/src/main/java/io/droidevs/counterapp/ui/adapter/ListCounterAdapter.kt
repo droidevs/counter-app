@@ -17,12 +17,14 @@ import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.NoCategoryUi
 import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
 import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
+import io.droidevs.counterapp.ui.label.LabelControlManager
 
 class ListCounterAdapter(
     var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
     private val listener : OnCounterClickListener,
     private val onIncrement : (counter: CounterUiModel) -> Unit,
     private val onDecrement : (counter: CounterUiModel) -> Unit,
+    private val labelControlManager: LabelControlManager,
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -41,6 +43,9 @@ class ListCounterAdapter(
         ) {
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
+
+            val labelsEnabled = labelControlManager.enabled.value
+            tvCategory.isVisible = labelsEnabled
 
             val drawable = ContextCompat
                 .getDrawable(itemView.context, R.drawable.bg_chip)
@@ -61,6 +66,7 @@ class ListCounterAdapter(
                 drawable?.setTint(color)
                 tvCategory.background = drawable
 
+                // Edited time is about the CATEGORY, not the counter.
                 if (!categoryUi.editedTime.isNullOrBlank()) {
                     tvEditTime.text = itemView.context.getString(
                         R.string.edited_time_ago,
@@ -75,6 +81,11 @@ class ListCounterAdapter(
                 drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
                 tvCategory.background = drawable
                 tvEditTime.isVisible = false
+            }
+
+            // If labels are disabled, always hide the category chip.
+            if (!labelsEnabled) {
+                tvCategory.isVisible = false
             }
 
             binding.root.setOnClickListener {

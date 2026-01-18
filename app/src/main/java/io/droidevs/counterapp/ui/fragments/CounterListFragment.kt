@@ -22,6 +22,7 @@ import io.droidevs.counterapp.databinding.FragmentCounterListBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
+import io.droidevs.counterapp.ui.label.LabelControlManager
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
@@ -44,6 +45,9 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
 
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    @Inject
+    lateinit var labelControlManager: LabelControlManager
 
     @Suppress("DEPRECATION")
     override fun onCreateView(
@@ -72,7 +76,8 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
             },
             onDecrement = { counter ->
                 viewModel.onAction(CounterListAction.DecrementCounter(counter))
-            }
+            },
+            labelControlManager = labelControlManager
         )
 
         binding.rvCounters.apply {

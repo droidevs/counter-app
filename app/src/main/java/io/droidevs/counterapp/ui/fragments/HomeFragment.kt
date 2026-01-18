@@ -31,6 +31,7 @@ import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
+import io.droidevs.counterapp.ui.label.LabelControlManager
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -46,6 +47,9 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    @Inject
+    lateinit var labelControlManager: LabelControlManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +91,8 @@ class HomeFragment : Fragment() {
             },
             onDecrement = { counter ->
                 viewModel.onAction(HomeAction.DecrementCounter(counter.counter))
-            }
+            },
+            labelControlManager = labelControlManager
         )
 
         categoriesRecycler?.layoutManager =
