@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -34,7 +35,6 @@ import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.databinding.ActivityMainBinding
-import io.droidevs.counterapp.ui.listeners.VolumeKeyHandler
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.actions.UiActionHandler
@@ -46,6 +46,9 @@ import javax.inject.Inject
 import androidx.window.layout.WindowMetricsCalculator
 import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 import androidx.navigation.navOptions
+import io.droidevs.counterapp.ui.hardware.ActiveContentFragmentProvider
+import io.droidevs.counterapp.ui.hardware.HardwareButtonControlManager
+import io.droidevs.counterapp.ui.hardware.HardwareButtonKeyDispatcher
 
 
 @AndroidEntryPoint
@@ -55,6 +58,10 @@ class MainActivity : AppCompatActivity(), TabHost {
     @Inject lateinit var messageDispatcher: UiMessageDispatcher
 
     @Inject lateinit var actionHandler: UiActionHandler
+
+    @Inject lateinit var hardwareButtonControlManager: HardwareButtonControlManager
+    @Inject lateinit var activeContentFragmentProvider: ActiveContentFragmentProvider
+    @Inject lateinit var hardwareButtonKeyDispatcher: HardwareButtonKeyDispatcher
 
     private var toolbar : MaterialToolbar? = null
     private lateinit var navController : NavController
@@ -71,7 +78,6 @@ class MainActivity : AppCompatActivity(), TabHost {
     private var isProgrammaticTabSelection = false
 
     private var destinationListener: NavController.OnDestinationChangedListener? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -324,25 +330,15 @@ class MainActivity : AppCompatActivity(), TabHost {
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
 
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            val fragment = supportFragmentManager
-                .primaryNavigationFragment
-                ?.childFragmentManager
-                ?.fragments
-                ?.firstOrNull()
-
-
-            if (fragment is VolumeKeyHandler) {
-                when(event.keyCode) {
-                    KeyEvent.KEYCODE_VOLUME_UP -> {
-                        if (fragment.onVolumeUp()) return true
-                    }
-                    KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        if (fragment.onVolumeDown()) return true
-                    }
-                }
-            }
+        // If user disabled hardware button control, let system handle volume normally.
+        if (!hardwareButtonControlManager.enabled.value) {
+            Log.i("HardwareButtonKeyDispatcher", "Hardware button control disabled")
+            return super.dispatchKeyEvent(event)
         }
+
+        val currentFragment = activeContentFragmentProvider.current()
+        if (hardwareButtonKeyDispatcher.dispatch(event, currentFragment)) return true
+
         return super.dispatchKeyEvent(event)
     }
 
