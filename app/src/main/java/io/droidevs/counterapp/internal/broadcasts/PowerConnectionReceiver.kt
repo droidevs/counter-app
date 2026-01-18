@@ -10,11 +10,16 @@ import io.droidevs.counterapp.internal.system.SystemCounterWork
 @AndroidEntryPoint
 class PowerConnectionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_POWER_CONNECTED) {
-            SystemCounterWork.enqueueIncrement(
-                context = context,
-                counterKey = SystemCounterType.BATTERY_CHARGES.key
-            )
+        when (intent.action) {
+            Intent.ACTION_POWER_CONNECTED,
+            Intent.ACTION_POWER_DISCONNECTED -> {
+                SystemCounterWork.enqueueIncrement(
+                    context = context,
+                    counterKey = SystemCounterType.BATTERY_CHARGES.key,
+                    unique = false,
+                    debounceWindowMs = 0L
+                )
+            }
         }
     }
 }

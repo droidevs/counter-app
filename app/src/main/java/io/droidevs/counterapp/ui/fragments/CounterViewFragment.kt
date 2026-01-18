@@ -108,9 +108,23 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                                     (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
                                     binding.tvCounterName.text = c.name
                                     updateCount(binding.tvCurrentCount, c.currentCount)
-                                    binding.tvCreatedAt.text = getString(R.string.created_at_label, c.createdTime.toString())
-                                    binding.tvLastUpdatedAt.text = getString(R.string.last_updated_label, c.editedTime.toString())
 
+                                    // Meta chip: show Created only if never updated, otherwise show Updated only.
+                                    val created = c.createdTime?.toString().orEmpty()
+                                    val updated = c.editedTime?.toString().orEmpty()
+
+                                    val hasUserUpdate = updated.isNotBlank() && updated != created
+
+                                    val chipText = if (hasUserUpdate) {
+                                        getString(R.string.last_updated_label, updated)
+                                    } else {
+                                        getString(R.string.created_at_label, created)
+                                    }
+                                    binding.tvMetaTimeChip.text = chipText
+
+                                    // Controls visibility based on counter rules
+                                    binding.ivIncrement.isVisible = c.canIncrease
+                                    binding.ivDecrement.isVisible = c.canDecrease
                                     binding.ivIncrement.isEnabled = c.canIncrease
                                     binding.ivDecrement.isEnabled = c.canDecrease
                                 }
@@ -175,11 +189,15 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
     }
 
     override fun onVolumeUp(): Boolean {
+        val c = viewModel.uiState.value.counter
+        if (c?.canIncrease != true) return false
         viewModel.onAction(CounterViewAction.IncrementCounter)
         return true
     }
 
     override fun onVolumeDown(): Boolean {
+        val c = viewModel.uiState.value.counter
+        if (c?.canDecrease != true) return false
         viewModel.onAction(CounterViewAction.DecrementCounter)
         return true
     }
