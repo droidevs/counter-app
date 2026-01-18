@@ -1,7 +1,6 @@
 package io.droidevs.counterapp.ui.navigation.tabs
 
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 
@@ -15,15 +14,18 @@ import androidx.navigation.fragment.NavHostFragment
  */
 class MultiNavHostController(
     private val fragmentManager: FragmentManager,
-    private val containerId: Int,
-    private val lifecycle: Lifecycle
+    private val containerId: Int
 ) {
 
+    val currentTab: Tab?
+        get() = currentTabInternal
+
+    private var currentTabInternal: Tab? = null
+
     private val tabHosts = mutableMapOf<Tab, NavHostFragment>()
-    private var currentTab: Tab? = null
 
     val currentNavController: NavController?
-        get() = currentTab?.let { tabHosts[it]?.navController }
+        get() = currentTabInternal?.let { tabHosts[it]?.navController }
 
     fun setup(initialTab: Tab): NavController {
         // Restore existing hosts if they were recreated by FragmentManager (process death).
@@ -62,15 +64,15 @@ class MultiNavHostController(
 
         transaction.commitNow()
 
-        currentTab = initialTab
+        currentTabInternal = initialTab
         return tabHosts.getValue(initialTab).navController
     }
 
     fun switchTo(tab: Tab): NavController {
-        if (currentTab == tab) return tabHosts.getValue(tab).navController
+        if (currentTabInternal == tab) return tabHosts.getValue(tab).navController
 
         val newHost = tabHosts.getValue(tab)
-        val oldHost = currentTab?.let { tabHosts[it] }
+        val oldHost = currentTabInternal?.let { tabHosts[it] }
 
         fragmentManager.beginTransaction().apply {
             setReorderingAllowed(true)
@@ -79,7 +81,7 @@ class MultiNavHostController(
             setPrimaryNavigationFragment(newHost)
         }.commitNow()
 
-        currentTab = tab
+        currentTabInternal = tab
         return newHost.navController
     }
 

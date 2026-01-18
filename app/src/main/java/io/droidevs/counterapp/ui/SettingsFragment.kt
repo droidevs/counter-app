@@ -6,18 +6,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.SettingsViewModel
 import io.droidevs.counterapp.ui.vm.actions.SettingsAction
 import io.droidevs.counterapp.ui.vm.events.SettingsEvent
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat() {
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
 
     private val viewModel: SettingsViewModel by viewModels()
 
@@ -74,12 +78,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
                     when (event) {
-                        SettingsEvent.NavigateToHardware -> findNavController().navigate(R.id.action_to_hardware_preferences)
-                        SettingsEvent.NavigateToDisplay -> findNavController().navigate(R.id.action_to_display_preferences)
-                        SettingsEvent.NavigateToCounter -> findNavController().navigate(R.id.action_to_counter_preferences)
-                        SettingsEvent.NavigateToNotification -> findNavController().navigate(R.id.action_to_notification_preferences)
-                        SettingsEvent.NavigateToBackup -> findNavController().navigate(R.id.action_to_backup_preferences)
-                        SettingsEvent.NavigateToOther -> findNavController().navigate(R.id.action_to_other_preferences)
+                        SettingsEvent.NavigateToHardware -> appNavigator.navigate(R.id.action_to_hardware_preferences)
+                        SettingsEvent.NavigateToDisplay -> appNavigator.navigate(R.id.action_to_display_preferences)
+                        SettingsEvent.NavigateToCounter -> appNavigator.navigate(R.id.action_to_counter_preferences)
+                        SettingsEvent.NavigateToNotification -> appNavigator.navigate(R.id.action_to_notification_preferences)
+                        SettingsEvent.NavigateToBackup -> appNavigator.navigate(R.id.action_to_backup_preferences)
+                        SettingsEvent.NavigateToOther -> appNavigator.navigate(R.id.action_to_other_preferences)
                     }
                 }
             }

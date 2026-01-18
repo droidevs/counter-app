@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.window.layout.WindowMetricsCalculator
 import io.droidevs.counterapp.ui.navigation.tabs.TabHost
+import androidx.navigation.navOptions
 
 
 @AndroidEntryPoint
@@ -116,8 +117,7 @@ class MainActivity : AppCompatActivity(), TabHost {
 
         tabsController = MultiNavHostController(
             fragmentManager = supportFragmentManager,
-            containerId = R.id.tab_nav_host_container,
-            lifecycle = lifecycle
+            containerId = R.id.tab_nav_host_container
         )
 
         // Restore selected tab (default HOME).
@@ -151,6 +151,8 @@ class MainActivity : AppCompatActivity(), TabHost {
             if (isProgrammaticTabSelection) return true
             val tab = Tab.fromMenuId(menuId) ?: return false
 
+            val isReselect = tabsController.currentTab == tab
+
             // Switch active tab host.
             val newController = tabsController.switchTo(tab)
 
@@ -166,6 +168,18 @@ class MainActivity : AppCompatActivity(), TabHost {
                 if (navRail.selectedItemId != tab.menuId) navRail.selectedItemId = tab.menuId
             } finally {
                 isProgrammaticTabSelection = false
+            }
+
+            // Enforce singleTop root behavior on reselect.
+            if (isReselect) {
+                navController.navigate(tab.startDestinationId, null, navOptions {
+                    launchSingleTop = true
+                    restoreState = true
+                    popUpTo(tab.startDestinationId) {
+                        inclusive = false
+                        saveState = true
+                    }
+                })
             }
 
             setupActionBarWithNavController(navController, appBarConfiguration)
@@ -436,7 +450,9 @@ class MainActivity : AppCompatActivity(), TabHost {
 
     override fun switchToTabAndNavigate(tab: Tab, destinationId: Int, args: Bundle?) {
         switchToTab(tab)
-        navController.navigate(destinationId, args)
+        navController.navigate(destinationId, args, navOptions {
+            launchSingleTop = true
+        })
     }
 
     private companion object {
