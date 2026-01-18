@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -39,6 +40,8 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
 
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    private var lastRenderedCount: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,7 +110,10 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                                 state.counter?.let { c ->
                                     (activity as? AppCompatActivity)?.supportActionBar?.title = c.name
                                     binding.tvCounterName.text = c.name
+
+                                    val previous = lastRenderedCount
                                     updateCount(binding.tvCurrentCount, c.currentCount)
+                                    lastRenderedCount = c.currentCount
 
                                     // Meta chip: Show Created only if never updated, otherwise show Updated only.
                                     val chipText = if (c.wasUserUpdated) {
@@ -118,6 +124,20 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                                         getString(R.string.created_at_label, createdText)
                                     }
                                     binding.tvMetaTimeChip.text = chipText
+
+                                    // Icon: clock for created, pencil for updated
+                                    val iconRes = if (c.wasUserUpdated) R.drawable.ic_edit else R.drawable.ic_access_time
+                                    val icon = ContextCompat.getDrawable(requireContext(), iconRes)
+                                    binding.tvMetaTimeChip.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null)
+
+                                    // Animate the chip slightly when the count changes (increment/decrement/reset)
+                                    // but avoid animating on first render.
+                                    if (previous != null && previous != c.currentCount) {
+                                        binding.tvMetaTimeChip.clearAnimation()
+                                        binding.tvMetaTimeChip.startAnimation(
+                                            AnimationUtils.loadAnimation(requireContext(), R.anim.meta_chip_bump)
+                                        )
+                                    }
 
                                     // Controls visibility based on counter rules
                                     binding.ivIncrement.isVisible = c.canIncrease
