@@ -60,7 +60,14 @@ class ViewCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = CategoryCountersAdapter()
+        adapter = CategoryCountersAdapter(
+            onIncrement = { counter ->
+                viewModel.onAction(CategoryViewAction.IncrementCounter(counter))
+            },
+            onDecrement = { counter ->
+                viewModel.onAction(CategoryViewAction.DecrementCounter(counter))
+            }
+        )
         binding.rvCounters.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCounters.adapter = adapter
 

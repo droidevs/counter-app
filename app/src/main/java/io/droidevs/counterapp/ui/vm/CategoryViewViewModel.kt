@@ -10,14 +10,17 @@ import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
 import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithCountersRequest
+import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
+import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
@@ -37,6 +40,7 @@ import javax.inject.Inject
 class CategoryViewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val categoryUseCases: CategoryUseCases,
+    private val counterUseCases: CounterUseCases,
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher
 ) : ViewModel() {
@@ -82,7 +86,12 @@ class CategoryViewViewModel @Inject constructor(
                     _event.emit(CategoryViewEvent.NavigateToCreateCounter(categoryId))
                 }
             }
+
             CategoryViewAction.DeleteCategoryClicked -> deleteCategory()
+
+            is CategoryViewAction.IncrementCounter -> incrementCounter(action.counter)
+            is CategoryViewAction.DecrementCounter -> decrementCounter(action.counter)
+
             is CategoryViewAction.SetCategoryId -> {
                 // Handled by state initialization
             }
@@ -100,6 +109,32 @@ class CategoryViewViewModel @Inject constructor(
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_delete_category))
+                    )
+                }
+        }
+    }
+
+    private fun incrementCounter(counter: CounterUiModel) {
+        if (!counter.canIncrease) return
+
+        viewModelScope.launch {
+            counterUseCases.incrementCounter(counter.toDomain())
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                    )
+                }
+        }
+    }
+
+    private fun decrementCounter(counter: CounterUiModel) {
+        if (!counter.canDecrease) return
+
+        viewModelScope.launch {
+            counterUseCases.decrementCounter(counter.toDomain())
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
                     )
                 }
         }
