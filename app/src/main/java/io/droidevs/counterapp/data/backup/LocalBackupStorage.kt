@@ -25,7 +25,11 @@ class LocalBackupStorage @Inject constructor(
     ): Result<Uri, BackupStorageError> {
         return when (destination) {
             BackupLocation.Local -> saveToAppPrivateBackups(exportedFileUri, exportedFileName)
-            BackupLocation.GoogleDrive -> Result.Failure(BackupStorageError.Unknown(IllegalStateException("Google Drive backup not supported yet")))
+            BackupLocation.GoogleDrive -> Result.Failure(
+                BackupStorageError.Unknown(
+                    IllegalStateException("Google Drive backup not supported yet")
+                )
+            )
         }
     }
 
@@ -52,4 +56,3 @@ class LocalBackupStorage @Inject constructor(
         Uri.fromFile(targetFile)
     }
 }
-

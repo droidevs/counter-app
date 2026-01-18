@@ -19,34 +19,34 @@ class WorkManagerBackupScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) : BackupScheduler {
 
-    override suspend fun apply(config: BackupConfig): Result<Unit, BackupScheduleError> = runCatchingResult(
-        errorTransform = { e -> BackupScheduleError.Unknown(e) }
-    ) {
-        val request = PeriodicWorkRequestBuilder<io.droidevs.counterapp.internal.AutoBackupWorker>(
-            config.intervalHours,
-            TimeUnit.HOURS
-        )
-            .build()
+    override suspend fun apply(config: BackupConfig): Result<Unit, BackupScheduleError> =
+        runCatchingResult(
+            errorTransform = { e -> BackupScheduleError.Unknown(e) }
+        ) {
+            val request = PeriodicWorkRequestBuilder<io.droidevs.counterapp.internal.AutoBackupWorker>(
+                config.intervalHours,
+                TimeUnit.HOURS
+            ).build()
 
-        WorkManager.getInstance(context)
-            .enqueueUniquePeriodicWork(
-                WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
-                request
-            )
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(
+                    WORK_NAME,
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    request
+                )
 
-        Unit
-    }
+            Unit
+        }
 
-    override suspend fun cancel(): Result<Unit, BackupScheduleError> = runCatchingResult(
-        errorTransform = { e -> BackupScheduleError.Unknown(e) }
-    ) {
-        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
-        Unit
-    }
+    override suspend fun cancel(): Result<Unit, BackupScheduleError> =
+        runCatchingResult(
+            errorTransform = { e -> BackupScheduleError.Unknown(e) }
+        ) {
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+            Unit
+        }
 
     private companion object {
         private const val WORK_NAME = "auto_backup"
     }
 }
-
