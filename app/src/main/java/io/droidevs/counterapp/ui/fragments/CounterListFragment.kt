@@ -66,6 +66,7 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         setupFab()
         observeUiState()
         observeEvents()
+        observeLabelVisibility()
     }
 
     private fun setupRecyclerView() {
@@ -162,6 +163,19 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun observeLabelVisibility() {
+        var last: Boolean? = null
+        labelControlManager.enabled
+            .onEach { enabled ->
+                if (last == enabled) return@onEach
+                if (last != null) {
+                    listAdapter.onLabelVisibilityChanged()
+                }
+                last = enabled
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun showLoadingState() {

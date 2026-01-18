@@ -33,6 +33,8 @@ import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
 import io.droidevs.counterapp.ui.label.LabelControlManager
 import javax.inject.Inject
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -71,6 +73,7 @@ class HomeFragment : Fragment() {
         setUpRecyclerViews()
         setUpButtons()
         observeViewModel()
+        observeLabelVisibility()
     }
 
     private fun setUpRecyclerViews() {
@@ -213,6 +216,20 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun observeLabelVisibility() {
+        var last: Boolean? = null
+        labelControlManager.enabled
+            .onEach { enabled ->
+                if (last == enabled) return@onEach
+                // Skip the initial emission to avoid redundant refresh on first collect.
+                if (last != null) {
+                    (recentCountersRecycler?.adapter as? HomeCounterAdapter)?.onLabelVisibilityChanged()
+                }
+                last = enabled
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
 }

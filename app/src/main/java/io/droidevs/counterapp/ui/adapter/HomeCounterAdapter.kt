@@ -22,7 +22,7 @@ internal class HomeCounterAdapter(
     private val onAddCounter : () -> Unit = {},
     private val onIncrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
     private val onDecrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
-    private val labelControlManager: LabelControlManager,
+    private val labelControlManager: LabelControlManager
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -168,6 +168,12 @@ internal class HomeCounterAdapter(
     fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
         this.counters.clear()
         this.counters.addAll(counters)
+        notifyDataSetChanged()
+    }
+
+    /** Call when label-control preference toggles so views rebind with the new visibility. */
+    fun onLabelVisibilityChanged() {
+        // Rebind everything; list is small (recent counters). If it grows, switch to payload updates.
         notifyDataSetChanged()
     }
 

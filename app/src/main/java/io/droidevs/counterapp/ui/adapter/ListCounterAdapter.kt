@@ -160,4 +160,9 @@ class ListCounterAdapter(
         l.addAll(counters)
         notifyDataSetChanged()
     }
+
+    /** Call when label-control preference toggles so rows rebind with the new visibility. */
+    fun onLabelVisibilityChanged() {
+        notifyDataSetChanged()
+    }
 }

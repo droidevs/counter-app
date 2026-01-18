@@ -78,9 +78,8 @@ class CategoryCountersAdapter(
                 btnPlus.visibility = View.VISIBLE
                 btnMinus.visibility = View.VISIBLE
 
-                val allowControls = true
-                btnPlus.isEnabled = allowControls
-                btnMinus.isEnabled = allowControls
+                btnPlus.isEnabled = item.canIncrease
+                btnMinus.isEnabled = item.canDecrease
                 btnPlus.alpha = 1f
                 btnMinus.alpha = 1f
 
