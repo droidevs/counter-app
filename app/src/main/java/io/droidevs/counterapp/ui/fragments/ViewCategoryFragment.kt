@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -116,9 +117,25 @@ class ViewCategoryFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
-                        state.category?.let {
-                            binding.tvCategoryName.text = it.name
-                            binding.tvCountersCount.text = it.countersCount.toString()
+                        state.category?.let { category ->
+                            // Toolbar title
+                            (activity as? AppCompatActivity)?.supportActionBar?.title = category.name
+                            activity?.title = category.name
+
+                            binding.tvCategoryName.text = category.name
+
+                            // Chip count text
+                            val count = category.countersCount
+                            binding.chipCountersCount.text = resources.getQuantityString(
+                                R.plurals.counters_count,
+                                count,
+                                count
+                            )
+
+                            // Menu visibility depends on system category
+                            val isSystem = category.isSystem
+                            binding.fabAddCounter.isVisible = !isSystem
+                            requireActivity().invalidateOptionsMenu()
                         }
 
                         adapter.submitList(state.counters)
@@ -147,7 +164,7 @@ class ViewCategoryFragment : Fragment() {
                             else -> {
                                 hideState()
                                 binding.rvCounters.visibility = View.VISIBLE
-                                binding.fabAddCounter.visibility = View.VISIBLE
+                                // FAB visibility already set based on isSystem above
                             }
                         }
                     }
@@ -161,7 +178,6 @@ class ViewCategoryFragment : Fragment() {
                             }
 
                             is CategoryViewEvent.NavigateToCreateCounter -> {
-                                // Cross-tab: still must use TabHost.
                                 (activity as? TabHost)?.switchToTabAndNavigate(
                                     tab = Tab.COUNTERS,
                                     destinationId = R.id.counterCreateFragment,
@@ -182,6 +198,10 @@ class ViewCategoryFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.menuSettings).isVisible = false
         inflater.inflate(R.menu.menu_category_view, menu)
+
+        val category = viewModel.uiState.value.category
+        val hideDelete = category?.isSystem == true
+        menu.findItem(R.id.action_delete_category)?.isVisible = !hideDelete
     }
 
     @Deprecated("Deprecated in Java")

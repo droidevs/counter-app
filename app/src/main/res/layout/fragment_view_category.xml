@@ -6,30 +6,48 @@
     android:layout_height="match_parent"
     android:background="?colorBackground"
     android:padding="16dp">
-    <!-- Category name -->
-    <TextView
-        android:id="@+id/tvCategoryName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Health"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="?colorOnBackground"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Counters count -->
-    <TextView
-        android:id="@+id/tvCountersCount"
-        android:layout_width="wrap_content"
+    <!-- Header container (boxed, rounded, subtle shadow) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/categoryHeader"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="1 COUNTER"
-        android:textAllCaps="true"
-        android:textSize="12sp"
-        android:textColor="?colorOnSurfaceVariant"
-        app:layout_constraintStart_toStartOf="@id/tvCategoryName"
-        app:layout_constraintTop_toBottomOf="@id/tvCategoryName"
-        android:layout_marginTop="4dp"/>
+        android:background="@drawable/bg_category_header"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Category name -->
+        <TextView
+            android:id="@+id/tvCategoryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Counters count chip -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCountersCount"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            app:chipBackgroundColor="?attr/colorSecondaryContainer"
+            app:layout_constraintTop_toBottomOf="@id/tvCategoryName"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -38,7 +56,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/tvCountersCount"
+        app:layout_constraintTop_toBottomOf="@id/categoryHeader"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -48,7 +66,7 @@
         android:id="@+id/fabAddCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Add Counter"
+        android:contentDescription="@string/action_create_counter"
         android:src="@drawable/ic_add"
         android:tint="?colorOnPrimary"
         app:backgroundTint="?colorPrimary"
@@ -62,7 +80,7 @@
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvCountersCount"
+        app:layout_constraintTop_toBottomOf="@id/categoryHeader"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

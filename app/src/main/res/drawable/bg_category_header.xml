@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Shadow (simple, compatible). -->
+    <item android:left="0dp" android:top="2dp" android:right="0dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#14000000" />
+        </shape>
+    </item>
+
+    <!-- Card -->
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="?attr/colorSurface" />
+        </shape>
+    </item>
+
+</layer-list>
+

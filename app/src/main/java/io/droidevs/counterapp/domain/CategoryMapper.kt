@@ -35,6 +35,7 @@ fun Category.toUiModel(
         name = name,
         color = color,
         countersCount = countersCount,
+        isSystem = isSystem,
         createdTime = createdAt?.let { formatter.format(it) },
         editedTime = updatedAt?.let { formatter.format(it) }
     )

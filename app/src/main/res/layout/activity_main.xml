@@ -51,6 +51,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_gravity="start"
+                app:layout_constraintEnd_toStartOf="@id/tab_nav_host_container"
                 android:visibility="gone"
                 app:menu="@menu/menu_bottom_nav" />
 

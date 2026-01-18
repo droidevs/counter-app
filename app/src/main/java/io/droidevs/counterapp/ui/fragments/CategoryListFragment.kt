@@ -82,7 +82,6 @@ class CategoryListFragment : Fragment() {
         observeViewModel()
 
         if (isSystem) {
-
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
@@ -114,7 +113,7 @@ class CategoryListFragment : Fragment() {
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
                         updateUi(state)
