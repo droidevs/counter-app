@@ -95,7 +95,7 @@ class CountersListViewModel @Inject constructor(
             counterUseCases.incrementCounter(counter = c)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
                     )
                 }
         }
@@ -110,7 +110,7 @@ class CountersListViewModel @Inject constructor(
             counterUseCases.decrementCounter(counter = c)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
                     )
                 }
         }
@@ -160,9 +160,9 @@ class CountersListViewModel @Inject constructor(
                     orderAnchorAt = Instant.now()
                 )
             ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
+                // Internal ordering update. We don't want to toast user for this.
+                // (Keep the message key for internal analytics/logging later.)
+                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
     }

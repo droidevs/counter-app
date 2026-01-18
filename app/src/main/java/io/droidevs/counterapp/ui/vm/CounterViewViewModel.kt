@@ -105,7 +105,7 @@ class CounterViewViewModel @Inject constructor(
             counterUseCases.incrementCounter(currentCounter.toDomain())
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
                     )
                 }
         }
@@ -119,7 +119,7 @@ class CounterViewViewModel @Inject constructor(
             counterUseCases.decrementCounter(currentCounter.toDomain())
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
                     )
                 }
         }

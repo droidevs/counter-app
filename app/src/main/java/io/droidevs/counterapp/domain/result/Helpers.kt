@@ -42,7 +42,9 @@ suspend fun <D , E : RootError> runCatchingResult(
     block: suspend () -> D
 ): Result<D, E> = try {
     Result.Success(block())
-} catch (e: Exception) {
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Throwable) {
     Result.Failure(errorTransform(e))
 }
 
@@ -51,7 +53,9 @@ suspend fun <D , E : RootError> runCatchingWithResult(
     block: suspend () -> Result<D, E>
 ): Result<D, E> = try {
     block()
-} catch (e: Exception) {
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Throwable) {
     Result.Failure(errorTransform(e))
 }
 

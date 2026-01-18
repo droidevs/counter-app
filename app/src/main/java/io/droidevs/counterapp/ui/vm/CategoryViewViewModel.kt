@@ -131,7 +131,7 @@ class CategoryViewViewModel @Inject constructor(
             counterUseCases.incrementCounter(domain)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
                     )
                 }
         }
@@ -148,7 +148,7 @@ class CategoryViewViewModel @Inject constructor(
             counterUseCases.decrementCounter(domain)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
                     )
                 }
         }
@@ -183,9 +183,8 @@ class CategoryViewViewModel @Inject constructor(
                     orderAnchorAt = Instant.now()
                 )
             ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
+                // Internal ordering update. Don't toast the user.
+                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
     }

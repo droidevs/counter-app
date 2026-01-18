@@ -221,9 +221,8 @@ class HomeViewModel @Inject constructor(
                     orderAnchorAt = Instant.now()
                 )
             ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
+                // Internal sync/order update. Don't toast the user.
+                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
 
@@ -245,9 +244,8 @@ class HomeViewModel @Inject constructor(
                     orderAnchorAt = Instant.now()
                 )
             ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
+                // Internal sync/order update. Don't toast the user.
+                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
     }
@@ -263,7 +261,7 @@ class HomeViewModel @Inject constructor(
             counterUseCases.incrementCounter(counter = activeCounter!!)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
                     )
                 }
         }
@@ -280,7 +278,7 @@ class HomeViewModel @Inject constructor(
             counterUseCases.decrementCounter(counter = activeCounter!!)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
                     )
                 }
         }
