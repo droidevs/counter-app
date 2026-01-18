@@ -2,33 +2,38 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
+    android:layout_marginVertical="8dp"
     android:background="@drawable/bg_counter_category_card"
-    android:padding="16dp">
+    android:paddingHorizontal="18dp"
+    android:paddingVertical="18dp">
 
     <!-- Counter name -->
     <TextView
         android:id="@+id/tvCounterName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Counter Name"
+        android:text=""
+        tools:text="Counter Name"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:maxLines="1"
+        android:maxLines="2"
         android:ellipsize="end"
         android:textColor="?colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tvCounterValue"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="12dp"/>
 
     <!-- Updated date -->
     <TextView
         android:id="@+id/tvEditedTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edited 2h ago"
+        android:text=""
+        tools:text="Edited 2h ago"
         android:textSize="12sp"
         android:textColor="?colorOnSurfaceVariant"
         android:paddingHorizontal="8dp"
@@ -37,14 +42,16 @@
         android:alpha="0.75"
         app:layout_constraintStart_toStartOf="@id/tvCounterName"
         app:layout_constraintTop_toBottomOf="@id/tvCounterName"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="10dp"/>
 
     <!-- System Counter Hint (shown only for system counters that may not work) -->
     <TextView
         android:id="@+id/tvSystemHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Requires permission"
+        android:text=""
+        tools:text="Requires permission"
         android:textSize="11sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
@@ -62,14 +69,15 @@
         android:id="@+id/tvCounterValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="5"
+        android:text=""
+        tools:text="5"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toStartOf="@id/btnMinus"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="12dp"/>
+        android:layout_marginEnd="14dp"/>
 
     <!-- Minus button -->
     <ImageButton
@@ -82,7 +90,8 @@
         app:layout_constraintEnd_toStartOf="@id/btnPlus"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:tint="?colorPrimary" />
+        app:tint="?colorPrimary"
+        android:layout_marginEnd="10dp" />
 
     <!-- Plus button -->
     <ImageButton

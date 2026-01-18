@@ -1,14 +1,11 @@
 package io.droidevs.counterapp.ui.adapter
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
@@ -16,8 +13,7 @@ import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
-import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
-import io.droidevs.counterapp.ui.utils.getRelativeTime
+import io.droidevs.counterapp.ui.utils.NoCategoryUi
 
 
 internal class HomeCounterAdapter(
@@ -55,7 +51,7 @@ internal class HomeCounterAdapter(
         }
     }
 
-    override fun onBindViewHolder(@NonNull holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
             var cwg = counters[position]
             holder.bind(
@@ -96,45 +92,44 @@ internal class HomeCounterAdapter(
         ) {
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
-            category.text = cwg.category?.name
 
-            btnPlus.setOnClickListener {
-                onIncrement(cwg)
-            }
-            btnMinus.setOnClickListener {
-                onDecrement(cwg)
-            }
+            btnPlus.setOnClickListener { onIncrement(cwg) }
+            btnMinus.setOnClickListener { onDecrement(cwg) }
 
-            cwg.category?.let {
-                val drawable = ContextCompat
-                    .getDrawable(itemView.context, R.drawable.bg_chip)
-                    ?.mutate()
-                var color : Int
-                if (it.color.colorInt != 0) {
-                    color = it.color.colorInt
+            val drawable = ContextCompat
+                .getDrawable(itemView.context, R.drawable.bg_chip)
+                ?.mutate()
+
+            val categoryUi = cwg.category
+            if (categoryUi != null) {
+                category.text = categoryUi.name
+
+                val color = if (categoryUi.color.colorInt != 0) {
+                    categoryUi.color.colorInt
                 } else {
-                    color = CategoryColorUtil.generateColor(
+                    CategoryColorUtil.generateColor(
                         context = itemView.context,
-                        category = it.toDomain()
+                        category = categoryUi.toDomain()
                     )
                 }
                 drawable?.setTint(color)
                 category.background = drawable
 
-                count.text = itemView.context.resources.getQuantityString(
-                    R.plurals.counters_count, it.countersCount, it.countersCount
-                )
-
-                if (!it.editedTime.isNullOrBlank()) {
+                if (!categoryUi.editedTime.isNullOrBlank()) {
                     tvEditTime.text = itemView.context.getString(
                         R.string.edited_time_ago,
-                        it.editedTime
+                        categoryUi.editedTime
                     )
                     tvEditTime.isVisible = true
                 } else {
                     tvEditTime.isVisible = false
                 }
-
+            } else {
+                // No category
+                category.setText(NoCategoryUi.labelRes())
+                drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
+                category.background = drawable
+                tvEditTime.isVisible = false
             }
         }
     }
@@ -159,7 +154,7 @@ internal class HomeCounterAdapter(
     }
 
 
-    public fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
+    fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
         this.counters.clear()
         this.counters.addAll(counters)
         notifyDataSetChanged()

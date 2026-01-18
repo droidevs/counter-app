@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.FragmentCreateCounterBinding
 import io.droidevs.counterapp.ui.navigation.AppNavigator
+import io.droidevs.counterapp.ui.utils.NoCategoryUi
 import io.droidevs.counterapp.ui.vm.CreateCounterViewModel
 import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
@@ -32,7 +33,7 @@ class CreateCounterFragment : Fragment() {
     private val viewModel: CreateCounterViewModel by viewModels()
     private lateinit var categoryAdapter: ArrayAdapter<String>
 
-    private val noCategoryString by lazy { "No Category" } // Define const
+    private val noCategoryString by lazy { getString(NoCategoryUi.labelRes()) } // Define const
 
     @Inject
     lateinit var appNavigator: AppNavigator
@@ -122,9 +123,10 @@ class CreateCounterFragment : Fragment() {
                             binding.spinnerCategory.isVisible = false
                             binding.tvCategoryChip.isVisible = true
                             val category = state.categories.find { it.id == state.categoryId }
+                            val label = category?.name ?: getString(NoCategoryUi.labelRes())
                             binding.tvCategoryChip.text = getString(
                                 R.string.label_category_chip,
-                                category?.name.orEmpty()
+                                label
                             )
                         } else {
                             binding.spinnerCategory.isVisible = true

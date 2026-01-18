@@ -69,17 +69,24 @@ class CategoryCountersAdapter(
             }
 
             // Controls
-            val allowControls = if (item.isSystem && hint != null) {
-                SystemCounterSupportStatus.evaluate(ctx, item.systemKey).isSupported
-            } else true
+            if (item.isSystem) {
+                // In System Category view, hide manual +/-.
+                btnPlus.visibility = View.GONE
+                btnMinus.visibility = View.GONE
+                tvCounterValue.setPadding(tvCounterValue.paddingLeft, tvCounterValue.paddingTop, 0, tvCounterValue.paddingBottom)
+            } else {
+                btnPlus.visibility = View.VISIBLE
+                btnMinus.visibility = View.VISIBLE
 
-            btnPlus.isEnabled = allowControls
-            btnMinus.isEnabled = allowControls
-            btnPlus.alpha = if (allowControls) 1f else 0.5f
-            btnMinus.alpha = if (allowControls) 1f else 0.5f
+                val allowControls = true
+                btnPlus.isEnabled = allowControls
+                btnMinus.isEnabled = allowControls
+                btnPlus.alpha = 1f
+                btnMinus.alpha = 1f
 
-            btnPlus.setOnClickListener { if (allowControls) onIncrement(item) }
-            btnMinus.setOnClickListener { if (allowControls) onDecrement(item) }
+                btnPlus.setOnClickListener { onIncrement(item) }
+                btnMinus.setOnClickListener { onDecrement(item) }
+            }
         }
     }
 

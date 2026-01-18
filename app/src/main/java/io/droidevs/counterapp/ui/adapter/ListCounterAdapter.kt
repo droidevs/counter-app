@@ -1,13 +1,11 @@
 package io.droidevs.counterapp.ui.adapter
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
@@ -16,8 +14,7 @@ import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
-import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
-import io.droidevs.counterapp.ui.utils.getRelativeTime
+import io.droidevs.counterapp.ui.utils.NoCategoryUi
 import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
 import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
 
@@ -44,8 +41,41 @@ class ListCounterAdapter(
         ) {
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
-            tvCategory.text = data.category?.name
-            tvEditTime.text = data.counter.editedTime
+
+            val drawable = ContextCompat
+                .getDrawable(itemView.context, R.drawable.bg_chip)
+                ?.mutate()
+
+            val categoryUi = data.category
+            if (categoryUi != null) {
+                tvCategory.text = categoryUi.name
+
+                val color = if (categoryUi.color.colorInt != 0) {
+                    categoryUi.color.colorInt
+                } else {
+                    CategoryColorUtil.generateColor(
+                        context = itemView.context,
+                        category = categoryUi.toDomain()
+                    )
+                }
+                drawable?.setTint(color)
+                tvCategory.background = drawable
+
+                if (!categoryUi.editedTime.isNullOrBlank()) {
+                    tvEditTime.text = itemView.context.getString(
+                        R.string.edited_time_ago,
+                        categoryUi.editedTime
+                    )
+                    tvEditTime.isVisible = true
+                } else {
+                    tvEditTime.isVisible = false
+                }
+            } else {
+                tvCategory.setText(NoCategoryUi.labelRes())
+                drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
+                tvCategory.background = drawable
+                tvEditTime.isVisible = false
+            }
 
             binding.root.setOnClickListener {
                 listener.onCounterClick(data.counter)
@@ -56,34 +86,6 @@ class ListCounterAdapter(
 
             binding.btnMinus.setOnClickListener {
                 onDecrement(data.counter)
-            }
-
-            data.category?.let {
-                val drawable = ContextCompat
-                    .getDrawable(itemView.context, R.drawable.bg_chip)
-                    ?.mutate()
-
-                var color : Int
-                if (it.color.colorInt != 0) {
-                    color = it.color.colorInt
-                } else {
-                    color = CategoryColorUtil.generateColor(
-                        context = itemView.context,
-                        category = it.toDomain()
-                    )
-                }
-                drawable?.setTint(color)
-                tvCategory.background = drawable
-
-                if (!it.editedTime.isNullOrBlank()) {
-                    tvEditTime.text = itemView.context.getString(
-                        R.string.edited_time_ago,
-                        it.editedTime
-                    )
-                    tvEditTime.isVisible = true
-                } else {
-                    tvEditTime.isVisible = false
-                }
             }
 
             val ctx = itemView.context

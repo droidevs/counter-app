@@ -393,5 +393,8 @@
 
     <string name="system_counter_not_implemented">This system counter isn’t implemented yet in this build.</string>
 
+    <!-- New string resource for 'No category' label used in counter chips -->
+    <string name="no_category">No category</string>
+
 </resources>
 
