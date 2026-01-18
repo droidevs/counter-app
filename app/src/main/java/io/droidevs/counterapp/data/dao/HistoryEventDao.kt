@@ -2,6 +2,7 @@ package io.droidevs.counterapp.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import io.droidevs.counterapp.data.entities.HistoryEventEntity
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HistoryEventDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertEvent(event: HistoryEventEntity)
 
     @Transaction

@@ -5,14 +5,11 @@ import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.RootError
-import io.droidevs.counterapp.domain.result.flatMap
-import io.droidevs.counterapp.domain.result.flatMapSuspended
-import io.droidevs.counterapp.domain.result.resultSuspend
+import io.droidevs.counterapp.domain.result.recover
 import io.droidevs.counterapp.domain.result.resultSuspendFromFlow
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterIncrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
@@ -24,12 +21,13 @@ class IncrementCounterUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider
 ) {
     suspend operator fun invoke(counter: Counter): Result<Unit, RootError> = withContext(dispatchers.io) {
-        resultSuspendFromFlow { // ResultBuilder<Unit, RootError> scope
+        resultSuspendFromFlow {
             getCounterIncrementStepUseCase()
                 .combineSuspended { incrementStep ->
                     val oldValue = counter.currentCount
                     val newValue = oldValue + incrementStep
 
+                    // Primary operation: update counter.
                     updateCounterUseCase(
                         UpdateCounterRequest(
                             counterId = counter.id,
@@ -37,6 +35,7 @@ class IncrementCounterUseCase @Inject constructor(
                             lastUpdatedAt = Instant.now()
                         )
                     ).combineSuspended {
+                        // Best-effort history insert (do not fail increment).
                         addHistoryEventUseCase(
                             HistoryEvent(
                                 counterId = counter.id,
@@ -46,6 +45,7 @@ class IncrementCounterUseCase @Inject constructor(
                                 change = incrementStep,
                             )
                         )
+                            .recover { }
                     }
                 }
         }

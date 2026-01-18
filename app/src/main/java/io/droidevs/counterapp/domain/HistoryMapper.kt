@@ -8,7 +8,7 @@ import java.util.Date
 
 fun HistoryEvent.toEntity(): HistoryEventEntity {
     return HistoryEventEntity(
-        id = id,
+        id = id.let { if (it.toInt() == -1) 0L else it } ?: 0L,
         counterId = counterId,
         oldValue = oldValue,
         newValue = newValue,
