@@ -4,18 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentCategoryListBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.ui.adapter.CategoryListAdapter
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
@@ -24,6 +28,10 @@ import io.droidevs.counterapp.ui.vm.CategoryListViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryListAction
 import io.droidevs.counterapp.ui.vm.events.CategoryListEvent
 import io.droidevs.counterapp.ui.vm.states.CategoryListUiState
+import io.droidevs.counterapp.ui.permission.AppSettingsNavigator
+import io.droidevs.counterapp.ui.vm.PermissionViewModel
+import io.droidevs.counterapp.ui.vm.actions.PermissionAction
+import io.droidevs.counterapp.ui.vm.events.PermissionEvent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,9 +41,16 @@ class CategoryListFragment : Fragment() {
     private lateinit var binding: FragmentCategoryListBinding
     private lateinit var adapter: CategoryListAdapter
     private val viewModel: CategoryListViewModel by viewModels()
+    private val permissionViewModel: PermissionViewModel by viewModels()
 
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results: Map<String, Boolean> ->
+        permissionViewModel.onAction(PermissionAction.PermissionsResult(results))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +69,23 @@ class CategoryListFragment : Fragment() {
 
         setupRecyclerView()
         observeViewModel()
+
+        if (isSystem) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                // Centralized Action entry point. Internals emit PermissionEvent(s).
+                permissionViewModel.onAction(PermissionAction.EnterSystemCategories)
+
+//                // Also call the Result-returning entry point so we can recover gracefully on internal issues.
+//                permissionViewModel.ensureSystemCategoriesPermissions()
+//                    .recoverWith { _ ->
+//                        val missingNow = permissionViewModel.missing.value
+//                        if (missingNow.isNotEmpty()) {
+//                            showPermanentlyDeniedDialog()
+//                        }
+//                        Result.Success(Unit)
+//                    }
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -82,6 +114,12 @@ class CategoryListFragment : Fragment() {
                 launch {
                     viewModel.event.collect { event ->
                         handleEvent(event)
+                    }
+                }
+
+                launch {
+                    permissionViewModel.event.collect { event ->
+                        handlePermissionEvent(event)
                     }
                 }
             }
@@ -155,5 +193,41 @@ class CategoryListFragment : Fragment() {
                 )
             }
         }
+    }
+
+    private fun handlePermissionEvent(event: PermissionEvent) {
+        when (event) {
+            is PermissionEvent.RequestPermissions -> {
+                val requested = event.permissions
+                    .filter { it.isNotBlank() }
+                    .distinct()
+
+                if (requested.isNotEmpty()) {
+                    requestPermissionsLauncher.launch(requested.toTypedArray())
+                }
+            }
+
+            is PermissionEvent.ShowPermanentlyDeniedDialog -> {
+                showPermanentlyDeniedDialog()
+            }
+        }
+    }
+
+    private fun showPermanentlyDeniedDialog() {
+        val dialogView = layoutInflater.inflate(
+            R.layout.dialog_permission_required,
+            null,
+            false
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setTitle(R.string.permissions_permanently_denied_title)
+            .setMessage(R.string.permissions_permanently_denied_message)
+            .setPositiveButton(R.string.open_app_settings) { _, _ ->
+                AppSettingsNavigator.openAppSettings(requireContext())
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 }
