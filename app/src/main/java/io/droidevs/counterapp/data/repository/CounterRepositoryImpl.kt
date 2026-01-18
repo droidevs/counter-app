@@ -76,8 +76,15 @@ class CounterRepositoryImpl(
         }
     }
 
+    override fun getCountersWithCategories(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> =
+        flowRunCatchingDatabase {
+            dao.getCountersWithCategories(limit).map { data ->
+                data.map { it.toDomainModel() }
+            }
+        }
+
     override fun getLastEditedWithCategory(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> = flowRunCatchingDatabase {
-        dao.getCountersWithCategories(limit).map { data ->
+        dao.getLastEditedWithCategories(limit).map { data ->
             data.map { it.toDomainModel() }
         }
     }

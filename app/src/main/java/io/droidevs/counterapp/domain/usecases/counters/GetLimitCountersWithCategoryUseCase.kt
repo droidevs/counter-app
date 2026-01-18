@@ -13,5 +13,6 @@ class GetLimitCountersWithCategoryUseCase @Inject constructor(
     private val repository: CounterRepository,
     private val dispatchers: DispatcherProvider
 ) {
-    operator fun invoke(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> = repository.getLastEditedWithCategory(limit).flowOn(dispatchers.io)
+    operator fun invoke(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> =
+        repository.getCountersWithCategories(limit).flowOn(dispatchers.io)
 }

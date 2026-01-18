@@ -24,6 +24,9 @@ interface CounterRepository {
 
     fun getCountersWithCategories(): Flow<Result<List<CounterWithCategory>, DatabaseError>>
 
+    /** Same as getCountersWithCategories(), but limited and still sorted by orderAnchorAt. */
+    fun getCountersWithCategories(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>>
+
     fun getLastEditedWithCategory(limit : Int) : Flow<Result<List<CounterWithCategory>, DatabaseError>>
 
     fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>>

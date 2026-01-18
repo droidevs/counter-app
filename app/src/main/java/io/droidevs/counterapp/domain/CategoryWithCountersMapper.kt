@@ -9,7 +9,11 @@ import io.droidevs.counterapp.ui.models.CategoryWithCountersUiModel
 fun CategoryWithCountersEntity.toDomain() =
     CategoryWithCounters(
         category = category.toDomain(),
-        counters = counters.map { it.toDomain() }
+        counters = counters
+            .asSequence()
+            .map { it.toDomain() }
+            .sortedByDescending { it.orderAnchorAt ?: it.createdAt }
+            .toList()
     )
 
 fun CategoryWithCounters.toUiModel(

@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -81,13 +82,18 @@ class CategoryListFragment : Fragment() {
         observeViewModel()
 
         if (isSystem) {
+
             viewLifecycleOwner.lifecycleScope.launch {
-                permissionViewModel.ensureSystemCategoriesPermissions()
-                    .recoverWith {
-                        // On internal failure, show the same UX as blocked permissions.
-                        showPermanentlyDeniedDialog()
-                        Result.Success(Unit)
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        permissionViewModel.ensureSystemCategoriesPermissions()
+                            .recoverWith {
+                                // On internal failure, show the same UX as blocked permissions.
+                                showPermanentlyDeniedDialog()
+                                Result.Success(Unit)
+                            }
                     }
+                }
             }
         }
     }
@@ -108,7 +114,7 @@ class CategoryListFragment : Fragment() {
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 launch {
                     viewModel.uiState.collect { state ->
                         updateUi(state)

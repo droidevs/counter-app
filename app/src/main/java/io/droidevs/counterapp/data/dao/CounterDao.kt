@@ -69,8 +69,12 @@ interface CounterDao {
     fun getCountersWithCategories(): Flow<List<CounterWithCategoryEntity>>
 
     @Transaction
-    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY order_anchor_at DESC LIMIT :limit")
     fun getCountersWithCategories(limit : Int) : Flow<List<CounterWithCategoryEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :limit")
+    fun getLastEditedWithCategories(limit: Int): Flow<List<CounterWithCategoryEntity>>
 
 
     @Query("""

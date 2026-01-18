@@ -35,6 +35,12 @@ fun CounterUiModel.toDomain(): Counter {
         canDecrease = canDecrease,
         categoryId = categoryId,
         isSystem = isSystem,
-        systemKey = systemKey
+        systemKey = systemKey,
+        // IMPORTANT: preserve ordering + timestamps to avoid resetting when persisting.
+        // When UI model doesn't carry raw Instants, we must leave them null rather than overwrite an existing value.
+        // The actual values should come from repository when doing writes.
+        // (But we at least keep orderAnchorAt for in-memory reorder scheduling where available.)
+        orderAnchorAt = null,
+        lastUpdatedAt = null
     )
 }

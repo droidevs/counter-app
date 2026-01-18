@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
@@ -16,6 +17,7 @@ import io.droidevs.counterapp.domain.usecases.category.CategoryUseCases
 import io.droidevs.counterapp.domain.usecases.category.requests.DeleteCategoryRequest
 import io.droidevs.counterapp.domain.usecases.category.requests.GetCategoryWithCountersRequest
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
+import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import io.droidevs.counterapp.ui.date.DateFormatter
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -25,6 +27,7 @@ import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +37,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,6 +58,10 @@ class CategoryViewViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val event = _event.asSharedFlow()
+
+    private val reorderJobs = mutableMapOf<String, Job>()
+    private val pendingReorderCounterIds = mutableSetOf<String>()
+    private val reorderIdleMs = 2000L
 
     val uiState: StateFlow<CategoryViewUiState> = categoryUseCases.getCategoryWithCounters(
         GetCategoryWithCountersRequest(categoryId = categoryId)
@@ -117,26 +125,68 @@ class CategoryViewViewModel @Inject constructor(
     private fun incrementCounter(counter: CounterUiModel) {
         if (!counter.canIncrease) return
 
+        val domain = counter.toDomain()
+
         viewModelScope.launch {
-            counterUseCases.incrementCounter(counter.toDomain())
+            counterUseCases.incrementCounter(domain)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
                     )
                 }
         }
+
+        markPendingReorder(domain)
     }
 
     private fun decrementCounter(counter: CounterUiModel) {
         if (!counter.canDecrease) return
 
+        val domain = counter.toDomain()
+
         viewModelScope.launch {
-            counterUseCases.decrementCounter(counter.toDomain())
+            counterUseCases.decrementCounter(domain)
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
                     )
                 }
+        }
+
+        markPendingReorder(domain)
+    }
+
+    private fun markPendingReorder(counter: Counter) {
+        pendingReorderCounterIds += counter.id
+        scheduleReorderFlush(counter.id)
+    }
+
+    private fun scheduleReorderFlush(counterId: String) {
+        reorderJobs[counterId]?.cancel()
+        reorderJobs[counterId] = viewModelScope.launch {
+            kotlinx.coroutines.delay(reorderIdleMs)
+            if (pendingReorderCounterIds.contains(counterId)) {
+                flushReorder(counterId)
+            }
+        }
+    }
+
+    private fun flushReorder(counterId: String) {
+        reorderJobs[counterId]?.cancel()
+        reorderJobs.remove(counterId)
+        pendingReorderCounterIds.remove(counterId)
+
+        viewModelScope.launch {
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = counterId,
+                    orderAnchorAt = Instant.now()
+                )
+            ).onFailure {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                )
+            }
         }
     }
 }

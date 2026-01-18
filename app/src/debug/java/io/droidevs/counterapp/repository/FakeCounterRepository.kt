@@ -27,7 +27,7 @@ class FakeCounterRepository(
             when (result) {
                 is Result.Success -> Result.Success(
                     result.data.filter { !it.isSystem }
-                        .sortedByDescending { it.orderAnchorAt }
+                        .sortedByDescending { it.lastUpdatedAt ?: it.createdAt }
                         .take(limit)
                 )
 
@@ -91,7 +91,7 @@ class FakeCounterRepository(
             when (result) {
                 is Result.Success -> {
                     val countersWithCategories = result.data.filter { !it.isSystem }
-                        .sortedByDescending { it.orderAnchorAt }
+                        .sortedByDescending { it.orderAnchorAt ?: it.createdAt }
                         .map { counter ->
                             val categoryEntity = dummyData.categories.find { category ->
                                 category.id == counter.categoryId
@@ -109,17 +109,27 @@ class FakeCounterRepository(
         }
     }
 
+    override fun getCountersWithCategories(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> {
+        return getCountersWithCategories().map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.take(limit))
+                is Result.Failure -> result
+            }
+        }
+    }
+
     override fun getLastEditedWithCategory(limit: Int): Flow<Result<List<CounterWithCategory>, DatabaseError>> {
         return countersFlow.map { result ->
             when (result) {
                 is Result.Success -> {
                     val counters = result.data.filter { !it.isSystem }
-                        .sortedByDescending { it.orderAnchorAt }
+                        // For "last edited" semantics, use lastUpdatedAt.
+                        .sortedByDescending { it.lastUpdatedAt ?: it.createdAt }
                         .take(limit)
-                    val categoriesMap = dummyData.categories.filter { !it.isSystem }
-                        .associateBy { it.id }
+
+                    val categoriesMap = dummyData.categories.associateBy { it.id }
                     val countersWithCategories = counters.map { counter ->
-                        val categoryEntity = categoriesMap[counter.categoryId]
+                        val categoryEntity = counter.categoryId?.let { categoriesMap[it] }
                         CounterWithCategory(
                             counter = counter,
                             category = categoryEntity?.toDomain()

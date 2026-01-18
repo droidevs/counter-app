@@ -206,13 +206,25 @@ class HomeViewModel @Inject constructor(
     private fun finishInteraction(counterId: String) {
         Log.i("HomeViewModel", "finishInteraction: $counterId")
 
+        val counter = activeCounter
+        if (counter == null || counter.id != counterId) {
+            activeCounter = null
+            return
+        }
+
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counterId, orderAnchorAt = Instant.now()))
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                    )
-                }
+            // IMPORTANT: update orderAnchorAt only after idle delay so list doesn't reorder while user is tapping.
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = counterId,
+                    newCount = counter.currentCount,
+                    orderAnchorAt = Instant.now()
+                )
+            ).onFailure {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                )
+            }
         }
 
         activeCounter = null
@@ -220,13 +232,23 @@ class HomeViewModel @Inject constructor(
 
     private fun flushInteraction(counterId: String) {
         interactionJob?.cancel()
+
+        val counter = activeCounter
+        if (counter == null || counter.id != counterId) return
+
         viewModelScope.launch {
-            counterUseCases.updateCounter(UpdateCounterRequest.of(counterId = counterId, orderAnchorAt = Instant.now()))
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                    )
-                }
+            // Flush both count and orderAnchorAt once.
+            counterUseCases.updateCounter(
+                UpdateCounterRequest.of(
+                    counterId = counterId,
+                    newCount = counter.currentCount,
+                    orderAnchorAt = Instant.now()
+                )
+            ).onFailure {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                )
+            }
         }
     }
 
