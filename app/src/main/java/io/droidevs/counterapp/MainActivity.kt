@@ -151,9 +151,8 @@ class MainActivity : AppCompatActivity(), TabHost {
             if (isProgrammaticTabSelection) return true
             val tab = Tab.fromMenuId(menuId) ?: return false
 
-            val isReselect = tabsController.currentTab == tab
-
-            // Switch active tab host.
+            // Switching to same tab does not trigger this callback on reselection.
+            // Reselection is handled via setOnItemReselectedListener.
             val newController = tabsController.switchTo(tab)
 
             // Move listener from old controller to new.
@@ -170,18 +169,6 @@ class MainActivity : AppCompatActivity(), TabHost {
                 isProgrammaticTabSelection = false
             }
 
-            // Enforce singleTop root behavior on reselect.
-            if (isReselect) {
-                navController.navigate(tab.startDestinationId, null, navOptions {
-                    launchSingleTop = true
-                    restoreState = true
-                    popUpTo(tab.startDestinationId) {
-                        inclusive = false
-                        saveState = true
-                    }
-                })
-            }
-
             setupActionBarWithNavController(navController, appBarConfiguration)
             updateToolbarNavIcon()
             return true
@@ -192,6 +179,52 @@ class MainActivity : AppCompatActivity(), TabHost {
         }
         navRail.setOnItemSelectedListener { item ->
             selectTab(item.itemId)
+        }
+
+        // IMPORTANT: reselecting the currently selected tab does NOT call setOnItemSelectedListener.
+        // Use reselection listeners to implement "tap tab again => go to tab root".
+        bottomNav.setOnItemReselectedListener { item ->
+            val tab = Tab.fromMenuId(item.itemId) ?: return@setOnItemReselectedListener
+            val currentDestId = navController.currentDestination?.id
+
+            // Special case: Categories tab root can be in "system mode" via args.
+            // If already at root but in system mode, reselect should return to normal categories.
+            if (tab == Tab.CATEGORIES && currentDestId == tab.startDestinationId) {
+                val isSystem = navController.currentBackStackEntry
+                    ?.arguments
+                    ?.getBoolean("isSystem")
+                    ?: false
+
+                if (isSystem) {
+                    switchToTabRoot(tab, bundleOf("isSystem" to false))
+                }
+                return@setOnItemReselectedListener
+            }
+
+            if (currentDestId != tab.startDestinationId) {
+                switchToTabRoot(tab)
+            }
+        }
+
+        navRail.setOnItemReselectedListener { item ->
+            val tab = Tab.fromMenuId(item.itemId) ?: return@setOnItemReselectedListener
+            val currentDestId = navController.currentDestination?.id
+
+            if (tab == Tab.CATEGORIES && currentDestId == tab.startDestinationId) {
+                val isSystem = navController.currentBackStackEntry
+                    ?.arguments
+                    ?.getBoolean("isSystem")
+                    ?: false
+
+                if (isSystem) {
+                    switchToTabRoot(tab, bundleOf("isSystem" to false))
+                }
+                return@setOnItemReselectedListener
+            }
+
+            if (currentDestId != tab.startDestinationId) {
+                switchToTabRoot(tab)
+            }
         }
 
         // Proper back behavior: close drawer first if open, else pop within current tab.
@@ -403,14 +436,10 @@ class MainActivity : AppCompatActivity(), TabHost {
     }
 
     private fun openSystemCategories() {
-        // Switch to Categories tab then open system mode.
-        navController = tabsController.switchTo(Tab.CATEGORIES)
-        if (bottomNav.selectedItemId != Tab.CATEGORIES.menuId) bottomNav.selectedItemId = Tab.CATEGORIES.menuId
-        if (navRail.selectedItemId != Tab.CATEGORIES.menuId) navRail.selectedItemId = Tab.CATEGORIES.menuId
-
-        navController.navigate(
-            R.id.categoryListFragment,
-            bundleOf("isSystem" to true)
+        // Switch to Categories tab then open system mode at the tab root.
+        switchToTabRoot(
+            tab = Tab.CATEGORIES,
+            args = bundleOf("isSystem" to true)
         )
     }
 
@@ -452,6 +481,30 @@ class MainActivity : AppCompatActivity(), TabHost {
         switchToTab(tab)
         navController.navigate(destinationId, args, navOptions {
             launchSingleTop = true
+        })
+    }
+
+    override fun switchToTabRoot(tab: Tab, args: Bundle?) {
+        switchToTab(tab)
+
+        val currentDestId = navController.currentDestination?.id
+
+        // If already at root and there are no args to apply, do nothing.
+        if (currentDestId == tab.startDestinationId && args == null) return
+
+        // Ensure we are at the root destination of this tab.
+        // popBackStack(destinationId, inclusive=false) leaves the destination itself on stack.
+        navController.popBackStack(tab.startDestinationId, false)
+
+        // If args are provided (e.g. CategoryListFragment isSystem=true/false),
+        // we must re-navigate to deliver the new args. Avoid restoreState here because it can
+        // resurrect a previous instance with old args.
+        navController.navigate(tab.startDestinationId, args, navOptions {
+            launchSingleTop = true
+            if (args == null) {
+                // Standard tab-root restore: keep scroll/state when available.
+                restoreState = true
+            }
         })
     }
 

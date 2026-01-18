@@ -193,11 +193,15 @@ class HomeFragment : Fragment() {
                             }
 
                             HomeEvent.NavigateToCounterList -> {
-                                (activity as? TabHost)?.switchToTab(Tab.COUNTERS)
+                                (activity as? TabHost)?.switchToTabRoot(Tab.COUNTERS)
                             }
 
                             HomeEvent.NavigateToCategoryList -> {
-                                (activity as? TabHost)?.switchToTab(Tab.CATEGORIES)
+                                // Ensure user categories list (not system mode) is shown.
+                                (activity as? TabHost)?.switchToTabRoot(
+                                    tab = Tab.CATEGORIES,
+                                    args = bundleOf("isSystem" to false)
+                                )
                             }
                         }
                     }

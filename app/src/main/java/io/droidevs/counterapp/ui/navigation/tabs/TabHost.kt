@@ -14,6 +14,12 @@ interface TabHost {
     fun switchToTab(tab: Tab)
 
     /**
+     * Switches to the given tab and navigates to the tab's start destination.
+     * Use this when you want a predictable landing screen (e.g. Home -> "All Categories").
+     */
+    fun switchToTabRoot(tab: Tab, args: Bundle? = null)
+
+    /**
      * Switches to the given tab (if needed) then performs a navigation action
      * inside that tab's NavController.
      */
@@ -23,4 +29,3 @@ interface TabHost {
         args: Bundle? = null
     )
 }
-
