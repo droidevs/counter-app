@@ -11,6 +11,7 @@ import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
+import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
 import io.droidevs.counterapp.domain.usecases.counters.CounterUseCases
 import io.droidevs.counterapp.domain.usecases.requests.DeleteCounterRequest
@@ -99,16 +100,14 @@ class CounterViewViewModel @Inject constructor(
         if (!currentCounter.canIncrease) return
 
         viewModelScope.launch {
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId = counterId,
-                    newCount = currentCounter.currentCount + 1
-                )
-            ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
-            }
+            // Convert UI model back to domain model for the use case.
+            // This keeps increment logic centralized (step preferences + history).
+            counterUseCases.incrementCounter(currentCounter.toDomain())
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                    )
+                }
         }
     }
 
@@ -117,16 +116,12 @@ class CounterViewViewModel @Inject constructor(
         if (!currentCounter.canDecrease) return
 
         viewModelScope.launch {
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId = counterId,
-                    newCount = currentCounter.currentCount - 1
-                )
-            ).onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
-                )
-            }
+            counterUseCases.decrementCounter(currentCounter.toDomain())
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter))
+                    )
+                }
         }
     }
 
