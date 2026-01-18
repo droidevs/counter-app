@@ -12,6 +12,12 @@ data class CounterUiModel(
     val canDecrease: Boolean,
     val isSystem: Boolean = false,
     val systemKey: String? = null,
+
+    // Formatted display strings (UI)
     val createdTime: String? = null,
-    val editedTime : String? = null
+    val editedTime: String? = null,
+
+    // Raw timestamps for reliable UI decisions
+    val createdAt: Instant? = null,
+    val lastUpdatedAt: Instant? = null
 )

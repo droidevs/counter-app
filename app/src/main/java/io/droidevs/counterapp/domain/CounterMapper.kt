@@ -17,8 +17,10 @@ fun Counter.toUiModel(
         canDecrease = canDecrease,
         isSystem = isSystem,
         systemKey = systemKey,
-        createdTime = createdAt?.let { formatter.format(it) },
-        editedTime = lastUpdatedAt?.let { formatter.format(it) }
+        createdTime = formatter.format(createdAt),
+        editedTime = lastUpdatedAt?.let { formatter.format(it) },
+        createdAt = createdAt,
+        lastUpdatedAt = lastUpdatedAt
     )
 }
 

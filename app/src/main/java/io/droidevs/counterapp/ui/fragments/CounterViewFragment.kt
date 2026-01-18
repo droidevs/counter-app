@@ -109,16 +109,18 @@ class CounterViewFragment : Fragment(), VolumeKeyHandler {
                                     binding.tvCounterName.text = c.name
                                     updateCount(binding.tvCurrentCount, c.currentCount)
 
-                                    // Meta chip: show Created only if never updated, otherwise show Updated only.
-                                    val created = c.createdTime?.toString().orEmpty()
-                                    val updated = c.editedTime?.toString().orEmpty()
-
-                                    val hasUserUpdate = updated.isNotBlank() && updated != created
+                                    // Meta chip: use raw Instants, not formatted strings.
+                                    // Show Created only if never updated, otherwise show Updated only.
+                                    val createdAt = c.createdAt
+                                    val updatedAt = c.lastUpdatedAt
+                                    val hasUserUpdate = updatedAt != null && createdAt != null && updatedAt.isAfter(createdAt)
 
                                     val chipText = if (hasUserUpdate) {
-                                        getString(R.string.last_updated_label, updated)
+                                        val updatedText = c.editedTime.orEmpty()
+                                        getString(R.string.last_updated_label, updatedText)
                                     } else {
-                                        getString(R.string.created_at_label, created)
+                                        val createdText = c.createdTime.orEmpty()
+                                        getString(R.string.created_at_label, createdText)
                                     }
                                     binding.tvMetaTimeChip.text = chipText
 
