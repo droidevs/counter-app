@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
+import io.droidevs.counterapp.domain.usecases.backup.ApplyBackupScheduleUseCase
 import io.droidevs.counterapp.domain.usecases.preference.BackupPreferenceUseCases
 import io.droidevs.counterapp.ui.message.Message
 import io.droidevs.counterapp.ui.message.UiMessage
@@ -31,7 +32,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupPreferenceViewModel @Inject constructor(
     private val backup: BackupPreferenceUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val applyBackupScheduleUseCase: ApplyBackupScheduleUseCase
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<BackupPreferenceEvent>(extraBufferCapacity = 1)
@@ -88,6 +90,7 @@ class BackupPreferenceViewModel @Inject constructor(
         viewModelScope.launch {
             backup.setAutoBackup(enabled)
                 .onSuccessSuspend {
+                    applyBackupScheduleUseCase()
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
                             message = Message.Resource(R.string.auto_backup_updated)
@@ -109,6 +112,7 @@ class BackupPreferenceViewModel @Inject constructor(
             val coercedHours = hours.coerceIn(1L..720L)
             backup.setBackupInterval(coercedHours)
                 .onSuccessSuspend {
+                    applyBackupScheduleUseCase()
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
                             message = Message.Resource(R.string.backup_interval_updated)
