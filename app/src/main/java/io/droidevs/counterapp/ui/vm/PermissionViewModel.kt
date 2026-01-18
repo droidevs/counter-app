@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.domain.permissions.AppPermission
 import io.droidevs.counterapp.domain.permissions.PermissionError
-import io.droidevs.counterapp.domain.permissions.PermissionStatus
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.result.resultSuspend
@@ -36,8 +35,6 @@ class PermissionViewModel @Inject constructor(
         when (action) {
             PermissionAction.EnterSystemCategories -> {
                 viewModelScope.launch {
-                    // Entry point is Result-driven; we intentionally ignore the value here
-                    // because events are emitted for the UI to react to.
                     ensureSystemCategoriesPermissions()
                 }
             }
@@ -49,25 +46,19 @@ class PermissionViewModel @Inject constructor(
     }
 
     /**
-     * Single Result-driven entry point used when entering System Categories.
-     *
-     * Contract:
-     * - Success(Unit): no permanently denied permissions.
-     * - Failure(PermissionError): unexpected internal validation failure.
+     * Result-driven system permission entry point.
+     * This method does NOT attempt to detect permanently-denied (Activity-only concern).
      *
      * Side-effect:
-     * - Emits [PermissionEvent.RequestPermissions] when there are missing permissions we can still ask.
-     * - Emits [PermissionEvent.ShowPermanentlyDeniedDialog] when user permanently denied one/more.
+     * - Emits [PermissionEvent.RequestPermissions] when there are missing permissions.
      */
     suspend fun ensureSystemCategoriesPermissions(): Result<Unit, PermissionError> =
         resultSuspend {
-            // Validate manifest declarations (safety). If this fails, surface it.
             when (val validate = permissionUseCases.validateSystemManifest()) {
                 is Result.Failure -> return@resultSuspend Result.Failure(PermissionError.Internal(validate.error.message))
                 is Result.Success -> Unit
             }
 
-            // Missing permissions
             val missingNow = permissionUseCases.getMissingSystemPermissions()
                 .recoverWith { Result.Success(emptyList()) }
                 .let { (it as Result.Success).data }
@@ -75,21 +66,12 @@ class PermissionViewModel @Inject constructor(
             _missing.value = missingNow
             if (missingNow.isEmpty()) return@resultSuspend Result.Success(Unit)
 
-            val permanentlyDenied = missingNow.any {
-                permissionUseCases.getStatusWithActivity(it) == PermissionStatus.PermanentlyDenied
-            }
+            val manifestPerms = missingNow
+                .flatMap { permissionUseCases.getManifestPermissions(it) }
+                .distinct()
 
-            if (permanentlyDenied) {
-                _event.tryEmit(PermissionEvent.ShowPermanentlyDeniedDialog(missingNow))
-                Result.Success(Unit)
-            } else {
-                val manifestPerms = missingNow
-                    .flatMap { permissionUseCases.getManifestPermissions(it) }
-                    .distinct()
-
-                _event.tryEmit(PermissionEvent.RequestPermissions(manifestPerms))
-                Result.Success(Unit)
-            }
+            _event.tryEmit(PermissionEvent.RequestPermissions(manifestPerms))
+            Result.Success(Unit)
         }
 
     private fun refreshSystemPermissions() {
@@ -104,9 +86,6 @@ class PermissionViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Called by UI when permission request result returns.
-     */
     private fun onPermissionsResult(grants: Map<String, Boolean>) {
         refreshSystemPermissions()
 
@@ -114,14 +93,8 @@ class PermissionViewModel @Inject constructor(
             val anyDenied = grants.values.any { granted -> !granted }
             if (!anyDenied) return@launch
 
-            val missingNow = _missing.value
-            val permanentlyDenied = missingNow.any {
-                permissionUseCases.getStatusWithActivity(it) == PermissionStatus.PermanentlyDenied
-            }
-
-            if (permanentlyDenied) {
-                _event.tryEmit(PermissionEvent.ShowPermanentlyDeniedDialog(missingNow))
-            }
+            // Permanently denied detection is handled in Fragment (has Activity).
+            // VM just exposes missing permissions and emits request events.
         }
     }
 }

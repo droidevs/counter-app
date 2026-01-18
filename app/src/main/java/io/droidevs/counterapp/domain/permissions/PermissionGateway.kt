@@ -20,12 +20,9 @@ interface PermissionGateway {
     fun status(permission: AppPermission): PermissionStatus
 
     /**
-     * Check with an Activity whether the permission is permanently denied.
-     * If the permission isn't granted and rationale returns false, we treat it as permanently denied.
+     * Permanent-denied detection is a UI concern (requires Activity).
+     * Domain/data should not depend on Android Activity/Context.
      */
-    fun statusWithActivity(permission: AppPermission): PermissionStatus
-
-    /** Convenience: returns all required permissions for system counters. */
     fun requiredForSystemCategories(): List<AppPermission>
 
     /**
@@ -34,4 +31,3 @@ interface PermissionGateway {
      */
     suspend fun validateManifestDeclarations(): Result<Unit, InternalError>
 }
-

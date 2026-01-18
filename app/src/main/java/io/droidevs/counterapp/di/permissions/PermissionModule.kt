@@ -4,20 +4,20 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import io.droidevs.counterapp.data.permissions.AndroidPermissionGateway
-import io.droidevs.counterapp.domain.permissions.PermissionGateway
-import javax.inject.Provider
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ActivityComponent::class)
-object PermissionModule {
+@InstallIn(SingletonComponent::class)
+object PermissionSingletonModule {
 
     @Provides
+    @Singleton
     fun providePermissionGateway(
-        @ApplicationContext appContext: Context,
-        @ActivityContext activityContext: Provider<Context>
-    ): PermissionGateway = AndroidPermissionGateway(appContext = appContext, activityContextProvider = activityContext)
+        @ApplicationContext appContext : Context
+    ): io.droidevs.counterapp.domain.permissions.PermissionGateway = AndroidPermissionGateway(
+        appContext = appContext
+    )
 }

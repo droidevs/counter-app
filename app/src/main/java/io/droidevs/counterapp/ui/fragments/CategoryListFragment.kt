@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -49,7 +50,16 @@ class CategoryListFragment : Fragment() {
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results: Map<String, Boolean> ->
+        // Detect permanently denied: denied AND rationale is false.
+        val permanentlyDenied = results.entries.any { (permission, granted) ->
+            !granted && !ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), permission)
+        }
+
         permissionViewModel.onAction(PermissionAction.PermissionsResult(results))
+
+        if (permanentlyDenied) {
+            showPermanentlyDeniedDialog()
+        }
     }
 
     override fun onCreateView(
@@ -72,18 +82,12 @@ class CategoryListFragment : Fragment() {
 
         if (isSystem) {
             viewLifecycleOwner.lifecycleScope.launch {
-                // Centralized Action entry point. Internals emit PermissionEvent(s).
-                permissionViewModel.onAction(PermissionAction.EnterSystemCategories)
-
-//                // Also call the Result-returning entry point so we can recover gracefully on internal issues.
-//                permissionViewModel.ensureSystemCategoriesPermissions()
-//                    .recoverWith { _ ->
-//                        val missingNow = permissionViewModel.missing.value
-//                        if (missingNow.isNotEmpty()) {
-//                            showPermanentlyDeniedDialog()
-//                        }
-//                        Result.Success(Unit)
-//                    }
+                permissionViewModel.ensureSystemCategoriesPermissions()
+                    .recoverWith {
+                        // On internal failure, show the same UX as blocked permissions.
+                        showPermanentlyDeniedDialog()
+                        Result.Success(Unit)
+                    }
             }
         }
     }

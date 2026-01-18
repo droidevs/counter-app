@@ -8,7 +8,6 @@ import io.droidevs.counterapp.domain.permissions.PermissionGateway
 import io.droidevs.counterapp.domain.usecases.permissions.GetManifestPermissionsUseCase
 import io.droidevs.counterapp.domain.usecases.permissions.GetMissingSystemPermissionsUseCase
 import io.droidevs.counterapp.domain.usecases.permissions.GetPermissionStatusUseCase
-import io.droidevs.counterapp.domain.usecases.permissions.GetPermissionStatusWithActivityUseCase
 import io.droidevs.counterapp.domain.usecases.permissions.GetSystemPermissionsStatusUseCase
 import io.droidevs.counterapp.domain.usecases.permissions.GetSystemRequiredPermissionsUseCase
 import io.droidevs.counterapp.domain.usecases.permissions.PermissionUseCases
@@ -31,10 +30,6 @@ object PermissionUseCaseModule {
         GetPermissionStatusUseCase(gateway)
 
     @Provides
-    fun provideGetPermissionStatusWithActivityUseCase(gateway: PermissionGateway): GetPermissionStatusWithActivityUseCase =
-        GetPermissionStatusWithActivityUseCase(gateway)
-
-    @Provides
     fun provideGetMissingSystemPermissionsUseCase(gateway: PermissionGateway): GetMissingSystemPermissionsUseCase =
         GetMissingSystemPermissionsUseCase(gateway)
 
@@ -51,7 +46,6 @@ object PermissionUseCaseModule {
         getRequiredForSystemCategories: GetSystemRequiredPermissionsUseCase,
         getManifestPermissions: GetManifestPermissionsUseCase,
         getStatus: GetPermissionStatusUseCase,
-        getStatusWithActivity: GetPermissionStatusWithActivityUseCase,
         getMissingSystemPermissions: GetMissingSystemPermissionsUseCase,
         getSystemPermissionsStatus: GetSystemPermissionsStatusUseCase,
         validateSystemManifest: ValidateSystemPermissionsManifestUseCase
@@ -59,10 +53,8 @@ object PermissionUseCaseModule {
         getRequiredForSystemCategories = getRequiredForSystemCategories,
         getManifestPermissions = getManifestPermissions,
         getStatus = getStatus,
-        getStatusWithActivity = getStatusWithActivity,
         getMissingSystemPermissions = getMissingSystemPermissions,
         getSystemPermissionsStatus = getSystemPermissionsStatus,
         validateSystemManifest = validateSystemManifest
     )
 }
-
