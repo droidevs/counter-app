@@ -64,6 +64,9 @@ class ImportViewModel @Inject constructor(
                         is io.droidevs.counterapp.domain.result.errors.FileError.ReadError ->
                             R.string.failed_to_import_counters
 
+                        is io.droidevs.counterapp.domain.result.errors.FileError.WriteError ->
+                            R.string.failed_to_import_counters
+
                         else -> R.string.failed_to_import_counters
                     }
 

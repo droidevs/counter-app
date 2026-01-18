@@ -20,6 +20,7 @@ import io.droidevs.counterapp.domain.services.FileExportService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -52,7 +53,7 @@ class FileExportServiceImpl @Inject constructor(
     }
 
     override fun getAvailableExportFormats(): List<ExportFormat> {
-        return ExportFormat.values().toList()
+        return ExportFormat.entries.toList()
     }
 
     private fun createTempExportFile(
@@ -60,11 +61,18 @@ class FileExportServiceImpl @Inject constructor(
         format: ExportFormat
     ): File {
         val tempDir = File(context.cacheDir, "temp_exports").apply {
-            if (!exists()) mkdirs()
+            if (!exists() && !mkdirs()) {
+                throw IOException("Failed to create temp export directory")
+            }
         }
 
         val fileName = generateFileName(format)
         val tempFile = File(tempDir, fileName)
+
+        // Avoid partial/stale data if the same name is generated twice
+        if (tempFile.exists()) {
+            tempFile.delete()
+        }
 
         when (format) {
             ExportFormat.CSV -> exportToCsv(backup, tempFile)
@@ -195,7 +203,7 @@ class FileExportServiceImpl @Inject constructor(
         val timestamp = try {
             java.time.LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
         }
         return "${FILE_PREFIX}_$timestamp${format.extension}"
@@ -206,7 +214,7 @@ class FileExportServiceImpl @Inject constructor(
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(java.time.ZoneId.systemDefault())
             formatter.format(date)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date.from(date))
         }
     }

@@ -33,6 +33,10 @@ class FileImportServiceImpl @Inject constructor(
     override suspend fun import(fileUri: Uri): Result<Backup, FileError> {
         return runCatchingFileResult {
             val text = readText(fileUri)
+            if (text.isBlank()) {
+                throw IllegalArgumentException("Selected file is empty")
+            }
+
             val format = detectFormat(fileUri, text)
 
             val backupExport = when (format) {
@@ -69,11 +73,14 @@ class FileImportServiceImpl @Inject constructor(
             lowerName.endsWith(ExportFormat.CSV.extension) -> ExportFormat.CSV
             lowerName.endsWith(ExportFormat.XML.extension) -> ExportFormat.XML
             lowerName.endsWith(ExportFormat.TXT.extension) -> ExportFormat.TXT
-            // Fallback to content sniffing
+
+            // Content sniffing (safe)
             content.trimStart().startsWith("{") -> ExportFormat.JSON
             content.trimStart().startsWith("<") -> ExportFormat.XML
-            content.lines().firstOrNull()?.startsWith("Type,", ignoreCase = true) == true -> ExportFormat.CSV
-            else -> ExportFormat.JSON // default for backward compatibility
+            content.lineSequence().firstOrNull()?.trimStart()?.startsWith("Type,", ignoreCase = true) == true -> ExportFormat.CSV
+
+            // Unknown: do NOT default to JSON (that creates noisy failures)
+            else -> throw IllegalArgumentException("Unsupported file type. Please import JSON/CSV/XML exported from this app.")
         }
     }
 

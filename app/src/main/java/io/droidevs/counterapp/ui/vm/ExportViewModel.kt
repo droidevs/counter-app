@@ -3,6 +3,7 @@ package io.droidevs.counterapp.ui.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccess
@@ -14,6 +15,7 @@ import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ExportAction
 import io.droidevs.counterapp.ui.vm.events.ExportEvent
+import io.droidevs.counterapp.domain.result.errors.FileError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -49,13 +51,21 @@ class ExportViewModel @Inject constructor(
             result
                 .onSuccess { success ->
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = io.droidevs.counterapp.R.string.export_success))
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.export_success))
                     )
                     _event.tryEmit(ExportEvent.ShareExportFile(success.fileUri))
                 }
-                .onFailure { _ ->
+                .onFailure { error ->
+                    val resId = when (error) {
+                        is FileError.UnsupportedFormat -> R.string.export_failed
+                        is FileError.ReadError -> R.string.export_failed
+                        is FileError.WriteError -> R.string.export_failed
+                        is FileError.ShareError -> R.string.export_failed
+                        else -> R.string.export_failed
+                    }
+
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = io.droidevs.counterapp.R.string.export_failed))
+                        UiMessage.Toast(message = Message.Resource(resId = resId))
                     )
                 }
         }
