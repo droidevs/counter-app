@@ -11,11 +11,17 @@ import io.droidevs.counterapp.internal.system.SystemCounterWork
 class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            SystemCounterWork.enqueueIncrement(
-                context = context,
-                counterKey = SystemCounterType.DEVICE_RESTARTS.key
-            )
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_LOCKED_BOOT_COMPLETED -> {
+                SystemCounterWork.enqueueIncrement(
+                    context = context,
+                    counterKey = SystemCounterType.DEVICE_RESTARTS.key,
+                    // boot should never be spammed, but keep unique work.
+                    unique = true,
+                    debounceWindowMs = 0L
+                )
+            }
         }
     }
 }
