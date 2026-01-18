@@ -17,7 +17,6 @@ data class CounterUiModel(
     val createdTime: String? = null,
     val editedTime: String? = null,
 
-    // Raw timestamps for reliable UI decisions
-    val createdAt: Instant? = null,
-    val lastUpdatedAt: Instant? = null
+    // Derived flags
+    val wasUserUpdated: Boolean = false
 )

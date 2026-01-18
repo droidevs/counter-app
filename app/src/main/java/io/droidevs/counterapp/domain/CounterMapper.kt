@@ -8,6 +8,8 @@ import io.droidevs.counterapp.ui.models.CounterUiModel
 fun Counter.toUiModel(
     formatter: DateFormatter
 ): CounterUiModel {
+    val wasUserUpdated = lastUpdatedAt != null && lastUpdatedAt!!.isAfter(createdAt)
+
     return CounterUiModel(
         id = id,
         name = name,
@@ -19,8 +21,7 @@ fun Counter.toUiModel(
         systemKey = systemKey,
         createdTime = formatter.format(createdAt),
         editedTime = lastUpdatedAt?.let { formatter.format(it) },
-        createdAt = createdAt,
-        lastUpdatedAt = lastUpdatedAt
+        wasUserUpdated = wasUserUpdated
     )
 }
 
