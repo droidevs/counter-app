@@ -31,7 +31,9 @@ import io.droidevs.counterapp.ui.navigation.tabs.TabHost
 import io.droidevs.counterapp.ui.vm.HomeViewModel
 import io.droidevs.counterapp.ui.vm.actions.HomeAction
 import io.droidevs.counterapp.ui.vm.events.HomeEvent
-import io.droidevs.counterapp.ui.label.LabelControlManager
+import io.droidevs.counterapp.domain.display.DisplayPreferencesProvider
+import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.recoverWith
 import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -51,7 +53,7 @@ class HomeFragment : Fragment() {
     lateinit var appNavigator: AppNavigator
 
     @Inject
-    lateinit var labelControlManager: LabelControlManager
+    lateinit var displayPreferencesProvider: DisplayPreferencesProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +75,7 @@ class HomeFragment : Fragment() {
         setUpRecyclerViews()
         setUpButtons()
         observeViewModel()
-        observeLabelVisibility()
+        observeDisplayPreferences()
     }
 
     private fun setUpRecyclerViews() {
@@ -94,8 +96,7 @@ class HomeFragment : Fragment() {
             },
             onDecrement = { counter ->
                 viewModel.onAction(HomeAction.DecrementCounter(counter.counter))
-            },
-            labelControlManager = labelControlManager
+            }
         )
 
         categoriesRecycler?.layoutManager =
@@ -218,16 +219,21 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun observeLabelVisibility() {
-        var last: Boolean? = null
-        labelControlManager.enabled
-            .onEach { enabled ->
-                if (last == enabled) return@onEach
-                // Skip the initial emission to avoid redundant refresh on first collect.
-                if (last != null) {
-                    (recentCountersRecycler?.adapter as? HomeCounterAdapter)?.onLabelVisibilityChanged()
-                }
-                last = enabled
+    private fun observeDisplayPreferences() {
+        displayPreferencesProvider.preferences()
+            .recoverWith {
+                // On preference read failure, keep safe defaults.
+                Result.Success(
+                    io.droidevs.counterapp.domain.display.DisplayPreferences(
+                        hideControls = false,
+                        hideLastUpdate = false,
+                        hideCounterCategoryLabel = false
+                    )
+                )
+            }
+            .onEach { result ->
+                val prefs = (result as Result.Success).data
+                (recentCountersRecycler?.adapter as? HomeCounterAdapter)?.updateDisplayPreferences(prefs)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }

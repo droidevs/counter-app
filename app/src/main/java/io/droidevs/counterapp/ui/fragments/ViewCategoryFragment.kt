@@ -23,6 +23,9 @@ import io.droidevs.counterapp.databinding.EmptyStateLayoutBinding
 import io.droidevs.counterapp.databinding.ErrorStateLayoutBinding
 import io.droidevs.counterapp.databinding.FragmentViewCategoryBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
+import io.droidevs.counterapp.domain.display.DisplayPreferences
+import io.droidevs.counterapp.domain.display.DisplayPreferencesProvider
+import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.ui.adapter.CategoryCountersAdapter
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.navigation.tabs.Tab
@@ -31,6 +34,8 @@ import io.droidevs.counterapp.ui.vm.CategoryViewViewModel
 import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import javax.inject.Inject
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -43,6 +48,9 @@ class ViewCategoryFragment : Fragment() {
 
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    @Inject
+    lateinit var displayPreferencesProvider: DisplayPreferencesProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +85,7 @@ class ViewCategoryFragment : Fragment() {
         }
 
         observeViewModel()
+        observeDisplayPreferences()
     }
 
     private fun showLoading() {
@@ -191,6 +200,20 @@ class ViewCategoryFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun observeDisplayPreferences() {
+        val defaults = DisplayPreferences(
+            hideControls = false,
+            hideLastUpdate = false,
+            hideCounterCategoryLabel = false
+        )
+
+        displayPreferencesProvider.preferences()
+            .onEach { result ->
+                adapter.updateDisplayPreferences(result.dataOr { defaults })
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     @Deprecated("Deprecated in Java")

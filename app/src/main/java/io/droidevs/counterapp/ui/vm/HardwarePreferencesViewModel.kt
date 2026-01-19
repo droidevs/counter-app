@@ -30,23 +30,23 @@ class HardwarePreferencesViewModel @Inject constructor(
     val event = _event.asSharedFlow()
 
     val uiState: StateFlow<HardwarePreferenceUiState> = combine(
+        useCases.getKeepScreenOn(),
         useCases.getHardwareButtonControl(),
         useCases.getSoundsOn(),
         useCases.getVibrationOn(),
-        useCases.getLabelControl()
-    ) { hardwareButtonControlResult, soundsOnResult, vibrationOnResult, showLabelsResult ->
+    ) { keepScreenOnResult, hardwareButtonControlResult, soundsOnResult, vibrationOnResult ->
 
         when {
+            keepScreenOnResult is Result.Failure -> Result.Failure(keepScreenOnResult.error)
             hardwareButtonControlResult is Result.Failure -> Result.Failure(hardwareButtonControlResult.error)
             soundsOnResult is Result.Failure -> Result.Failure(soundsOnResult.error)
             vibrationOnResult is Result.Failure -> Result.Failure(vibrationOnResult.error)
-            showLabelsResult is Result.Failure -> Result.Failure(showLabelsResult.error)
             else -> Result.Success(
                 HardwarePreferenceUiState(
+                    keepScreenOn = keepScreenOnResult.dataOr { false },
                     hardwareButtonControl = hardwareButtonControlResult.dataOr { false },
                     soundsOn = soundsOnResult.dataOr { false },
                     vibrationOn = vibrationOnResult.dataOr { false },
-                    showLabels = showLabelsResult.dataOr { false },
                     error = false,
                     isLoading = false
                 )
@@ -56,10 +56,10 @@ class HardwarePreferencesViewModel @Inject constructor(
         .recoverWith {
             Result.Success(
                 HardwarePreferenceUiState(
+                    keepScreenOn = false,
                     hardwareButtonControl = false,
                     soundsOn = false,
                     vibrationOn = false,
-                    showLabels = false,
                     error = true,
                     isLoading = false
                 )
@@ -75,10 +75,26 @@ class HardwarePreferencesViewModel @Inject constructor(
 
     fun onAction(action: HardwarePreferenceAction) {
         when (action) {
+            is HardwarePreferenceAction.SetKeepScreenOn -> setKeepScreenOn(action.keep)
             is HardwarePreferenceAction.SetHardwareButtonControl -> setHardwareButtonControl(action.enabled)
             is HardwarePreferenceAction.SetSoundsOn -> setSoundsOn(action.enabled)
             is HardwarePreferenceAction.SetVibrationOn -> setVibrationOn(action.enabled)
-            is HardwarePreferenceAction.SetShowLabels -> setShowLabels(action.show)
+        }
+    }
+
+    private fun setKeepScreenOn(keep: Boolean) {
+        viewModelScope.launch {
+            useCases.setKeepScreenOn(keep)
+                .onSuccessSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.keep_screen_on_updated))
+                    )
+                }
+                .onFailureSuspend {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_keep_screen_on))
+                    )
+                }
         }
     }
 
@@ -125,22 +141,6 @@ class HardwarePreferencesViewModel @Inject constructor(
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_vibration))
-                    )
-                }
-        }
-    }
-
-    private fun setShowLabels(show: Boolean) {
-        viewModelScope.launch {
-            useCases.setLabelControl(show)
-                .onSuccessSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.labels_visibility_updated))
-                    )
-                }
-                .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_labels_visibility))
                     )
                 }
         }

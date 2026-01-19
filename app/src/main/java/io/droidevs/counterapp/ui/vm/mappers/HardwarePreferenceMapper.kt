@@ -7,7 +7,6 @@ fun Quadruple<Boolean, Boolean, Boolean, Boolean>.toHardwarePreferenceUiState():
     return HardwarePreferenceUiState(
         hardwareButtonControl = first,
         soundsOn = second,
-        vibrationOn = third,
-        showLabels = fourth
+        vibrationOn = third
     )
 }

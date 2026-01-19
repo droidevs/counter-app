@@ -1,4 +1,4 @@
-package io.droidevs.counterapp.domain.usecases.preference.display
+package io.droidevs.counterapp.domain.usecases.preference.controle
 
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference
@@ -7,6 +7,9 @@ import io.droidevs.counterapp.domain.result.errors.PreferenceError
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+/**
+ * Control preference: keep the screen on.
+ */
 class SetKeepScreenOnUseCase @Inject constructor(
     private val pref: KeepScreenOnPreference,
     private val dispatchers: DispatcherProvider
@@ -15,3 +18,4 @@ class SetKeepScreenOnUseCase @Inject constructor(
         pref.set(value)
     }
 }
+

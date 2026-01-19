@@ -427,5 +427,9 @@
     <string name="error_min_gt_max">Minimum value can’t be greater than maximum value</string>
     <string name="error_count_outside_bounds">Current count must be within min/max limits</string>
 
+    <!-- Display preferences: counter list/category label visibility -->
+    <string name="hide_counter_category_label_title">Hide counter category label</string>
+    <string name="hide_counter_category_label_summary">Hide the category chip shown on counters across the app.</string>
+
 </resources>
 

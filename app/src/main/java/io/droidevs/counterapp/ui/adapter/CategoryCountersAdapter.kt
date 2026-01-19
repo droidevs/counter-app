@@ -13,11 +13,18 @@ import io.droidevs.counterapp.ui.adapter.models.CounterItem
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
 import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
+import io.droidevs.counterapp.domain.display.DisplayPreferences
 
 class CategoryCountersAdapter(
     private val onIncrement: (CounterUiModel) -> Unit = {},
     private val onDecrement: (CounterUiModel) -> Unit = {}
 ) : DiffListAdapter<CounterItem, CategoryCountersAdapter.ViewHolder>() {
+
+    private var displayPreferences: DisplayPreferences = DisplayPreferences(
+        hideControls = false,
+        hideLastUpdate = false,
+        hideCounterCategoryLabel = false,
+    )
 
     inner class ViewHolder(val binding: ItemCategoryCounterBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -31,6 +38,12 @@ class CategoryCountersAdapter(
         return ViewHolder(binding)
     }
 
+    fun updateDisplayPreferences(prefs: DisplayPreferences) {
+        if (displayPreferences == prefs) return
+        displayPreferences = prefs
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position).model
         val ctx = holder.itemView.context
@@ -39,7 +52,8 @@ class CategoryCountersAdapter(
             tvCounterName.text = item.name
             tvCounterValue.text = item.currentCount.toString()
 
-            if (!item.editedTime.isNullOrBlank()) {
+            val showEdited = !displayPreferences.hideLastUpdate
+            if (showEdited && !item.editedTime.isNullOrBlank()) {
                 tvEditedTime.text = ctx.getString(R.string.edited_time_ago, item.editedTime)
                 tvEditedTime.isVisible = true
             } else {
@@ -69,7 +83,8 @@ class CategoryCountersAdapter(
             }
 
             // Controls
-            if (item.isSystem) {
+            val showControls = !displayPreferences.hideControls
+            if (item.isSystem || !showControls) {
                 // In System Category view, hide manual +/-.
                 btnPlus.visibility = View.GONE
                 btnMinus.visibility = View.GONE

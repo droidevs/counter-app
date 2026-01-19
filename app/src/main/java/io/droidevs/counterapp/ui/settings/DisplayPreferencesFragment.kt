@@ -26,7 +26,7 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
     private var themePref: ListPreference? = null
     private var hideControlsPref: SwitchPreferenceCompat? = null
     private var hideLastUpdatePref: SwitchPreferenceCompat? = null
-    private var keepScreenOnPref: SwitchPreferenceCompat? = null
+    private var hideCounterCategoryLabelPref: SwitchPreferenceCompat? = null
 
     private var loadingView: View? = null
     private var errorView: View? = null
@@ -57,13 +57,13 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
         themePref = findPreference("theme")
         hideControlsPref = findPreference("hide_controls")
         hideLastUpdatePref = findPreference("hide_last_update")
-        keepScreenOnPref = findPreference("keep_screen_on")
+        hideCounterCategoryLabelPref = findPreference("hide_counter_category_label")
     }
 
     private fun setupPreferenceListeners() {
         themePref?.setOnPreferenceChangeListener { _, newValue ->
             val themeString = newValue as String
-            val theme = Theme.getCurrent(id = themeString) ?: Theme.SYSTEM
+            val theme = Theme.getCurrent(id = themeString)
             viewModel.onAction(DisplayPreferenceAction.SetTheme(theme))
             true
         }
@@ -78,8 +78,8 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
             true
         }
 
-        keepScreenOnPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.onAction(DisplayPreferenceAction.SetKeepScreenOn(newValue as Boolean))
+        hideCounterCategoryLabelPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(DisplayPreferenceAction.SetHideCounterCategoryLabel(newValue as Boolean))
             true
         }
     }
@@ -110,7 +110,7 @@ class DisplayPreferencesFragment : PreferenceFragmentCompat() {
                     }
                     hideControlsPref?.isChecked = state.hideControls
                     hideLastUpdatePref?.isChecked = state.hideLastUpdate
-                    keepScreenOnPref?.isChecked = state.keepScreenOn
+                    hideCounterCategoryLabelPref?.isChecked = state.hideCounterCategoryLabel
                 }
             }
         }

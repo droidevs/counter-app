@@ -46,20 +46,20 @@ class DisplayPreferencesViewModel @Inject constructor(
         useCases.getTheme(),
         useCases.getHideControls(),
         useCases.getHideLastUpdate(),
-        useCases.getKeepScreenOn(),
-    ) { themeResult, hideControlsResult, hideLastUpdateResult, keepScreenOnResult ->
+        useCases.getHideCounterCategoryLabel(),
+    ) { themeResult, hideControlsResult, hideLastUpdateResult, hideLabelResult ->
 
         when {
             themeResult is Result.Failure -> Result.Failure(themeResult.error)
             hideControlsResult is Result.Failure -> Result.Failure(hideControlsResult.error)
             hideLastUpdateResult is Result.Failure -> Result.Failure(hideLastUpdateResult.error)
-            keepScreenOnResult is Result.Failure -> Result.Failure(keepScreenOnResult.error)
+            hideLabelResult is Result.Failure -> Result.Failure(hideLabelResult.error)
             else -> Result.Success(
                 DisplayPreferenceUiState(
                     theme = themeResult.dataOr { Theme.SYSTEM },
                     hideControls = hideControlsResult.dataOr { false },
                     hideLastUpdate = hideLastUpdateResult.dataOr { false },
-                    keepScreenOn = keepScreenOnResult.dataOr { false },
+                    hideCounterCategoryLabel = hideLabelResult.dataOr { false },
                     error = false,
                     isLoading = false
                 )
@@ -72,7 +72,7 @@ class DisplayPreferencesViewModel @Inject constructor(
                     theme = Theme.SYSTEM,
                     hideControls = false,
                     hideLastUpdate = false,
-                    keepScreenOn = false,
+                    hideCounterCategoryLabel = false,
                     error = true,
                     isLoading = false
                 )
@@ -91,7 +91,7 @@ class DisplayPreferencesViewModel @Inject constructor(
             is DisplayPreferenceAction.SetTheme -> setTheme(action.theme)
             is DisplayPreferenceAction.SetHideControls -> setHideControls(action.hide)
             is DisplayPreferenceAction.SetHideLastUpdate -> setHideLastUpdate(action.hide)
-            is DisplayPreferenceAction.SetKeepScreenOn -> setKeepScreenOn(action.keep)
+            is DisplayPreferenceAction.SetHideCounterCategoryLabel -> setHideCounterCategoryLabel(action.hide)
         }
     }
 
@@ -155,21 +155,17 @@ class DisplayPreferencesViewModel @Inject constructor(
         }
     }
 
-    private fun setKeepScreenOn(keep: Boolean) {
+    private fun setHideCounterCategoryLabel(hide: Boolean) {
         viewModelScope.launch {
-            useCases.setKeepScreenOn(keep)
+            useCases.setHideCounterCategoryLabel(hide)
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(
-                            message = Message.Resource(R.string.keep_screen_on_updated)
-                        )
+                        UiMessage.Toast(message = Message.Resource(R.string.labels_visibility_updated))
                     )
                 }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(
-                            message = Message.Resource(R.string.failed_to_update_keep_screen_on)
-                        )
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_labels_visibility))
                     )
                 }
         }

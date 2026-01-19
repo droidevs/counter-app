@@ -12,7 +12,7 @@ import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
 import io.droidevs.counterapp.ui.adapter.models.CounterWithCategoryItem
-import io.droidevs.counterapp.ui.label.LabelControlManager
+import io.droidevs.counterapp.domain.display.DisplayPreferences
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
@@ -27,12 +27,23 @@ class ListCounterAdapter(
     private val listener: OnCounterClickListener,
     private val onIncrement: (counter: CounterUiModel) -> Unit,
     private val onDecrement: (counter: CounterUiModel) -> Unit,
-    private val labelControlManager: LabelControlManager,
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
 
     private val diff = DiffUpdate.diffable<CounterWithCategoryItem>()
 
     private var items: List<CounterWithCategoryItem> = counters.map { CounterWithCategoryItem(it) }
+
+    private var displayPreferences: DisplayPreferences = DisplayPreferences(
+        hideControls = false,
+        hideLastUpdate = false,
+        hideCounterCategoryLabel = false,
+    )
+
+    fun updateDisplayPreferences(prefs: DisplayPreferences) {
+        if (displayPreferences == prefs) return
+        displayPreferences = prefs
+        notifyDataSetChanged()
+    }
 
     inner class ViewHolder(
         val binding: ItemListCounterBinding
@@ -53,15 +64,22 @@ class ListCounterAdapter(
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
 
-            val labelsEnabled = labelControlManager.enabled.value
-            tvCategory.isVisible = labelsEnabled
+            tvCategory.isVisible = !displayPreferences.hideCounterCategoryLabel
 
-            val drawable = ContextCompat
-                .getDrawable(itemView.context, R.drawable.bg_chip)
-                ?.mutate()
+            val showEdited = !displayPreferences.hideLastUpdate
+            // Edited timestamp belongs to the counter, not the category.
+            if (showEdited && !data.counter.editedTime.isNullOrBlank()) {
+                tvEditTime.text = itemView.context.getString(
+                    R.string.edited_time_ago,
+                    data.counter.editedTime
+                )
+                tvEditTime.isVisible = true
+            } else {
+                tvEditTime.isVisible = false
+            }
 
-            val categoryUi = data.category
-            if (categoryUi != null) {
+            if (data.category != null) {
+                val categoryUi = data.category
                 tvCategory.text = categoryUi.name
 
                 val color = if (categoryUi.color.colorInt != 0) {
@@ -72,40 +90,27 @@ class ListCounterAdapter(
                         category = categoryUi.toDomain()
                     )
                 }
+                val drawable = ContextCompat
+                    .getDrawable(itemView.context, R.drawable.bg_chip)
+                    ?.mutate()
                 drawable?.setTint(color)
                 tvCategory.background = drawable
-
-                // Edited time is about the CATEGORY, not the counter.
-                if (!categoryUi.editedTime.isNullOrBlank()) {
-                    tvEditTime.text = itemView.context.getString(
-                        R.string.edited_time_ago,
-                        categoryUi.editedTime
-                    )
-                    tvEditTime.isVisible = true
-                } else {
-                    tvEditTime.isVisible = false
-                }
             } else {
                 tvCategory.setText(NoCategoryUi.labelRes())
+                val drawable = ContextCompat
+                    .getDrawable(itemView.context, R.drawable.bg_chip)
+                    ?.mutate()
                 drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
                 tvCategory.background = drawable
-                tvEditTime.isVisible = false
             }
 
             // If labels are disabled, always hide the category chip.
-            if (!labelsEnabled) {
+            if (displayPreferences.hideCounterCategoryLabel) {
                 tvCategory.isVisible = false
             }
 
             binding.root.setOnClickListener {
                 listener.onCounterClick(data.counter)
-            }
-            binding.btnPlus.setOnClickListener {
-                onIncrement(data.counter)
-            }
-
-            binding.btnMinus.setOnClickListener {
-                onDecrement(data.counter)
             }
 
             val ctx = itemView.context
@@ -136,6 +141,17 @@ class ListCounterAdapter(
             val allowControls = if (data.counter.isSystem && hint != null) {
                 SystemCounterSupportStatus.evaluate(ctx, data.counter.systemKey).isSupported
             } else true
+
+            val showControls = !displayPreferences.hideControls
+            binding.btnPlus.isVisible = showControls && !data.counter.isSystem
+            binding.btnMinus.isVisible = showControls && !data.counter.isSystem
+            if (showControls && !data.counter.isSystem) {
+                binding.btnPlus.setOnClickListener { onIncrement(data.counter) }
+                binding.btnMinus.setOnClickListener { onDecrement(data.counter) }
+            } else {
+                binding.btnPlus.setOnClickListener(null)
+                binding.btnMinus.setOnClickListener(null)
+            }
 
             binding.btnPlus.isEnabled = allowControls
             binding.btnMinus.isEnabled = allowControls
@@ -173,12 +189,5 @@ class ListCounterAdapter(
 
         items = newItems
         diff.apply(adapter = this, old = old, new = newItems)
-    }
-
-    /** Call when label-control preference toggles so rows rebind with the new visibility. */
-    fun onLabelVisibilityChanged() {
-        if (items.isNotEmpty()) {
-            notifyItemRangeChanged(0, items.size)
-        }
     }
 }

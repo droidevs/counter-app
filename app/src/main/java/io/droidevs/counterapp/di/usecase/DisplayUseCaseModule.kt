@@ -5,9 +5,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
+import io.droidevs.counterapp.domain.preference.controle.LabelControlPreference
 import io.droidevs.counterapp.domain.preference.display.HideControlsPreference
 import io.droidevs.counterapp.domain.preference.display.HideLastUpdatePreference
-import io.droidevs.counterapp.domain.preference.display.KeepScreenOnPreference
 import io.droidevs.counterapp.domain.preference.display.ThemePreference
 import io.droidevs.counterapp.domain.usecases.preference.DisplayPreferenceUseCases
 import io.droidevs.counterapp.domain.usecases.preference.display.GetThemeUseCase
@@ -16,8 +16,8 @@ import io.droidevs.counterapp.domain.usecases.preference.display.GetHideControls
 import io.droidevs.counterapp.domain.usecases.preference.display.SetHideControlsUseCase
 import io.droidevs.counterapp.domain.usecases.preference.display.GetHideLastUpdateUseCase
 import io.droidevs.counterapp.domain.usecases.preference.display.SetHideLastUpdateUseCase
-import io.droidevs.counterapp.domain.usecases.preference.display.GetKeepScreenOnUseCase
-import io.droidevs.counterapp.domain.usecases.preference.display.SetKeepScreenOnUseCase
+import io.droidevs.counterapp.domain.usecases.preference.display.GetHideCounterCategoryLabelUseCase
+import io.droidevs.counterapp.domain.usecases.preference.display.SetHideCounterCategoryLabelUseCase
 import javax.inject.Singleton
 
 @Module
@@ -50,11 +50,13 @@ object DisplayUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetKeepScreenOnUseCase(pref: KeepScreenOnPreference, dispatchers: DispatcherProvider): GetKeepScreenOnUseCase = GetKeepScreenOnUseCase(pref, dispatchers)
+    fun provideGetHideCounterCategoryLabelUseCase(pref: LabelControlPreference, dispatchers: DispatcherProvider): GetHideCounterCategoryLabelUseCase =
+        GetHideCounterCategoryLabelUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
-    fun provideSetKeepScreenOnUseCase(pref: KeepScreenOnPreference, dispatchers: DispatcherProvider): SetKeepScreenOnUseCase = SetKeepScreenOnUseCase(pref, dispatchers)
+    fun provideSetHideCounterCategoryLabelUseCase(pref: LabelControlPreference, dispatchers: DispatcherProvider): SetHideCounterCategoryLabelUseCase =
+        SetHideCounterCategoryLabelUseCase(pref, dispatchers)
 
     @Provides
     @Singleton
@@ -65,8 +67,8 @@ object DisplayUseCaseModule {
         setHideControlsUseCase: SetHideControlsUseCase,
         getHideLastUpdateUseCase: GetHideLastUpdateUseCase,
         setHideLastUpdateUseCase: SetHideLastUpdateUseCase,
-        getKeepScreenOnUseCase: GetKeepScreenOnUseCase,
-        setKeepScreenOnUseCase: SetKeepScreenOnUseCase
+        getHideCounterCategoryLabelUseCase: GetHideCounterCategoryLabelUseCase,
+        setHideCounterCategoryLabelUseCase: SetHideCounterCategoryLabelUseCase,
     ): DisplayPreferenceUseCases = DisplayPreferenceUseCases(
         getTheme = getThemeUseCase,
         setTheme = setThemeUseCase,
@@ -74,7 +76,7 @@ object DisplayUseCaseModule {
         setHideControls = setHideControlsUseCase,
         getHideLastUpdate = getHideLastUpdateUseCase,
         setHideLastUpdate = setHideLastUpdateUseCase,
-        getKeepScreenOn = getKeepScreenOnUseCase,
-        setKeepScreenOn = setKeepScreenOnUseCase
+        getHideCounterCategoryLabel = getHideCounterCategoryLabelUseCase,
+        setHideCounterCategoryLabel = setHideCounterCategoryLabelUseCase
     )
 }

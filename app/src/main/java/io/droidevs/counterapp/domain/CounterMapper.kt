@@ -26,7 +26,9 @@ fun Counter.toUiModel(
         defaultValue = defaultValue,
         useDefaultBehavior = useDefaultBehavior,
         createdTime = formatter.format(createdAt),
-        editedTime = lastUpdatedAt?.let { formatter.format(it) },
+        editedTime = lastUpdatedAt
+            ?.takeIf { it.isAfter(createdAt) }
+            ?.let { formatter.format(it) },
         wasUserUpdated = wasUserUpdated
     )
 }

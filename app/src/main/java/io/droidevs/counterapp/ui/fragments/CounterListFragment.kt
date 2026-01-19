@@ -22,7 +22,6 @@ import io.droidevs.counterapp.databinding.FragmentCounterListBinding
 import io.droidevs.counterapp.databinding.LoadingStateLayoutBinding
 import io.droidevs.counterapp.ui.adapter.ListCounterAdapter
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
-import io.droidevs.counterapp.ui.label.LabelControlManager
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.navigation.AppNavigator
 import io.droidevs.counterapp.ui.vm.CountersListViewModel
@@ -31,6 +30,9 @@ import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import io.droidevs.counterapp.domain.display.DisplayPreferences
+import io.droidevs.counterapp.domain.display.DisplayPreferencesProvider
+import io.droidevs.counterapp.domain.result.dataOr
 
 @AndroidEntryPoint
 @Suppress("DEPRECATION")
@@ -47,7 +49,7 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
     lateinit var appNavigator: AppNavigator
 
     @Inject
-    lateinit var labelControlManager: LabelControlManager
+    lateinit var displayPreferencesProvider: DisplayPreferencesProvider
 
     @Suppress("DEPRECATION")
     override fun onCreateView(
@@ -66,7 +68,7 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         setupFab()
         observeUiState()
         observeEvents()
-        observeLabelVisibility()
+        observeDisplayPreferences()
     }
 
     private fun setupRecyclerView() {
@@ -78,7 +80,6 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
             onDecrement = { counter ->
                 viewModel.onAction(CounterListAction.DecrementCounter(counter))
             },
-            labelControlManager = labelControlManager
         )
 
         binding.rvCounters.apply {
@@ -165,15 +166,17 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
         }.launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private fun observeLabelVisibility() {
-        var last: Boolean? = null
-        labelControlManager.enabled
-            .onEach { enabled ->
-                if (last == enabled) return@onEach
-                if (last != null) {
-                    listAdapter.onLabelVisibilityChanged()
-                }
-                last = enabled
+    private fun observeDisplayPreferences() {
+        val defaults = DisplayPreferences(
+            hideControls = false,
+            hideLastUpdate = false,
+            hideCounterCategoryLabel = false
+        )
+
+        displayPreferencesProvider.preferences()
+            .onEach { result ->
+                val prefs = result.dataOr { defaults }
+                listAdapter.updateDisplayPreferences(prefs)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }

@@ -5,7 +5,7 @@ import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.recoverWith
-import io.droidevs.counterapp.domain.usecases.preference.controle.GetLabelControlUseCase
+import io.droidevs.counterapp.domain.usecases.preference.display.GetHideCounterCategoryLabelUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,11 +22,11 @@ import javax.inject.Singleton
  */
 @Singleton
 class LabelControlManager @Inject constructor(
-    getLabelControlUseCase: GetLabelControlUseCase,
+    getHideCounterCategoryLabelUseCase: GetHideCounterCategoryLabelUseCase,
     @ApplicationScope scope: CoroutineScope,
     errorHandler: LabelControlErrorHandler,
 ) {
-    val enabled: StateFlow<Boolean> = getLabelControlUseCase()
+    val enabled: StateFlow<Boolean> = getHideCounterCategoryLabelUseCase()
         .onFailure { errorHandler.onError(it) }
         .recoverWith { Result.Success(false) }
         .map { it.dataOr { false } }

@@ -6,8 +6,8 @@ import io.droidevs.counterapp.domain.usecases.preference.controle.GetSoundsOnUse
 import io.droidevs.counterapp.domain.usecases.preference.controle.SetSoundsOnUseCase
 import io.droidevs.counterapp.domain.usecases.preference.controle.GetVibrationOnUseCase
 import io.droidevs.counterapp.domain.usecases.preference.controle.SetVibrationOnUseCase
-import io.droidevs.counterapp.domain.usecases.preference.controle.GetLabelControlUseCase
-import io.droidevs.counterapp.domain.usecases.preference.controle.SetLabelControlUseCase
+import io.droidevs.counterapp.domain.usecases.preference.controle.GetKeepScreenOnUseCase
+import io.droidevs.counterapp.domain.usecases.preference.controle.SetKeepScreenOnUseCase
 
 data class HardwarePreferenceUseCases(
     val getHardwareButtonControl: GetHardwareButtonControlUseCase,
@@ -16,6 +16,6 @@ data class HardwarePreferenceUseCases(
     val setSoundsOn: SetSoundsOnUseCase,
     val getVibrationOn: GetVibrationOnUseCase,
     val setVibrationOn: SetVibrationOnUseCase,
-    val getLabelControl: GetLabelControlUseCase,
-    val setLabelControl: SetLabelControlUseCase,
+    val getKeepScreenOn: GetKeepScreenOnUseCase,
+    val setKeepScreenOn: SetKeepScreenOnUseCase,
 )

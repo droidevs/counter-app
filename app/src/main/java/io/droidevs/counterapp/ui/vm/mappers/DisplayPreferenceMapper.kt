@@ -7,7 +7,6 @@ fun Quadruple<Theme, Boolean, Boolean, Boolean>.toDisplayPreferenceUiState(): Di
     return DisplayPreferenceUiState(
         theme = first,
         hideControls = second,
-        hideLastUpdate = third,
-        keepScreenOn = fourth
+        hideLastUpdate = third
     )
 }

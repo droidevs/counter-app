@@ -24,7 +24,7 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
     private var hardwareButtonPref: SwitchPreferenceCompat? = null
     private var soundsPref: SwitchPreferenceCompat? = null
     private var vibrationPref: SwitchPreferenceCompat? = null
-    private var labelsPref: SwitchPreferenceCompat? = null
+    private var keepScreenOnPref: SwitchPreferenceCompat? = null
 
     private var loadingView: View? = null
     private var errorView: View? = null
@@ -52,13 +52,18 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
     }
 
     private fun findPreferences() {
+        keepScreenOnPref = findPreference("keep_screen_on")
         hardwareButtonPref = findPreference("hardware_button_control")
         soundsPref = findPreference("sounds_on")
         vibrationPref = findPreference("vibration_on")
-        labelsPref = findPreference("show_labels")
     }
 
     private fun setupPreferenceListeners() {
+        keepScreenOnPref?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onAction(HardwarePreferenceAction.SetKeepScreenOn(newValue as Boolean))
+            true
+        }
+
         hardwareButtonPref?.setOnPreferenceChangeListener { _, newValue ->
             viewModel.onAction(
                 HardwarePreferenceAction.SetHardwareButtonControl(newValue as Boolean)
@@ -76,13 +81,6 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
         vibrationPref?.setOnPreferenceChangeListener { _, newValue ->
             viewModel.onAction(
                 HardwarePreferenceAction.SetVibrationOn(newValue as Boolean)
-            )
-            true
-        }
-
-        labelsPref?.setOnPreferenceChangeListener { _, newValue ->
-            viewModel.onAction(
-                HardwarePreferenceAction.SetShowLabels(newValue as Boolean)
             )
             true
         }
@@ -109,7 +107,7 @@ class HardwarePreferencesFragment : PreferenceFragmentCompat() {
                     hardwareButtonPref?.isChecked = state.hardwareButtonControl
                     soundsPref?.isChecked = state.soundsOn
                     vibrationPref?.isChecked = state.vibrationOn
-                    labelsPref?.isChecked = state.showLabels
+                    keepScreenOnPref?.isChecked = state.keepScreenOn
                 }
             }
         }

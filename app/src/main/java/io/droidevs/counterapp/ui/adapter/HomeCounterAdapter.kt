@@ -12,7 +12,7 @@ import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
 import io.droidevs.counterapp.ui.adapter.models.CounterWithCategoryItem
-import io.droidevs.counterapp.ui.label.LabelControlManager
+import io.droidevs.counterapp.domain.display.DisplayPreferences
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
@@ -24,12 +24,23 @@ internal class HomeCounterAdapter(
     private val onAddCounter: () -> Unit = {},
     private val onIncrement: (counter: CounterWithCategoryUiModel) -> Unit = {},
     private val onDecrement: (counter: CounterWithCategoryUiModel) -> Unit = {},
-    private val labelControlManager: LabelControlManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val diff = DiffUpdate.diffable<CounterWithCategoryItem>()
 
     private val items: MutableList<CounterWithCategoryItem> = counters.map { CounterWithCategoryItem(it) }.toMutableList()
+
+    private var displayPreferences: DisplayPreferences = DisplayPreferences(
+        hideControls = false,
+        hideLastUpdate = false,
+        hideCounterCategoryLabel = false,
+    )
+
+    fun updateDisplayPreferences(prefs: DisplayPreferences) {
+        if (displayPreferences == prefs) return
+        displayPreferences = prefs
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -61,21 +72,21 @@ internal class HomeCounterAdapter(
         if (holder is ViewHolder) {
             val item = items[position]
             val cwg = item.model
-            val labelsEnabled = labelControlManager.enabled.value
+
             holder.bind(
                 cwg = cwg,
                 onIncrement = onIncrement,
                 onDecrement = onDecrement,
-                labelsEnabled = labelsEnabled,
+                showControls = !displayPreferences.hideControls,
+                showCategoryLabel = !displayPreferences.hideCounterCategoryLabel,
+                showLastUpdate = !displayPreferences.hideLastUpdate,
             )
+
             holder.itemView.setOnClickListener {
                 listener?.onCounterClick(cwg.counter)
             }
-
         } else {
-            (holder as AddViewHolder).bind(
-                onClick = onAddCounter
-            )
+            (holder as AddViewHolder).bind(onClick = onAddCounter)
         }
     }
 
@@ -97,16 +108,33 @@ internal class HomeCounterAdapter(
             cwg: CounterWithCategoryUiModel,
             onIncrement: (CounterWithCategoryUiModel) -> Unit,
             onDecrement: (CounterWithCategoryUiModel) -> Unit,
-            labelsEnabled: Boolean,
+            showControls: Boolean,
+            showCategoryLabel: Boolean,
+            showLastUpdate: Boolean,
         ) {
             name.text = cwg.counter.name
             count.text = cwg.counter.currentCount.toString()
 
-            // Label == category chip
-            category.isVisible = labelsEnabled
+            category.isVisible = showCategoryLabel
 
-            btnPlus.setOnClickListener { onIncrement(cwg) }
-            btnMinus.setOnClickListener { onDecrement(cwg) }
+            btnPlus.isVisible = showControls
+            btnMinus.isVisible = showControls
+
+            btnPlus.isEnabled = cwg.counter.canIncrease
+            btnMinus.isEnabled = cwg.counter.canDecrease
+
+            if (showControls) {
+                btnPlus.setOnClickListener { onIncrement(cwg) }
+                btnMinus.setOnClickListener { onDecrement(cwg) }
+            } else {
+                btnPlus.setOnClickListener(null)
+                btnMinus.setOnClickListener(null)
+            }
+
+            tvEditTime.isVisible = showLastUpdate && !cwg.counter.editedTime.isNullOrBlank()
+            if (tvEditTime.isVisible) {
+                tvEditTime.text = itemView.context.getString(R.string.edited_time_ago, cwg.counter.editedTime)
+            }
 
             val drawable = ContextCompat
                 .getDrawable(itemView.context, R.drawable.bg_chip)
@@ -126,26 +154,11 @@ internal class HomeCounterAdapter(
                 }
                 drawable?.setTint(color)
                 category.background = drawable
-
-                if (!categoryUi.editedTime.isNullOrBlank()) {
-                    tvEditTime.text = itemView.context.getString(
-                        R.string.edited_time_ago,
-                        categoryUi.editedTime
-                    )
-                    tvEditTime.isVisible = true
-                } else {
-                    tvEditTime.isVisible = false
-                }
             } else {
                 // No category
                 category.setText(NoCategoryUi.labelRes())
                 drawable?.setTint(NoCategoryUi.chipColor(itemView.context))
                 category.background = drawable
-                tvEditTime.isVisible = false
-            }
-
-            if (!labelsEnabled) {
-                category.isVisible = false
             }
         }
     }
@@ -180,14 +193,6 @@ internal class HomeCounterAdapter(
 
         // Ensure trailing ADD cell is up-to-date.
         notifyItemChanged(itemCount - 1)
-    }
-
-    /** Call when label-control preference toggles so views rebind with the new visibility. */
-    fun onLabelVisibilityChanged() {
-        // Rebind counter rows only; the ADD row doesn't care.
-        if (items.isNotEmpty()) {
-            notifyItemRangeChanged(0, items.size)
-        }
     }
 
     companion object {
