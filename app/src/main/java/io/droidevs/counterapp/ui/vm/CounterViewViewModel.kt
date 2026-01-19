@@ -24,6 +24,8 @@ import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
 import io.droidevs.counterapp.ui.vm.mappers.toViewUiState
 import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
+import io.droidevs.counterapp.domain.sound.CounterSoundAction
+import io.droidevs.counterapp.domain.usecases.sound.PlayCounterSoundUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +41,8 @@ class CounterViewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val playCounterSound: PlayCounterSoundUseCase,
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")
@@ -100,9 +103,10 @@ class CounterViewViewModel @Inject constructor(
         if (!currentCounter.canIncrease) return
 
         viewModelScope.launch {
-            // Convert UI model back to domain model for the use case.
-            // This keeps increment logic centralized (step preferences + history).
             counterUseCases.incrementCounter(currentCounter.toDomain())
+                .onSuccessSuspend {
+                    playCounterSound(CounterSoundAction.INCREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
@@ -117,6 +121,9 @@ class CounterViewViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.decrementCounter(currentCounter.toDomain())
+                .onSuccessSuspend {
+                    playCounterSound(CounterSoundAction.DECREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
@@ -132,7 +139,8 @@ class CounterViewViewModel @Inject constructor(
                     counterId = counterId,
                     newCount = 0
                 )
-            ).onSuccess {
+            ).onSuccessSuspend {
+                playCounterSound(CounterSoundAction.RESET)
                 uiMessageDispatcher.dispatch(
                     UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
                 )

@@ -9,6 +9,7 @@ import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
+import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toDomain
 import io.droidevs.counterapp.domain.toUiModel
@@ -23,6 +24,8 @@ import io.droidevs.counterapp.ui.vm.actions.CounterListAction
 import io.droidevs.counterapp.ui.vm.events.CounterListEvent
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import io.droidevs.counterapp.ui.vm.states.CounterListUiState
+import io.droidevs.counterapp.domain.sound.CounterSoundAction
+import io.droidevs.counterapp.domain.usecases.sound.PlayCounterSoundUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -33,7 +36,8 @@ import javax.inject.Inject
 class CountersListViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val playCounterSound: PlayCounterSoundUseCase,
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CounterListEvent>(extraBufferCapacity = 1)
@@ -93,6 +97,7 @@ class CountersListViewModel @Inject constructor(
         viewModelScope.launch {
             // Step-pref aware + history aware
             counterUseCases.incrementCounter(counter = c)
+                .onSuccessSuspend { playCounterSound(CounterSoundAction.INCREMENT) }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
@@ -108,6 +113,7 @@ class CountersListViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.decrementCounter(counter = c)
+                .onSuccessSuspend { playCounterSound(CounterSoundAction.DECREMENT) }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))

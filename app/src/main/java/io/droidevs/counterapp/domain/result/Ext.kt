@@ -81,6 +81,12 @@ suspend fun <D, E : RootError> Result<D, E>.recoverWithSuspended(
         onFailure = action
     )
 
+fun <D, E : RootError> Flow<Result<D, E>>.recover(
+    transform: (E) -> D
+): Flow<Result<D, E>> =
+    this.map { it.recover(transform) }
+
+
 fun <D, E : RootError> Flow<Result<D, E>>.recoverWith(
     action: (E) -> Result<D, E>
 ): Flow<Result<D, E>> =
