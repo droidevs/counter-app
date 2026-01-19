@@ -49,6 +49,7 @@ import androidx.navigation.navOptions
 import io.droidevs.counterapp.ui.hardware.ActiveContentFragmentProvider
 import io.droidevs.counterapp.ui.hardware.HardwareButtonControlManager
 import io.droidevs.counterapp.ui.hardware.HardwareButtonKeyDispatcher
+import io.droidevs.counterapp.domain.theme.ThemeObserver
 
 
 @AndroidEntryPoint
@@ -62,6 +63,8 @@ class MainActivity : AppCompatActivity(), TabHost {
     @Inject lateinit var hardwareButtonControlManager: HardwareButtonControlManager
     @Inject lateinit var activeContentFragmentProvider: ActiveContentFragmentProvider
     @Inject lateinit var hardwareButtonKeyDispatcher: HardwareButtonKeyDispatcher
+
+    @Inject lateinit var themeObserver: ThemeObserver
 
     private var toolbar : MaterialToolbar? = null
     private lateinit var navController : NavController
@@ -83,6 +86,13 @@ class MainActivity : AppCompatActivity(), TabHost {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Start observing theme changes (lifecycle-aware).
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                themeObserver.start(this)
+            }
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
