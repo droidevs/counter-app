@@ -19,12 +19,12 @@ import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
 import io.droidevs.counterapp.ui.vm.events.HistoryViewEvent
 import io.droidevs.counterapp.ui.vm.states.HistoryViewState
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,53 +35,46 @@ class HistoryViewModel @Inject constructor(
     private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HistoryViewState(isLoading = true))
-    val uiState = _uiState.asStateFlow()
-
     private val _uiEvent = MutableSharedFlow<HistoryViewEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    init {
-        getHistory()
-    }
+    val uiState: StateFlow<HistoryViewState> = historyUseCases.getHistoryUseCase()
+        .mapResult { list -> list.map { it.toUiModel(dateFormatter) } }
+        .onFailure {
+            uiMessageDispatcher.dispatch(
+                Toast(message = Message.Resource(R.string.failed_to_load_history))
+            )
+        }
+        .mapResult { list ->
+            HistoryViewState(
+                history = list,
+                isLoading = false,
+                isError = false
+            )
+        }
+        .recoverWith {
+            // Failure -> error state
+            Result.Success(
+                HistoryViewState(
+                    history = emptyList(),
+                    isLoading = false,
+                    isError = true
+                )
+            )
+        }
+        // unwrap Result -> HistoryViewState (recoverWith ensures Success)
+        .map { (it as Result.Success).data }
+        .onStart { emit(HistoryViewState(isLoading = true, isError = false)) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = HistoryViewState(isLoading = true)
+        )
 
     fun onAction(action: HistoryViewAction) {
         when (action) {
             is HistoryViewAction.ClearHistory -> clearHistory()
         }
-    }
-
-    private fun getHistory() {
-        historyUseCases.getHistoryUseCase()
-            .mapResult { list -> list.map { it.toUiModel(dateFormatter) } }
-            .onFailure {
-                uiMessageDispatcher.dispatch(
-                    Toast(message = Message.Resource(R.string.failed_to_load_history))
-                )
-            }
-            .mapResult { list ->
-                // success state
-                HistoryViewState(
-                    history = list,
-                    isLoading = false,
-                    isError = false
-                )
-            }
-            .recoverWith {
-                // single place: failure -> error state
-                Result.Success(
-                    HistoryViewState(
-                        history = emptyList(),
-                        isLoading = false,
-                        isError = true
-                    )
-                )
-            }
-            .map { (it as Result.Success).data }
-            .onEach { state ->
-                _uiState.value = state
-            }
-            .launchIn(viewModelScope)
     }
 
     private fun clearHistory() {
