@@ -11,6 +11,7 @@ import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import javax.inject.Inject
 
 class HistoryRepositoryImpl @Inject constructor(
@@ -29,5 +30,37 @@ class HistoryRepositoryImpl @Inject constructor(
 
     override suspend fun addHistoryEvent(event: HistoryEvent): Result<Unit, DatabaseError> = runCatchingDatabaseResult {
         historyEventDao.insertEvent(event.toEntity())
+    }
+
+    override suspend fun getLastEventForCounter(counterId: String): Result<HistoryEvent?, DatabaseError> =
+        runCatchingDatabaseResult {
+            historyEventDao.getLastEventForCounter(counterId)?.let { entity ->
+                // Note: HistoryEvent Domain includes counterName; for merge logic we only need values.
+                HistoryEvent(
+                    id = entity.id,
+                    counterId = entity.counterId,
+                    counterName = "", // not needed for merge/update
+                    oldValue = entity.oldValue,
+                    newValue = entity.newValue,
+                    change = entity.change,
+                    timestamp = entity.timestamp
+                )
+            }
+        }
+
+    override suspend fun updateHistoryEvent(
+        id: Long,
+        oldValue: Int,
+        newValue: Int,
+        change: Int,
+        timestamp: Instant
+    ): Result<Unit, DatabaseError> = runCatchingDatabaseResult {
+        historyEventDao.updateEvent(
+            id = id,
+            oldValue = oldValue,
+            newValue = newValue,
+            change = change,
+            timestamp = timestamp
+        )
     }
 }

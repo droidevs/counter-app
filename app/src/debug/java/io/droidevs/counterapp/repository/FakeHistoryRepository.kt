@@ -10,6 +10,7 @@ import io.droidevs.counterapp.domain.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 
 class FakeHistoryRepository(
     private val dummyData: DummyData
@@ -39,6 +40,47 @@ class FakeHistoryRepository(
 
     override suspend fun addHistoryEvent(event: HistoryEvent): Result<Unit, DatabaseError> {
         dummyData.historyEvents.add(event.toEntity())
+        dummyData.emitHistoryUpdate()
+        return Result.Success(Unit)
+    }
+
+    override suspend fun getLastEventForCounter(counterId: String): Result<HistoryEvent?, DatabaseError> {
+        val entity = dummyData.historyEvents
+            .filter { it.counterId == counterId }
+            .maxByOrNull { it.timestamp }
+
+        return Result.Success(
+            entity?.let {
+                HistoryEvent(
+                    id = it.id,
+                    counterId = it.counterId,
+                    counterName = "",
+                    oldValue = it.oldValue,
+                    newValue = it.newValue,
+                    change = it.change,
+                    timestamp = it.timestamp
+                )
+            }
+        )
+    }
+
+    override suspend fun updateHistoryEvent(
+        id: Long,
+        oldValue: Int,
+        newValue: Int,
+        change: Int,
+        timestamp: Instant
+    ): Result<Unit, DatabaseError> {
+        val index = dummyData.historyEvents.indexOfFirst { it.id == id }
+        if (index == -1) return Result.Success(Unit)
+
+        val current = dummyData.historyEvents[index]
+        dummyData.historyEvents[index] = current.copy(
+            oldValue = oldValue,
+            newValue = newValue,
+            change = change,
+            timestamp = timestamp
+        )
         dummyData.emitHistoryUpdate()
         return Result.Success(Unit)
     }

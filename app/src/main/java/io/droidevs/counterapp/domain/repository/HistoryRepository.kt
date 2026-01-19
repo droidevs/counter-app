@@ -4,6 +4,7 @@ import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 
 interface HistoryRepository {
 
@@ -12,4 +13,16 @@ interface HistoryRepository {
     suspend fun clearHistory(): Result<Unit, DatabaseError>
 
     suspend fun addHistoryEvent(event: HistoryEvent): Result<Unit, DatabaseError>
+
+    /** Latest stored history event for this counter (for merge logic). */
+    suspend fun getLastEventForCounter(counterId: String): Result<HistoryEvent?, DatabaseError>
+
+    /** Update an existing history row (used by merge logic). */
+    suspend fun updateHistoryEvent(
+        id: Long,
+        oldValue: Int,
+        newValue: Int,
+        change: Int,
+        timestamp: Instant
+    ): Result<Unit, DatabaseError>
 }
