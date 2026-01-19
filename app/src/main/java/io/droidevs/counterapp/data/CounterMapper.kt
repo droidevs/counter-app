@@ -16,7 +16,13 @@ fun CounterEntity.toDomain(): Counter {
         canDecrease = canDecrement,
         isSystem = isSystem,
         systemKey = kay,
-        orderAnchorAt = orderAnchorAt
+        orderAnchorAt = orderAnchorAt,
+        incrementStep = incrementStep,
+        decrementStep = decrementStep,
+        minValue = minValue,
+        maxValue = maxValue,
+        defaultValue = defaultValue,
+        useDefaultBehavior = useDefaultBehavior,
     )
 }
 
@@ -32,6 +38,12 @@ fun Counter.toEntity(): CounterEntity {
         canIncrement = canIncrease,
         canDecrement = canDecrease,
         isSystem = isSystem,
-        orderAnchorAt = orderAnchorAt
+        orderAnchorAt = orderAnchorAt,
+        incrementStep = incrementStep,
+        decrementStep = decrementStep,
+        minValue = minValue,
+        maxValue = maxValue,
+        defaultValue = defaultValue,
+        useDefaultBehavior = useDefaultBehavior,
     )
 }

@@ -10,6 +10,15 @@ data class UpdateCounterRequest(
     val newCount: Int? = null,
     val canIncrease: Boolean? = null,
     val canDecrease: Boolean? = null,
+
+    // Per-counter behavior overrides (nullable = clear override)
+    val incrementStep: Int? = null,
+    val decrementStep: Int? = null,
+    val minValue: Int? = null,
+    val maxValue: Int? = null,
+    val defaultValue: Int? = null,
+    val useDefaultBehavior: Boolean? = null,
+
     val lastUpdatedAt: Instant? = null,
     val orderAnchorAt: Instant? = null
 ) {
@@ -21,8 +30,29 @@ data class UpdateCounterRequest(
             newCount: Int? = null,
             canDecrease: Boolean? = null,
             canIncrease: Boolean? = null,
+            incrementStep: Int? = null,
+            decrementStep: Int? = null,
+            minValue: Int? = null,
+            maxValue: Int? = null,
+            defaultValue: Int? = null,
+            useDefaultBehavior: Boolean? = null,
             lastUpdatedAt: Instant? = null,
             orderAnchorAt: Instant? = null
-        ) = UpdateCounterRequest(counterId, newName, newCategoryId, newCount, canIncrease, canDecrease, lastUpdatedAt, orderAnchorAt)
+        ) = UpdateCounterRequest(
+            counterId = counterId,
+            newName = newName,
+            newCategoryId = newCategoryId,
+            newCount = newCount,
+            canIncrease = canIncrease,
+            canDecrease = canDecrease,
+            incrementStep = incrementStep,
+            decrementStep = decrementStep,
+            minValue = minValue,
+            maxValue = maxValue,
+            defaultValue = defaultValue,
+            useDefaultBehavior = useDefaultBehavior,
+            lastUpdatedAt = lastUpdatedAt,
+            orderAnchorAt = orderAnchorAt
+        )
     }
 }

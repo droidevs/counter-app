@@ -1,6 +1,5 @@
 package io.droidevs.counterapp.ui.models
 
-import java.time.Instant
 
 data class CounterUiModel(
     val id: String,
@@ -12,6 +11,14 @@ data class CounterUiModel(
     val canDecrease: Boolean,
     val isSystem: Boolean = false,
     val systemKey: String? = null,
+
+    // Per-counter optional behavior overrides (nullable)
+    val incrementStep: Int? = null,
+    val decrementStep: Int? = null,
+    val minValue: Int? = null,
+    val maxValue: Int? = null,
+    val defaultValue: Int? = null,
+    val useDefaultBehavior: Boolean = true,
 
     // Formatted display strings (UI)
     val createdTime: String? = null,

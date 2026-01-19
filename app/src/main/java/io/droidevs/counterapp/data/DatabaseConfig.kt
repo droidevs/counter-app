@@ -17,5 +17,5 @@ object DatabaseConfig {
      * IMPORTANT: Increment this version number every time you make a schema change.
      * Each new version MUST have a corresponding Migration object defined in [Migrations].
      */
-    const val DATABASE_VERSION = 4 // Set to the final version after all creation migrations
+    const val DATABASE_VERSION = 5 // Set to the final version after all creation migrations
 }

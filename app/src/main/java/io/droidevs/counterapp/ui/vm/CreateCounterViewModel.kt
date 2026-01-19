@@ -53,8 +53,29 @@ class CreateCounterViewModel @Inject constructor(
         val canDecrease: Boolean = false,
         val selectedCategoryId: String? = null,
         val isSaving: Boolean = false,
-        val initialValue: Int = 0
+        val initialValue: Int = 0,
+
+        val useDefaultBehavior: Boolean = true,
+        val incrementStepInput: String = "",
+        val decrementStepInput: String = "",
+        val defaultValueInput: String = "",
+        val minValueInput: String = "",
+        val maxValueInput: String = "",
     )
+
+    /**
+     * Cache for per-counter override text fields.
+     * Requirement: when user enables "use default", UI inputs get cleared/hidden but the values are restored when disabled.
+     */
+    private data class OverridesCache(
+        val incrementStepInput: String = "",
+        val decrementStepInput: String = "",
+        val defaultValueInput: String = "",
+        val minValueInput: String = "",
+        val maxValueInput: String = "",
+    )
+
+    private var overridesCache: OverridesCache = OverridesCache()
 
     private val initialCategoryId: String? = savedStateHandle.get<String>("categoryId")
     val isCategoryFixed = initialCategoryId != null
@@ -96,7 +117,14 @@ class CreateCounterViewModel @Inject constructor(
             initialValue = editModel.initialValue,
             isInitialValueInputVisible = !editModel.canIncrease && editModel.canDecrease,
             isLoading = false,
-            isError = categoriesState.isError
+            isError = categoriesState.isError,
+        ).copy(
+            useDefaultBehavior = editModel.useDefaultBehavior,
+            incrementStepInput = editModel.incrementStepInput,
+            decrementStepInput = editModel.decrementStepInput,
+            defaultValueInput = editModel.defaultValueInput,
+            minValueInput = editModel.minValueInput,
+            maxValueInput = editModel.maxValueInput,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -125,6 +153,47 @@ class CreateCounterViewModel @Inject constructor(
             }
             is CreateCounterAction.CategorySelected -> _editModel.update { it.copy(selectedCategoryId = action.categoryId) }
             is CreateCounterAction.InitialValueChanged -> _editModel.update { it.copy(initialValue = action.value) }
+
+            is CreateCounterAction.UseDefaultBehaviorChanged -> {
+                val checked = action.value
+                _editModel.update { current ->
+                    if (checked) {
+                        // Save current visible values into cache, then clear exposed fields
+                        overridesCache = OverridesCache(
+                            incrementStepInput = current.incrementStepInput,
+                            decrementStepInput = current.decrementStepInput,
+                            defaultValueInput = current.defaultValueInput,
+                            minValueInput = current.minValueInput,
+                            maxValueInput = current.maxValueInput,
+                        )
+                        current.copy(
+                            useDefaultBehavior = true,
+                            incrementStepInput = "",
+                            decrementStepInput = "",
+                            defaultValueInput = "",
+                            minValueInput = "",
+                            maxValueInput = "",
+                        )
+                    } else {
+                        // Restore cached values
+                        current.copy(
+                            useDefaultBehavior = false,
+                            incrementStepInput = overridesCache.incrementStepInput,
+                            decrementStepInput = overridesCache.decrementStepInput,
+                            defaultValueInput = overridesCache.defaultValueInput,
+                            minValueInput = overridesCache.minValueInput,
+                            maxValueInput = overridesCache.maxValueInput,
+                        )
+                    }
+                }
+            }
+
+            is CreateCounterAction.IncrementStepChanged -> _editModel.update { it.copy(incrementStepInput = action.value) }
+            is CreateCounterAction.DecrementStepChanged -> _editModel.update { it.copy(decrementStepInput = action.value) }
+            is CreateCounterAction.DefaultValueChanged -> _editModel.update { it.copy(defaultValueInput = action.value) }
+            is CreateCounterAction.MinValueChanged -> _editModel.update { it.copy(minValueInput = action.value) }
+            is CreateCounterAction.MaxValueChanged -> _editModel.update { it.copy(maxValueInput = action.value) }
+
             CreateCounterAction.SaveClicked -> saveCounter()
         }
     }
@@ -136,9 +205,7 @@ class CreateCounterViewModel @Inject constructor(
         if (name.isEmpty()) {
             viewModelScope.launch {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(
-                        message = Message.Resource(R.string.name_required)
-                    )
+                    UiMessage.Toast(message = Message.Resource(R.string.name_required))
                 )
             }
             return
@@ -146,13 +213,53 @@ class CreateCounterViewModel @Inject constructor(
 
         val initialValue = currentModel.initialValue
 
+        // Parse overrides (ONLY if useDefaultBehavior is false; otherwise these remain null)
+        val incrementStep = currentModel.incrementStepInput.trim().toIntOrNull()?.coerceAtLeast(1)
+        val decrementStep = currentModel.decrementStepInput.trim().toIntOrNull()?.coerceAtLeast(1)
+        val defaultValue = currentModel.defaultValueInput.trim().toIntOrNull()
+        val minValue = currentModel.minValueInput.trim().toIntOrNull()
+        val maxValue = currentModel.maxValueInput.trim().toIntOrNull()
+
+        val effectiveIncrementStep = if (currentModel.useDefaultBehavior) null else incrementStep
+        val effectiveDecrementStep = if (currentModel.useDefaultBehavior) null else decrementStep
+        val effectiveDefaultValue = if (currentModel.useDefaultBehavior) null else defaultValue
+        val effectiveMinValue = if (currentModel.useDefaultBehavior) null else minValue
+        val effectiveMaxValue = if (currentModel.useDefaultBehavior) null else maxValue
+
+        // Validate custom min/max relationship when both set
+        if (effectiveMinValue != null && effectiveMaxValue != null && effectiveMinValue > effectiveMaxValue) {
+            viewModelScope.launch {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.error_min_gt_max))
+                )
+            }
+            return
+        }
+
+        // Validate that current count fits restrictions if restrictions exist.
+        if (effectiveMinValue != null && initialValue < effectiveMinValue) {
+            viewModelScope.launch {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.error_count_outside_bounds))
+                )
+            }
+            return
+        }
+        if (effectiveMaxValue != null && initialValue > effectiveMaxValue) {
+            viewModelScope.launch {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.error_count_outside_bounds))
+                )
+            }
+            return
+        }
+
         if (!currentModel.canIncrease && currentModel.canDecrease && initialValue <= 0) {
             viewModelScope.launch {
                 uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(
-                        message = Message.Resource(R.string.initial_value_must_be_positive)
-                    )
+                    UiMessage.Toast(message = Message.Resource(R.string.initial_value_must_be_positive))
                 )
+                return@launch
             }
             return
         }
@@ -166,6 +273,14 @@ class CreateCounterViewModel @Inject constructor(
                 categoryId = currentModel.selectedCategoryId,
                 canIncrease = currentModel.canIncrease,
                 canDecrease = currentModel.canDecrease,
+
+                incrementStep = effectiveIncrementStep,
+                decrementStep = effectiveDecrementStep,
+                minValue = effectiveMinValue,
+                maxValue = effectiveMaxValue,
+                defaultValue = effectiveDefaultValue,
+                useDefaultBehavior = currentModel.useDefaultBehavior,
+
                 createdAt = Instant.now(),
                 lastUpdatedAt = Instant.now(),
                 orderAnchorAt = Instant.now()

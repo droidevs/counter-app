@@ -19,11 +19,16 @@ import io.droidevs.counterapp.domain.usecases.counters.GetSystemCountersUseCase
 import io.droidevs.counterapp.domain.usecases.counters.GetTotalNumberOfCountersUseCase
 import io.droidevs.counterapp.domain.usecases.counters.IncrementCounterUseCase
 import io.droidevs.counterapp.domain.usecases.counters.IncrementSystemCounterUseCase
+import io.droidevs.counterapp.domain.usecases.counters.ResetCounterUseCase
 import io.droidevs.counterapp.domain.usecases.counters.UpdateCounterUseCase
 import io.droidevs.counterapp.domain.usecases.counters.UpdateSystemCounterUseCase
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterIncrementStepUseCase
+import io.droidevs.counterapp.domain.usecases.preference.counter.GetDefaultCounterValueUseCase
+import io.droidevs.counterapp.domain.usecases.preference.counter.GetMaximumCounterValueUseCase
+import io.droidevs.counterapp.domain.usecases.preference.counter.GetMinimumCounterValueUseCase
+import io.droidevs.counterapp.domain.usecases.counters.ResolveCounterBehaviorUseCase
 import javax.inject.Singleton
 
 @Module
@@ -92,15 +97,32 @@ object CounterUseCaseModule {
 
     @Provides
     @Singleton
+    fun provideResolveCounterBehaviorUseCase(
+        getCounterIncrementStep: GetCounterIncrementStepUseCase,
+        getCounterDecrementStep: GetCounterDecrementStepUseCase,
+        getDefaultCounterValue: GetDefaultCounterValueUseCase,
+        getMinimumCounterValue: GetMinimumCounterValueUseCase,
+        getMaximumCounterValue: GetMaximumCounterValueUseCase,
+    ): ResolveCounterBehaviorUseCase =
+        ResolveCounterBehaviorUseCase(
+            getCounterIncrementStep = getCounterIncrementStep,
+            getCounterDecrementStep = getCounterDecrementStep,
+            getDefaultCounterValue = getDefaultCounterValue,
+            getMinimumCounterValue = getMinimumCounterValue,
+            getMaximumCounterValue = getMaximumCounterValue,
+        )
+
+    @Provides
+    @Singleton
     fun provideIncrementCounterUseCase(
+        resolveBehavior: ResolveCounterBehaviorUseCase,
         updateCounterUseCase: UpdateCounterUseCase,
-        getCounterIncrementStepUseCase: GetCounterIncrementStepUseCase,
         addHistoryUseCase: AddHistoryEventUseCase,
         dispatchers: DispatcherProvider
     ): IncrementCounterUseCase =
         IncrementCounterUseCase(
+            resolveBehavior = resolveBehavior,
             updateCounterUseCase = updateCounterUseCase,
-            getCounterIncrementStepUseCase = getCounterIncrementStepUseCase,
             addHistoryEventUseCase = addHistoryUseCase,
             dispatchers = dispatchers
         )
@@ -108,15 +130,28 @@ object CounterUseCaseModule {
     @Provides
     @Singleton
     fun provideDecrementCounterUseCase(
+        resolveBehavior: ResolveCounterBehaviorUseCase,
         updateCounterUseCase: UpdateCounterUseCase,
-        getCounterDecrementStepUseCase: GetCounterDecrementStepUseCase,
         addHistoryUseCase: AddHistoryEventUseCase,
         dispatchers: DispatcherProvider
     ): DecrementCounterUseCase =
         DecrementCounterUseCase(
+            resolveBehavior = resolveBehavior,
             updateCounterUseCase = updateCounterUseCase,
-            getCounterDecrementStepUseCase = getCounterDecrementStepUseCase,
             addHistoryEventUseCase = addHistoryUseCase,
+            dispatchers = dispatchers
+        )
+
+    @Provides
+    @Singleton
+    fun provideResetCounterUseCase(
+        resolveBehavior: ResolveCounterBehaviorUseCase,
+        updateCounterUseCase: UpdateCounterUseCase,
+        dispatchers: DispatcherProvider,
+    ): ResetCounterUseCase =
+        ResetCounterUseCase(
+            resolveBehavior = resolveBehavior,
+            updateCounterUseCase = updateCounterUseCase,
             dispatchers = dispatchers
         )
 
@@ -136,7 +171,8 @@ object CounterUseCaseModule {
         updateCounter: UpdateCounterUseCase,
         updateSystemCounter: UpdateSystemCounterUseCase,
         incrementCounterUseCase: IncrementCounterUseCase,
-        decrementCounterUseCase: DecrementCounterUseCase
+        decrementCounterUseCase: DecrementCounterUseCase,
+        resetCounterUseCase: ResetCounterUseCase,
     ): CounterUseCases = CounterUseCases(
         createCounter,
         deleteCounter,
@@ -151,6 +187,7 @@ object CounterUseCaseModule {
         updateCounter,
         updateSystemCounter,
         incrementCounterUseCase,
-        decrementCounterUseCase
+        decrementCounterUseCase,
+        resetCounterUseCase,
     )
 }

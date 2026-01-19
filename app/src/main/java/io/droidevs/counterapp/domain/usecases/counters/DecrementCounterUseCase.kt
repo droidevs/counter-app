@@ -1,50 +1,63 @@
 package io.droidevs.counterapp.domain.usecases.counters
 
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
+import io.droidevs.counterapp.domain.errors.CounterDomainError
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.result.Result
-import io.droidevs.counterapp.domain.result.RootError
+import io.droidevs.counterapp.domain.result.mapError
 import io.droidevs.counterapp.domain.result.recover
-import io.droidevs.counterapp.domain.result.resultSuspendFromFlow
+import io.droidevs.counterapp.domain.result.resultSuspend
 import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
-import io.droidevs.counterapp.domain.usecases.preference.counter.GetCounterDecrementStepUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 
 class DecrementCounterUseCase @Inject constructor(
-    private val getCounterDecrementStepUseCase: GetCounterDecrementStepUseCase,
+    private val resolveBehavior: ResolveCounterBehaviorUseCase,
     private val updateCounterUseCase: UpdateCounterUseCase,
     private val addHistoryEventUseCase: AddHistoryEventUseCase,
     private val dispatchers: DispatcherProvider
 ) {
-    suspend operator fun invoke(counter: Counter): Result<Unit, RootError> = withContext(dispatchers.io) {
-        resultSuspendFromFlow {
-            getCounterDecrementStepUseCase()
-                .combineSuspended { decrementStep ->
-                    val oldValue = counter.currentCount
-                    val newValue = oldValue - decrementStep
+    suspend operator fun invoke(counter: Counter): Result<Unit, CounterDomainError> = withContext(dispatchers.io) {
+        resultSuspend {
+            combineSuspended(
+                first = { resolveBehavior(counter).mapError { CounterDomainError.FailedToDecrement() } },
+            ) { behavior ->
+                val oldValue = counter.currentCount
+                val newValue = oldValue - behavior.decrementStep
 
-                    updateCounterUseCase(
-                        UpdateCounterRequest(
-                            counterId = counter.id,
-                            newCount = newValue,
-                            lastUpdatedAt = Instant.now()
-                        )
-                    ).combineSuspended {
-                        addHistoryEventUseCase(
-                            HistoryEvent(
-                                counterId = counter.id,
-                                counterName = counter.name,
-                                oldValue = oldValue,
-                                newValue = newValue,
-                                change = -decrementStep,
-                            )
-                        ).recover(transform = { Unit })
-                    }
+                val min = behavior.minValue
+                if (min != null && newValue < min) {
+                    return@combineSuspended Result.Failure(CounterDomainError.DecrementBlockedByMinimum)
                 }
+
+                combineSuspended(
+                    first = {
+                        updateCounterUseCase(
+                            UpdateCounterRequest(
+                                counterId = counter.id,
+                                newCount = newValue,
+                                lastUpdatedAt = Instant.now()
+                            )
+                        ).mapError { CounterDomainError.FailedToDecrement() }
+                    }
+                ) {
+                    // Internal-only: history failures don't fail decrement.
+                    addHistoryEventUseCase(
+                        HistoryEvent(
+                            counterId = counter.id,
+                            counterName = counter.name,
+                            oldValue = oldValue,
+                            newValue = newValue,
+                            change = -behavior.decrementStep,
+                        )
+                    ).recover { Unit }
+
+                    Result.Success(Unit)
+                }
+            }
         }
     }
 }

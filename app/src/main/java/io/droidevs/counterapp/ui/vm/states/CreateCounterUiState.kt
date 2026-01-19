@@ -10,6 +10,15 @@ data class CreateCounterUiState(
     val isInitialValueInputVisible: Boolean = false,
     val categoryId: String? = null,
     val categories: List<CategoryUiModel> = emptyList(),
+
+    // Per-counter behavior overrides (kept as text for user input)
+    val useDefaultBehavior: Boolean = true,
+    val incrementStepInput: String = "",
+    val decrementStepInput: String = "",
+    val defaultValueInput: String = "",
+    val minValueInput: String = "",
+    val maxValueInput: String = "",
+
     val isSaving: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false

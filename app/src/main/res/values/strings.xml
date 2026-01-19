@@ -406,5 +406,26 @@
     <string name="permissions_permanently_denied_message">Some permissions were permanently denied. Enable them from App Settings to make system counters work.</string>
     <string name="open_app_settings">Open app settings</string>
 
+    <!-- Counter actions: increment/decrement messages -->
+    <string name="failed_to_increment_counter">Failed to increment counter</string>
+    <string name="failed_to_decrement_counter">Failed to decrement counter</string>
+
+    <string name="counter_maximum_reached">Maximum value reached</string>
+    <string name="counter_minimum_reached">Minimum value reached</string>
+
+    <!-- Internal bookkeeping (order anchor / list ordering). Not shown for user actions. -->
+    <string name="failed_to_update_counter_order">Failed to update counter order</string>
+
+    <!-- Create/Edit counter advanced behavior -->
+    <string name="advanced_behavior">Advanced behavior</string>
+    <string name="use_global_counter_preferences">Use global counter preferences</string>
+    <string name="hint_increment_step_optional">Increment step (optional)</string>
+    <string name="hint_decrement_step_optional">Decrement step (optional)</string>
+    <string name="hint_default_value_optional">Default value on reset (optional)</string>
+    <string name="hint_min_value_optional">Minimum value (optional)</string>
+    <string name="hint_max_value_optional">Maximum value (optional)</string>
+    <string name="error_min_gt_max">Minimum value can’t be greater than maximum value</string>
+    <string name="error_count_outside_bounds">Current count must be within min/max limits</string>
+
 </resources>
 

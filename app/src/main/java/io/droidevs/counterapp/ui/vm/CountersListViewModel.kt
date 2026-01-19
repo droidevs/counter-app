@@ -26,6 +26,7 @@ import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
+import io.droidevs.counterapp.domain.errors.CounterDomainError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -95,15 +96,19 @@ class CountersListViewModel @Inject constructor(
         val c = counterUiModel.toDomain()
 
         viewModelScope.launch {
-            // Step-pref aware + history aware
             counterUseCases.incrementCounter(counter = c)
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
+                        )
+                    }
                 }
         }
 
@@ -118,10 +123,15 @@ class CountersListViewModel @Inject constructor(
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
+                        )
+                    }
                 }
         }
 

@@ -33,6 +33,23 @@ data class CounterEntity(
     @ColumnInfo(name = "can_decrement")
     val canDecrement: Boolean,
 
+    @ColumnInfo(name = "increment_step")
+    val incrementStep: Int? = null,
+    @ColumnInfo(name = "decrement_step")
+    val decrementStep: Int? = null,
+
+    @ColumnInfo(name = "min_value")
+    val minValue: Int? = null,
+    @ColumnInfo(name = "max_value")
+    val maxValue: Int? = null,
+
+    @ColumnInfo(name = "default_value")
+    val defaultValue: Int? = null,
+
+    /** If true, use global preferences (if available) as fallback. */
+    @ColumnInfo(name = "use_default_behavior")
+    val useDefaultBehavior: Boolean = true,
+
     @ColumnInfo(name = "category_id")
     val categoryId: String?,
 

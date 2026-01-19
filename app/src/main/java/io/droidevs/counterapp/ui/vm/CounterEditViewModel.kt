@@ -34,6 +34,16 @@ class CounterEditViewModel @Inject constructor(
     private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
+    private data class OverridesCache(
+        val incrementStep: Int? = null,
+        val decrementStep: Int? = null,
+        val defaultValue: Int? = null,
+        val minValue: Int? = null,
+        val maxValue: Int? = null,
+    )
+
+    private var overridesCache: OverridesCache = OverridesCache()
+
     private val counterId: String = savedStateHandle.get<String>("counterId")!!
 
     private val _event = MutableSharedFlow<CounterEditEvent>(extraBufferCapacity = 1)
@@ -112,6 +122,66 @@ class CounterEditViewModel @Inject constructor(
                 }
             }
 
+            is CounterEditAction.UseDefaultBehaviorChanged -> {
+                val checked = action.value
+
+                _editableCounter.update { current ->
+                    current ?: return@update null
+
+                    if (checked) {
+                        overridesCache = OverridesCache(
+                            incrementStep = current.incrementStep,
+                            decrementStep = current.decrementStep,
+                            defaultValue = current.defaultValue,
+                            minValue = current.minValue,
+                            maxValue = current.maxValue,
+                        )
+                        current.copy(
+                            useDefaultBehavior = true,
+                            incrementStep = null,
+                            decrementStep = null,
+                            defaultValue = null,
+                            minValue = null,
+                            maxValue = null,
+                        )
+                    } else {
+                        current.copy(
+                            useDefaultBehavior = false,
+                            incrementStep = overridesCache.incrementStep,
+                            decrementStep = overridesCache.decrementStep,
+                            defaultValue = overridesCache.defaultValue,
+                            minValue = overridesCache.minValue,
+                            maxValue = overridesCache.maxValue,
+                        )
+                    }
+                }
+            }
+
+            is CounterEditAction.IncrementStepChanged -> {
+                val parsed = action.value.trim().toIntOrNull()?.coerceAtLeast(1)
+                _editableCounter.update { it?.copy(incrementStep = parsed) }
+            }
+
+            is CounterEditAction.DecrementStepChanged -> {
+                val parsed = action.value.trim().toIntOrNull()?.coerceAtLeast(1)
+                _editableCounter.update { it?.copy(decrementStep = parsed) }
+            }
+
+            is CounterEditAction.DefaultValueChanged -> {
+                val parsed = action.value.trim().toIntOrNull()
+                _editableCounter.update { it?.copy(defaultValue = parsed) }
+            }
+
+            is CounterEditAction.MinValueChanged -> {
+                val parsed = action.value.trim().toIntOrNull()
+                _editableCounter.update { it?.copy(minValue = parsed) }
+            }
+
+            is CounterEditAction.MaxValueChanged -> {
+                val parsed = action.value.trim().toIntOrNull()
+                _editableCounter.update { it?.copy(maxValue = parsed) }
+            }
+
             CounterEditAction.SaveClicked -> {
                 saveCounter()
             }
@@ -122,8 +192,27 @@ class CounterEditViewModel @Inject constructor(
         val counter = _editableCounter.value
 
         if (counter != null) {
+            // validate legacy rule
             if (!counter.canIncrease && counter.canDecrease && counter.currentCount <= 0) {
                 uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.error_decrement_only_counter)))
+                return
+            }
+
+            // Validate bounds relationship
+            val min = counter.minValue
+            val max = counter.maxValue
+            if (min != null && max != null && min > max) {
+                uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.error_min_gt_max)))
+                return
+            }
+
+            // Validate current count against bounds if bounds exist
+            if (min != null && counter.currentCount < min) {
+                uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.error_count_outside_bounds)))
+                return
+            }
+            if (max != null && counter.currentCount > max) {
+                uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.error_count_outside_bounds)))
                 return
             }
 
@@ -135,6 +224,15 @@ class CounterEditViewModel @Inject constructor(
                     newCount = counter.currentCount,
                     canIncrease = counter.canIncrease,
                     canDecrease = counter.canDecrease,
+
+                    // If using defaults, explicitly clear any per-counter overrides.
+                    incrementStep = if (counter.useDefaultBehavior) null else counter.incrementStep,
+                    decrementStep = if (counter.useDefaultBehavior) null else counter.decrementStep,
+                    minValue = if (counter.useDefaultBehavior) null else counter.minValue,
+                    maxValue = if (counter.useDefaultBehavior) null else counter.maxValue,
+                    defaultValue = if (counter.useDefaultBehavior) null else counter.defaultValue,
+                    useDefaultBehavior = counter.useDefaultBehavior,
+
                     lastUpdatedAt = Instant.now(),
                     orderAnchorAt = Instant.now()
                 )

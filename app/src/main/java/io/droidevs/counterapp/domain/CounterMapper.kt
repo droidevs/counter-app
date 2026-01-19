@@ -19,6 +19,12 @@ fun Counter.toUiModel(
         canDecrease = canDecrease,
         isSystem = isSystem,
         systemKey = systemKey,
+        incrementStep = incrementStep,
+        decrementStep = decrementStep,
+        minValue = minValue,
+        maxValue = maxValue,
+        defaultValue = defaultValue,
+        useDefaultBehavior = useDefaultBehavior,
         createdTime = formatter.format(createdAt),
         editedTime = lastUpdatedAt?.let { formatter.format(it) },
         wasUserUpdated = wasUserUpdated
@@ -36,6 +42,12 @@ fun CounterUiModel.toDomain(): Counter {
         categoryId = categoryId,
         isSystem = isSystem,
         systemKey = systemKey,
+        incrementStep = incrementStep,
+        decrementStep = decrementStep,
+        minValue = minValue,
+        maxValue = maxValue,
+        defaultValue = defaultValue,
+        useDefaultBehavior = useDefaultBehavior,
         // IMPORTANT: preserve ordering + timestamps to avoid resetting when persisting.
         // When UI model doesn't carry raw Instants, we must leave them null rather than overwrite an existing value.
         // The actual values should come from repository when doing writes.

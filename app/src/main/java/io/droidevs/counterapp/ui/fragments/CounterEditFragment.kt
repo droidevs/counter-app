@@ -77,6 +77,26 @@ class CounterEditFragment : Fragment() {
             switchCanDecrease.setOnCheckedChangeListener { _, checked ->
                 viewModel.onAction(CounterEditAction.SetCanDecrease(checked))
             }
+
+            switchUseDefaultBehavior.setOnCheckedChangeListener { _, checked ->
+                viewModel.onAction(CounterEditAction.UseDefaultBehaviorChanged(checked))
+            }
+
+            etIncrementStep.doAfterTextChanged {
+                viewModel.onAction(CounterEditAction.IncrementStepChanged(it?.toString().orEmpty()))
+            }
+            etDecrementStep.doAfterTextChanged {
+                viewModel.onAction(CounterEditAction.DecrementStepChanged(it?.toString().orEmpty()))
+            }
+            etDefaultValue.doAfterTextChanged {
+                viewModel.onAction(CounterEditAction.DefaultValueChanged(it?.toString().orEmpty()))
+            }
+            etMinValue.doAfterTextChanged {
+                viewModel.onAction(CounterEditAction.MinValueChanged(it?.toString().orEmpty()))
+            }
+            etMaxValue.doAfterTextChanged {
+                viewModel.onAction(CounterEditAction.MaxValueChanged(it?.toString().orEmpty()))
+            }
         }
     }
 
@@ -130,6 +150,27 @@ class CounterEditFragment : Fragment() {
                                     }
                                     if (binding.switchCanDecrease.isChecked != counter.canDecrease) {
                                         binding.switchCanDecrease.isChecked = counter.canDecrease
+                                    }
+
+                                    // Hide/show override fields.
+                                    binding.groupBehaviorOverrides.isVisible = !counter.useDefaultBehavior
+
+                                    if (binding.switchUseDefaultBehavior.isChecked != counter.useDefaultBehavior) {
+                                        binding.switchUseDefaultBehavior.isChecked = counter.useDefaultBehavior
+                                    }
+
+                                    if (!counter.useDefaultBehavior) {
+                                        val incText = counter.incrementStep?.toString().orEmpty()
+                                        val decText = counter.decrementStep?.toString().orEmpty()
+                                        val defText = counter.defaultValue?.toString().orEmpty()
+                                        val minText = counter.minValue?.toString().orEmpty()
+                                        val maxText = counter.maxValue?.toString().orEmpty()
+
+                                        if (binding.etIncrementStep.text.toString() != incText) binding.etIncrementStep.setText(incText)
+                                        if (binding.etDecrementStep.text.toString() != decText) binding.etDecrementStep.setText(decText)
+                                        if (binding.etDefaultValue.text.toString() != defText) binding.etDefaultValue.setText(defText)
+                                        if (binding.etMinValue.text.toString() != minText) binding.etMinValue.setText(minText)
+                                        if (binding.etMaxValue.text.toString() != maxText) binding.etMaxValue.setText(maxText)
                                     }
 
                                     binding.tvCreatedAt.text = getString(R.string.created_at_label, counter.createdTime.toString())

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
+import io.droidevs.counterapp.domain.errors.CounterDomainError
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
@@ -106,10 +107,18 @@ class CounterViewViewModel @Inject constructor(
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
+                        )
+                        is CounterDomainError.FailedToIncrement -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
+                        )
+                    }
                 }
         }
     }
@@ -123,31 +132,38 @@ class CounterViewViewModel @Inject constructor(
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
+                        )
+                        is CounterDomainError.FailedToDecrement -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
+                        )
+                    }
                 }
         }
     }
 
     private fun reset() {
+        val currentCounter = uiState.value.counter ?: return
+
         viewModelScope.launch {
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId = counterId,
-                    newCount = 0
-                )
-            ).onSuccessSuspend {
-                feedbackManager.onAction(CounterFeedbackAction.RESET)
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
-                )
-            }.onFailure {
-                uiMessageDispatcher.dispatch(
-                    UiMessage.Toast(message = Message.Resource(R.string.failed_to_reset_counter))
-                )
-            }
+            counterUseCases.resetCounter(currentCounter.toDomain())
+                .onSuccessSuspend {
+                    feedbackManager.onAction(CounterFeedbackAction.RESET)
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
+                    )
+                }
+                .onFailure {
+                    uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_reset_counter))
+                    )
+                }
         }
     }
 

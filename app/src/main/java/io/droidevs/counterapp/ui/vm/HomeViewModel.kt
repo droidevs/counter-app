@@ -29,6 +29,7 @@ import io.droidevs.counterapp.ui.vm.mappers.toHomeUiState
 import io.droidevs.counterapp.ui.vm.states.HomeUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
+import io.droidevs.counterapp.domain.errors.CounterDomainError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -266,10 +267,15 @@ class HomeViewModel @Inject constructor(
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
+                        )
+                    }
                 }
         }
         scheduleInteractionEnd(activeCounter!!.id)
@@ -286,10 +292,15 @@ class HomeViewModel @Inject constructor(
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }
-                .onFailure {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
-                    )
+                .onFailure { error ->
+                    when (error) {
+                        CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
+                        )
+                        else -> uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
+                        )
+                    }
                 }
         }
         scheduleInteractionEnd(activeCounter!!.id)

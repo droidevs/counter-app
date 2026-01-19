@@ -13,6 +13,7 @@ data class CounterUseCases(
     val incrementSystemCounter: IncrementSystemCounterUseCase,
     val updateCounter: UpdateCounterUseCase,
     val updateSystemCounter: UpdateSystemCounterUseCase,
-    val incrementCounter : IncrementCounterUseCase,
-    val decrementCounter : DecrementCounterUseCase,
+    val incrementCounter: IncrementCounterUseCase,
+    val decrementCounter: DecrementCounterUseCase,
+    val resetCounter: ResetCounterUseCase,
 )

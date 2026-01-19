@@ -97,6 +97,26 @@ class CreateCounterFragment : Fragment() {
                 viewModel.onAction(CreateCounterAction.CategorySelected(null))
             }
         }
+
+        binding.switchUseDefaultBehavior.setOnCheckedChangeListener { _, checked ->
+            viewModel.onAction(CreateCounterAction.UseDefaultBehaviorChanged(checked))
+        }
+
+        binding.etIncrementStep.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.IncrementStepChanged(it?.toString().orEmpty()))
+        }
+        binding.etDecrementStep.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.DecrementStepChanged(it?.toString().orEmpty()))
+        }
+        binding.etDefaultValue.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.DefaultValueChanged(it?.toString().orEmpty()))
+        }
+        binding.etMinValue.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.MinValueChanged(it?.toString().orEmpty()))
+        }
+        binding.etMaxValue.doAfterTextChanged {
+            viewModel.onAction(CreateCounterAction.MaxValueChanged(it?.toString().orEmpty()))
+        }
     }
 
     private fun observeViewModel() {
@@ -147,6 +167,33 @@ class CreateCounterFragment : Fragment() {
 
                             if (binding.spinnerCategory.selectedItemPosition != selectionPosition) {
                                 binding.spinnerCategory.setSelection(selectionPosition)
+                            }
+                        }
+
+                        // Hide/show overrides group.
+                        binding.groupBehaviorOverrides.isVisible = !state.useDefaultBehavior
+
+                        // Keep switch synced.
+                        if (binding.switchUseDefaultBehavior.isChecked != state.useDefaultBehavior) {
+                            binding.switchUseDefaultBehavior.isChecked = state.useDefaultBehavior
+                        }
+
+                        // Only bind text fields when visible (when hidden they are cleared by VM but cached).
+                        if (!state.useDefaultBehavior) {
+                            if (binding.etIncrementStep.text.toString() != state.incrementStepInput) {
+                                binding.etIncrementStep.setText(state.incrementStepInput)
+                            }
+                            if (binding.etDecrementStep.text.toString() != state.decrementStepInput) {
+                                binding.etDecrementStep.setText(state.decrementStepInput)
+                            }
+                            if (binding.etDefaultValue.text.toString() != state.defaultValueInput) {
+                                binding.etDefaultValue.setText(state.defaultValueInput)
+                            }
+                            if (binding.etMinValue.text.toString() != state.minValueInput) {
+                                binding.etMinValue.setText(state.minValueInput)
+                            }
+                            if (binding.etMaxValue.text.toString() != state.maxValueInput) {
+                                binding.etMaxValue.setText(state.maxValueInput)
                             }
                         }
                     }

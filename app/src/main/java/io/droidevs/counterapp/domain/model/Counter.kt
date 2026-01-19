@@ -17,6 +17,14 @@ class Counter(
     var isSystem: Boolean = false,
     var systemKey: String? = null,
 
+    // Per-counter optional behavior overrides
+    var incrementStep: Int? = null,
+    var decrementStep: Int? = null,
+    var minValue: Int? = null,
+    var maxValue: Int? = null,
+    var defaultValue: Int? = null,
+    var useDefaultBehavior: Boolean = true,
+
     val createdAt: Instant = Instant.now(),
     var lastUpdatedAt: Instant? = null,
     var orderAnchorAt: Instant? = null
@@ -49,7 +57,8 @@ class Counter(
             currentCount = 0,
             canIncrease = true,
             canDecrease = false,
-            categoryId = null
+            categoryId = null,
+            useDefaultBehavior = true,
         )
     }
 

@@ -87,11 +87,28 @@ object Migrations {
     }
 
     /**
+     * Migration from version 4 to 5.
+     *
+     * Adds per-counter behavior override fields to the 'counters' table.
+     */
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `increment_step` INTEGER")
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `decrement_step` INTEGER")
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `min_value` INTEGER")
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `max_value` INTEGER")
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `default_value` INTEGER")
+            db.execSQL("ALTER TABLE `counters` ADD COLUMN `use_default_behavior` INTEGER NOT NULL DEFAULT 1")
+        }
+    }
+
+    /**
      * A complete list of all migrations required to build the schema.
      */
     val ALL = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
-        MIGRATION_3_4
+        MIGRATION_3_4,
+        MIGRATION_4_5,
     )
 }
