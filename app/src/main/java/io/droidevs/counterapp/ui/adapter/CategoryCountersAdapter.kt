@@ -4,12 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemCategoryCounterBinding
+import io.droidevs.counterapp.ui.adapter.base.DiffListAdapter
+import io.droidevs.counterapp.ui.adapter.models.CounterItem
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
 import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
@@ -17,7 +17,7 @@ import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
 class CategoryCountersAdapter(
     private val onIncrement: (CounterUiModel) -> Unit = {},
     private val onDecrement: (CounterUiModel) -> Unit = {}
-) : ListAdapter<CounterUiModel, CategoryCountersAdapter.ViewHolder>(Diff()) {
+) : DiffListAdapter<CounterItem, CategoryCountersAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemCategoryCounterBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -32,7 +32,7 @@ class CategoryCountersAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
+        val item = getItem(position).model
         val ctx = holder.itemView.context
 
         with(holder.binding) {
@@ -89,11 +89,7 @@ class CategoryCountersAdapter(
         }
     }
 
-    class Diff : DiffUtil.ItemCallback<CounterUiModel>() {
-        override fun areItemsTheSame(old: CounterUiModel, new: CounterUiModel) =
-            old.id == new.id
-
-        override fun areContentsTheSame(old: CounterUiModel, new: CounterUiModel) =
-            old == new
+    fun submitUiModels(list: List<CounterUiModel>) {
+        submitList(list.map { CounterItem(it) })
     }
 }

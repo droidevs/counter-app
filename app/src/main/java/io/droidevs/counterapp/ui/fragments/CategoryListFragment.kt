@@ -9,7 +9,6 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -142,7 +141,7 @@ class CategoryListFragment : Fragment() {
             state.categories.isEmpty() -> showEmptyState { viewModel.onAction(CategoryListAction.CreateCategoryClicked) }
             else -> {
                 hideStateContainer()
-                adapter.submitList(state.categories)
+                adapter.submitUiModels(state.categories)
             }
         }
     }

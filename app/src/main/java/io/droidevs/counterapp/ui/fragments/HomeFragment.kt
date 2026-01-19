@@ -159,7 +159,7 @@ class HomeFragment : Fragment() {
                         }
 
                         (recentCountersRecycler?.adapter as? HomeCounterAdapter)?.updateCounters(state.recentCounters)
-                        (categoriesRecycler?.adapter as? HomeCategoryAdapter)?.submitList(state.categories)
+                        (categoriesRecycler?.adapter as? HomeCategoryAdapter)?.submitUiModels(state.categories)
                         Log.d("HomeFragment", "Counters Count: ${state.countersCount}, Categories Count: ${state.categoriesCount}")
                     }
                 }

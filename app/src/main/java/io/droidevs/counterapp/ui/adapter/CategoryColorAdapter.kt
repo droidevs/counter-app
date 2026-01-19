@@ -7,11 +7,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.model.CategoryColor
+import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
+import io.droidevs.counterapp.ui.adapter.models.CategoryColorItem
 
 class CategoryColorAdapter(
-    private var colors: MutableList<CategoryColor>,
+    colors: MutableList<CategoryColor>,
     private val onColorSelected: (Int) -> Unit
 ) : RecyclerView.Adapter<CategoryColorAdapter.ColorVH>() {
+
+    private val diff = DiffUpdate.diffable<CategoryColorItem>()
+
+    private var items: MutableList<CategoryColorItem> = colors.map { CategoryColorItem(it) }.toMutableList()
 
     private var selectedColorIndex: Int = -1
 
@@ -24,7 +30,7 @@ class CategoryColorAdapter(
     }
 
     override fun onBindViewHolder(holder: ColorVH, position: Int) {
-        val item = colors[position]
+        val item = items[position].model
 
         holder.view.background = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
@@ -41,15 +47,26 @@ class CategoryColorAdapter(
         }
     }
 
-    override fun getItemCount() = colors.size
+    override fun getItemCount() = items.size
 
     private fun selectColor(index: Int) {
+        val previous = selectedColorIndex
         selectedColorIndex = index
-        notifyDataSetChanged()
+
+        if (previous != -1) notifyItemChanged(previous)
+        notifyItemChanged(index)
     }
 
     fun updateColors(newColors: List<CategoryColor>) {
-        this.colors = newColors.toMutableList()
-        notifyDataSetChanged()
+        val old = items.toList()
+        val newItems = newColors.map { CategoryColorItem(it) }
+
+        items = newItems.toMutableList()
+        diff.apply(adapter = this, old = old, new = newItems)
+
+        // Keep selection consistent if colors list changed.
+        if (selectedColorIndex >= items.size) {
+            selectedColorIndex = -1
+        }
     }
 }

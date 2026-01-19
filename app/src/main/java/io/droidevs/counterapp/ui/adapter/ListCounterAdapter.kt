@@ -10,37 +10,46 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemListCounterBinding
 import io.droidevs.counterapp.domain.toDomain
+import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
+import io.droidevs.counterapp.ui.adapter.models.CounterWithCategoryItem
+import io.droidevs.counterapp.ui.label.LabelControlManager
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterUiModel
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
-import io.droidevs.counterapp.ui.utils.CategoryColorUtil
-import io.droidevs.counterapp.ui.utils.NoCategoryUi
 import io.droidevs.counterapp.ui.system.SystemCounterSupportStatus
 import io.droidevs.counterapp.ui.system.SystemCounterSupportUi
-import io.droidevs.counterapp.ui.label.LabelControlManager
+import io.droidevs.counterapp.ui.utils.CategoryColorUtil
+import io.droidevs.counterapp.ui.utils.NoCategoryUi
 
 class ListCounterAdapter(
-    var counters: List<CounterWithCategoryUiModel> = ArrayList<CounterWithCategoryUiModel>(),
-    private val listener : OnCounterClickListener,
-    private val onIncrement : (counter: CounterUiModel) -> Unit,
-    private val onDecrement : (counter: CounterUiModel) -> Unit,
+    // Public API remains UI models. Internal storage uses DiffableItem wrappers.
+    counters: List<CounterWithCategoryUiModel> = emptyList(),
+    private val listener: OnCounterClickListener,
+    private val onIncrement: (counter: CounterUiModel) -> Unit,
+    private val onDecrement: (counter: CounterUiModel) -> Unit,
     private val labelControlManager: LabelControlManager,
 ) : RecyclerView.Adapter<ListCounterAdapter.ViewHolder>() {
+
+    private val diff = DiffUpdate.diffable<CounterWithCategoryItem>()
+
+    private var items: List<CounterWithCategoryItem> = counters.map { CounterWithCategoryItem(it) }
 
     inner class ViewHolder(
         val binding: ItemListCounterBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         val tvName: TextView = binding.tvCounterName
         val tvCount: TextView = binding.tvCounterValue
-        val tvEditTime : TextView = binding.tvEditedTime
-        val tvCategory : TextView = binding.tvCategory
+        val tvEditTime: TextView = binding.tvEditedTime
+        val tvCategory: TextView = binding.tvCategory
         val tvSystemHint: TextView = binding.tvSystemHint
 
         fun bind(
-            data: CounterWithCategoryUiModel,
+            item: CounterWithCategoryItem,
             onIncrement: (counter: CounterUiModel) -> Unit,
             onDecrement: (counter: CounterUiModel) -> Unit
         ) {
+            val data = item.model
+
             tvName.text = data.counter.name
             tvCount.text = data.counter.currentCount.toString()
 
@@ -136,7 +145,7 @@ class ListCounterAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        var binding: ItemListCounterBinding = ItemListCounterBinding.inflate(
+        val binding: ItemListCounterBinding = ItemListCounterBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -145,24 +154,31 @@ class ListCounterAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val counter = counters[position]
+        val item = items[position]
         holder.bind(
-            data = counter,
+            item = item,
             onIncrement = onIncrement,
             onDecrement = onDecrement
         )
     }
 
-    override fun getItemCount(): Int = counters.size
+    override fun getItemCount(): Int = items.size
+
+    /** Used by scroll tracking logic (visible items). */
+    fun getCounterAt(position: Int): CounterUiModel? = items.getOrNull(position)?.model?.counter
+
     fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
-        var l = this.counters as ArrayList<CounterWithCategoryUiModel>
-        l.clear()
-        l.addAll(counters)
-        notifyDataSetChanged()
+        val old = items
+        val newItems = counters.map { CounterWithCategoryItem(it) }
+
+        items = newItems
+        diff.apply(adapter = this, old = old, new = newItems)
     }
 
     /** Call when label-control preference toggles so rows rebind with the new visibility. */
     fun onLabelVisibilityChanged() {
-        notifyDataSetChanged()
+        if (items.isNotEmpty()) {
+            notifyItemRangeChanged(0, items.size)
+        }
     }
 }

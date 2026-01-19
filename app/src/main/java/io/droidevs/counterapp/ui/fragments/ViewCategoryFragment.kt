@@ -138,7 +138,7 @@ class ViewCategoryFragment : Fragment() {
                             requireActivity().invalidateOptionsMenu()
                         }
 
-                        adapter.submitList(state.counters)
+                        adapter.submitUiModels(state.counters)
 
                         when {
                             state.isLoading -> {

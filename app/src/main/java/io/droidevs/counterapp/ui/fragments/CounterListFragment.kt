@@ -86,14 +86,14 @@ class CounterListFragment : Fragment(), OnCounterClickListener {
             adapter = listAdapter
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                    val layoutManager = rv.layoutManager as LinearLayoutManager
-                    val first = layoutManager.findFirstVisibleItemPosition()
-                    val last = layoutManager.findLastVisibleItemPosition()
+                    val lm = rv.layoutManager as LinearLayoutManager
+                    val first = lm.findFirstVisibleItemPosition()
+                    val last = lm.findLastVisibleItemPosition()
 
                     if (first == -1 || last == -1) return
 
-                    val visibleItems = (first..last).mapNotNull {
-                        listAdapter.counters.getOrNull(it)?.counter
+                    val visibleItems = (first..last).mapNotNull { pos ->
+                        listAdapter.getCounterAt(pos)
                     }.toSet()
 
                     if (visibleItems.isNotEmpty()) {

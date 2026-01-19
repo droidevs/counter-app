@@ -96,7 +96,7 @@ class HistoryFragment : Fragment() {
                             hideState()
                             binding.recyclerViewHistory.isVisible = true
                             binding.buttonClearHistory.isVisible = true
-                            historyAdapter.submitList(state.history)
+                            historyAdapter.submitUiModels(state.history)
                         }
                     }
                 }

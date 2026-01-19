@@ -10,21 +10,26 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCounterBinding
 import io.droidevs.counterapp.domain.toDomain
+import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
+import io.droidevs.counterapp.ui.adapter.models.CounterWithCategoryItem
+import io.droidevs.counterapp.ui.label.LabelControlManager
 import io.droidevs.counterapp.ui.listeners.OnCounterClickListener
 import io.droidevs.counterapp.ui.models.CounterWithCategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
 import io.droidevs.counterapp.ui.utils.NoCategoryUi
-import io.droidevs.counterapp.ui.label.LabelControlManager
 
 internal class HomeCounterAdapter(
-    private val counters: MutableList<CounterWithCategoryUiModel>,
+    counters: MutableList<CounterWithCategoryUiModel>,
     private val listener: OnCounterClickListener? = null,
-    private val onAddCounter : () -> Unit = {},
-    private val onIncrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
-    private val onDecrement : (counter: CounterWithCategoryUiModel) -> Unit = {},
+    private val onAddCounter: () -> Unit = {},
+    private val onIncrement: (counter: CounterWithCategoryUiModel) -> Unit = {},
+    private val onDecrement: (counter: CounterWithCategoryUiModel) -> Unit = {},
     private val labelControlManager: LabelControlManager
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val diff = DiffUpdate.diffable<CounterWithCategoryItem>()
+
+    private val items: MutableList<CounterWithCategoryItem> = counters.map { CounterWithCategoryItem(it) }.toMutableList()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -33,7 +38,7 @@ internal class HomeCounterAdapter(
 
         return when (viewType) {
             VIEW_TYPE_ADD -> {
-                var binding = ItemEmptyAddBinding.inflate(
+                val binding = ItemEmptyAddBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -42,7 +47,7 @@ internal class HomeCounterAdapter(
             }
 
             else -> {
-                var binding = ItemHomeCounterBinding.inflate(
+                val binding = ItemHomeCounterBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -54,7 +59,8 @@ internal class HomeCounterAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            val cwg = counters[position]
+            val item = items[position]
+            val cwg = item.model
             val labelsEnabled = labelControlManager.enabled.value
             holder.bind(
                 cwg = cwg,
@@ -73,12 +79,11 @@ internal class HomeCounterAdapter(
         }
     }
 
-    override fun getItemCount(): Int = counters.size + 1
+    override fun getItemCount(): Int = items.size + 1
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == counters.size) VIEW_TYPE_ADD else VIEW_TYPE_COUNTER
+        return if (position == items.size) VIEW_TYPE_ADD else VIEW_TYPE_COUNTER
     }
-
 
     internal class ViewHolder(binding: ItemHomeCounterBinding) : RecyclerView.ViewHolder(binding.root) {
         var name: TextView = binding.txtCounterName
@@ -164,17 +169,25 @@ internal class HomeCounterAdapter(
         }
     }
 
-
     fun updateCounters(counters: List<CounterWithCategoryUiModel>) {
-        this.counters.clear()
-        this.counters.addAll(counters)
-        notifyDataSetChanged()
+        val old = items.toList()
+        val newItems = counters.map { CounterWithCategoryItem(it) }
+
+        items.clear()
+        items.addAll(newItems)
+
+        diff.apply(adapter = this, old = old, new = newItems)
+
+        // Ensure trailing ADD cell is up-to-date.
+        notifyItemChanged(itemCount - 1)
     }
 
     /** Call when label-control preference toggles so views rebind with the new visibility. */
     fun onLabelVisibilityChanged() {
-        // Rebind everything; list is small (recent counters). If it grows, switch to payload updates.
-        notifyDataSetChanged()
+        // Rebind counter rows only; the ADD row doesn't care.
+        if (items.isNotEmpty()) {
+            notifyItemRangeChanged(0, items.size)
+        }
     }
 
     companion object {

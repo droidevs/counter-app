@@ -1,46 +1,48 @@
 package io.droidevs.counterapp.ui.adapter
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.MaterialColors
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.databinding.ItemEmptyAddBinding
 import io.droidevs.counterapp.databinding.ItemHomeCategoryBinding
 import io.droidevs.counterapp.domain.toDomain
+import io.droidevs.counterapp.ui.adapter.base.DiffUpdate
 import io.droidevs.counterapp.ui.listeners.OnCategoryClickListener
 import io.droidevs.counterapp.ui.models.CategoryUiModel
 import io.droidevs.counterapp.ui.utils.CategoryColorUtil
-import io.droidevs.counterapp.ui.utils.CategoryColorUtil.isDark
 
 class HomeCategoryAdapter(
     private val listener: OnCategoryClickListener? = null,
     private val onAdd: (() -> Unit)? = null
-) : ListAdapter<CategoryUiModel, RecyclerView.ViewHolder>(
-    DiffCallback
-) {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val diff = DiffUpdate<CategoryUiModel>(
+        id = { it.id },
+        content = { it }
+    )
+
+    private var items: MutableList<CategoryUiModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType) {
+        return when (viewType) {
             VIEW_TYPE_ADD -> {
-                var binding = ItemEmptyAddBinding.inflate(
+                val binding = ItemEmptyAddBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                    )
+                )
                 AddViewHolder(binding)
             }
+
             else -> {
-                var binding = ItemHomeCategoryBinding.inflate(
+                val binding = ItemHomeCategoryBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                    )
+                )
                 CategoryViewHolder(binding)
             }
         }
@@ -48,14 +50,34 @@ class HomeCategoryAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is CategoryViewHolder) {
-            holder.bind(getItem(position))
-            holder.itemView.setOnClickListener {
-                listener?.onCategoryClick(getItem(position))
-            }
-        }
-        else {
+            val item = items[position]
+            holder.bind(item)
+            holder.itemView.setOnClickListener { listener?.onCategoryClick(item) }
+        } else {
             (holder as AddViewHolder).bind(onAdd ?: {})
         }
+    }
+
+    override fun getItemCount(): Int = items.size + 1
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == items.size) VIEW_TYPE_ADD else VIEW_TYPE_CATEGORY
+    }
+
+    fun submitUiModels(categories: List<CategoryUiModel>) {
+        val old = items.toList()
+        val newList = categories.toList()
+
+        items = newList.toMutableList()
+        diff.apply(
+            adapter = this,
+            old = old,
+            new = newList
+        )
+
+        // Ensure the trailing ADD cell is accounted for.
+        // DiffUpdate only covers the category items; the extra ADD row may need a minimal refresh.
+        notifyItemChanged(itemCount - 1)
     }
 
     inner class CategoryViewHolder(binding: ItemHomeCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -76,13 +98,12 @@ class HomeCategoryAdapter(
                 .getDrawable(itemView.context, R.drawable.bg_category_card)
                 ?.mutate()
 
-
-            if (category.color.colorInt != 0) {
-                drawable?.setTint(category.color.colorInt)
+            val tint = if (category.color.colorInt != 0) {
+                category.color.colorInt
             } else {
-                val color = CategoryColorUtil.generateColor(context = itemView.context, category = category.toDomain())
-                drawable?.setTint(color)
+                CategoryColorUtil.generateColor(context = itemView.context, category = category.toDomain())
             }
+            drawable?.setTint(tint)
             container.background = drawable
 
             if (!category.editedTime.isNullOrBlank()) {
@@ -99,9 +120,7 @@ class HomeCategoryAdapter(
 
     class AddViewHolder(binding: ItemEmptyAddBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(
-            onClick: () -> Unit = {}
-        ) {
+        fun bind(onClick: () -> Unit = {}) {
             itemView.setOnClickListener {
                 itemView.animate()
                     .scaleX(1.05f)
@@ -114,26 +133,6 @@ class HomeCategoryAdapter(
                 onClick()
             }
         }
-    }
-    override fun getItemCount(): Int = currentList.size + 1
-
-    override fun getItemViewType(position: Int): Int {
-        return if (position == currentList.size) VIEW_TYPE_ADD else VIEW_TYPE_CATEGORY
-    }
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-    }
-
-    private object DiffCallback : DiffUtil.ItemCallback<CategoryUiModel>() {
-        override fun areItemsTheSame(
-            oldItem: CategoryUiModel,
-            newItem: CategoryUiModel
-        ): Boolean = oldItem.id == newItem.id
-
-        override fun areContentsTheSame(
-            oldItem: CategoryUiModel,
-            newItem: CategoryUiModel
-        ): Boolean = oldItem == newItem
     }
 
     companion object {
