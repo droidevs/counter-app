@@ -27,8 +27,8 @@ import io.droidevs.counterapp.ui.vm.actions.CategoryViewAction
 import io.droidevs.counterapp.ui.vm.events.CategoryViewEvent
 import io.droidevs.counterapp.ui.vm.mappers.toUiState
 import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
-import io.droidevs.counterapp.domain.sound.CounterSoundAction
-import io.droidevs.counterapp.domain.usecases.sound.PlayCounterSoundUseCase
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,7 +49,7 @@ class CategoryViewViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val playCounterSound: PlayCounterSoundUseCase,
+    private val feedbackManager: CounterFeedbackManager,
 ) : ViewModel() {
 
     private val categoryId: String = savedStateHandle.get<String>("categoryId")
@@ -132,7 +132,9 @@ class CategoryViewViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.incrementCounter(domain)
-                .onSuccessSuspend { playCounterSound(CounterSoundAction.INCREMENT) }
+                .onSuccessSuspend {
+                    feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
@@ -150,7 +152,9 @@ class CategoryViewViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.decrementCounter(domain)
-                .onSuccessSuspend { playCounterSound(CounterSoundAction.DECREMENT) }
+                .onSuccessSuspend {
+                    feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))

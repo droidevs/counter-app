@@ -8,7 +8,6 @@ import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
-import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toDomain
@@ -24,8 +23,8 @@ import io.droidevs.counterapp.ui.vm.actions.CounterViewAction
 import io.droidevs.counterapp.ui.vm.events.CounterViewEvent
 import io.droidevs.counterapp.ui.vm.mappers.toViewUiState
 import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
-import io.droidevs.counterapp.domain.sound.CounterSoundAction
-import io.droidevs.counterapp.domain.usecases.sound.PlayCounterSoundUseCase
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +41,7 @@ class CounterViewViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val dateFormatter: DateFormatter,
-    private val playCounterSound: PlayCounterSoundUseCase,
+    private val feedbackManager: CounterFeedbackManager,
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")
@@ -105,7 +104,7 @@ class CounterViewViewModel @Inject constructor(
         viewModelScope.launch {
             counterUseCases.incrementCounter(currentCounter.toDomain())
                 .onSuccessSuspend {
-                    playCounterSound(CounterSoundAction.INCREMENT)
+                    feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
@@ -122,7 +121,7 @@ class CounterViewViewModel @Inject constructor(
         viewModelScope.launch {
             counterUseCases.decrementCounter(currentCounter.toDomain())
                 .onSuccessSuspend {
-                    playCounterSound(CounterSoundAction.DECREMENT)
+                    feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
@@ -140,7 +139,7 @@ class CounterViewViewModel @Inject constructor(
                     newCount = 0
                 )
             ).onSuccessSuspend {
-                playCounterSound(CounterSoundAction.RESET)
+                feedbackManager.onAction(CounterFeedbackAction.RESET)
                 uiMessageDispatcher.dispatch(
                     UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
                 )

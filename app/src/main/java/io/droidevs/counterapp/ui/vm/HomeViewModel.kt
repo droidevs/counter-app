@@ -10,7 +10,6 @@ import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.dataOr
 import io.droidevs.counterapp.domain.result.mapResult
 import io.droidevs.counterapp.domain.result.onFailure
-import io.droidevs.counterapp.domain.result.onSuccess
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.toDomain
@@ -28,8 +27,8 @@ import io.droidevs.counterapp.ui.vm.events.HomeEvent
 import io.droidevs.counterapp.ui.vm.mappers.Quadruple
 import io.droidevs.counterapp.ui.vm.mappers.toHomeUiState
 import io.droidevs.counterapp.ui.vm.states.HomeUiState
-import io.droidevs.counterapp.domain.sound.CounterSoundAction
-import io.droidevs.counterapp.domain.usecases.sound.PlayCounterSoundUseCase
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
+import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,7 +49,7 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases,
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val playCounterSound: PlayCounterSoundUseCase,
+    private val feedbackManager: CounterFeedbackManager,
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
@@ -264,7 +263,9 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.incrementCounter(counter = activeCounter!!)
-                .onSuccessSuspend { playCounterSound(CounterSoundAction.INCREMENT) }
+                .onSuccessSuspend {
+                    feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
@@ -282,7 +283,9 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             counterUseCases.decrementCounter(counter = activeCounter!!)
-                .onSuccessSuspend { playCounterSound(CounterSoundAction.DECREMENT) }
+                .onSuccessSuspend {
+                    feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))

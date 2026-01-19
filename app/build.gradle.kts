@@ -70,11 +70,16 @@ android {
             java.srcDirs("src/release/java")
         }
     }
+
+    hilt {
+        enableAggregatingTask = true
+    }
 }
 
 dependencies {
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
