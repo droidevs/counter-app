@@ -1,16 +1,20 @@
 package io.droidevs.counterapp.domain.usecases.counters
 
 import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
+import io.droidevs.counterapp.domain.model.HistoryEvent
 import io.droidevs.counterapp.domain.repository.CounterRepository
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.errors.DatabaseError
 import io.droidevs.counterapp.domain.result.resultSuspendFromFlow
+import io.droidevs.counterapp.domain.usecases.history.AddHistoryEventUseCase
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
+import io.droidevs.counterapp.domain.result.onFailure
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateCounterUseCase @Inject constructor(
     private val repository: CounterRepository,
+    private val addHistoryEventUseCase: AddHistoryEventUseCase,
     private val dispatchers: DispatcherProvider
 ) {
     suspend operator fun invoke(request: UpdateCounterRequest): Result<Unit, DatabaseError> =
@@ -18,6 +22,7 @@ class UpdateCounterUseCase @Inject constructor(
             resultSuspendFromFlow {
                 repository.getCounter(request.counterId)
                     .combineSuspended { existing ->
+                        val oldValue = existing.currentCount
                         val updated = existing.apply {
                             name = request.newName ?: existing.name
                             categoryId = request.newCategoryId ?: existing.categoryId
@@ -52,7 +57,22 @@ class UpdateCounterUseCase @Inject constructor(
                             lastUpdatedAt = request.lastUpdatedAt ?: existing.lastUpdatedAt
                             orderAnchorAt = request.orderAnchorAt ?: existing.orderAnchorAt
                         }
-                        repository.saveCounter(updated)
+                        repository.saveCounter(updated).combineSuspended {
+                            // Add history event
+                            if (request.newCount != null) {
+                                val change = request.newCount - oldValue
+                                val historyEvent = HistoryEvent(
+                                    counterId = updated.id,
+                                    counterName = updated.name,
+                                    oldValue = oldValue,
+                                    newValue = request.newCount,
+                                    change = change
+                                )
+                                addHistoryEventUseCase(historyEvent)
+                            } else {
+                                Result.Success(Unit)
+                            }
+                        }
                     }
             }
         }

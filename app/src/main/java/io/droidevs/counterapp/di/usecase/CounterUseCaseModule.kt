@@ -87,8 +87,11 @@ object CounterUseCaseModule {
 
     @Provides
     @Singleton
-    fun provideUpdateCounterUseCase(repository: CounterRepository, dispatchers: DispatcherProvider): UpdateCounterUseCase =
-        UpdateCounterUseCase(repository, dispatchers)
+    fun provideUpdateCounterUseCase(
+        repository: CounterRepository,
+        addHistoryEventUseCase: AddHistoryEventUseCase,
+        dispatchers: DispatcherProvider): UpdateCounterUseCase =
+        UpdateCounterUseCase(repository, addHistoryEventUseCase, dispatchers)
 
     @Provides
     @Singleton
@@ -117,13 +120,11 @@ object CounterUseCaseModule {
     fun provideIncrementCounterUseCase(
         resolveBehavior: ResolveCounterBehaviorUseCase,
         updateCounterUseCase: UpdateCounterUseCase,
-        addHistoryUseCase: AddHistoryEventUseCase,
         dispatchers: DispatcherProvider
     ): IncrementCounterUseCase =
         IncrementCounterUseCase(
             resolveBehavior = resolveBehavior,
             updateCounterUseCase = updateCounterUseCase,
-            addHistoryEventUseCase = addHistoryUseCase,
             dispatchers = dispatchers
         )
 
@@ -132,13 +133,11 @@ object CounterUseCaseModule {
     fun provideDecrementCounterUseCase(
         resolveBehavior: ResolveCounterBehaviorUseCase,
         updateCounterUseCase: UpdateCounterUseCase,
-        addHistoryUseCase: AddHistoryEventUseCase,
         dispatchers: DispatcherProvider
     ): DecrementCounterUseCase =
         DecrementCounterUseCase(
             resolveBehavior = resolveBehavior,
             updateCounterUseCase = updateCounterUseCase,
-            addHistoryEventUseCase = addHistoryUseCase,
             dispatchers = dispatchers
         )
 
