@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.hilt)
     id("androidx.navigation.safeargs.kotlin")
     //id('kotlin-kapt')
+
+    id("io.sentry.android.gradle")
 }
 
 android {
@@ -120,4 +122,13 @@ dependencies {
     implementation(libs.gson)
 
     implementation(libs.androidx.lifecycle.process)
+}
+
+sentry {
+    org.set("droidevs")
+    projectName.set("counter")
+
+    // this will upload your source code to Sentry to show it as part of the stack traces
+    // disable if you don't want to expose your sources
+    includeSourceContext.set(true)
 }

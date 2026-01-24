@@ -49,7 +49,8 @@ import androidx.navigation.navOptions
 import io.droidevs.counterapp.ui.hardware.ActiveContentFragmentProvider
 import io.droidevs.counterapp.ui.hardware.HardwareButtonControlManager
 import io.droidevs.counterapp.ui.hardware.HardwareButtonKeyDispatcher
-import io.droidevs.counterapp.domain.theme.ThemeObserver
+import io.droidevs.counterapp.domain.theme.ThemeObserverimport io.sentry.Sentry
+
 
 
 @AndroidEntryPoint
@@ -84,6 +85,15 @@ class MainActivity : AppCompatActivity(), TabHost {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    // waiting for view to draw to better represent a captured error with a screenshot
+    findViewById<android.view.View>(android.R.id.content).viewTreeObserver.addOnGlobalLayoutListener {
+      try {
+        throw Exception("This app uses Sentry! :)")
+      } catch (e: Exception) {
+        Sentry.captureException(e)
+      }
+    }
+
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
