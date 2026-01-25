@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-@Deprecated("Use GetAllCountersPagedUseCase instead.")
-class GetAllCountersUseCase @Inject constructor(
+class GetAllCountersPagedUseCase @Inject constructor(
     private val repository: CounterRepository,
     private val dispatchers: DispatcherProvider
 ) {
-    operator fun invoke(): Flow<Result<List<Counter>, DatabaseError>> = repository.getAllCounters().flowOn(dispatchers.io)
+    operator fun invoke(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>> =
+        repository.getAllCountersPaged(pageNumber, pageSize).flowOn(dispatchers.io)
 }
+

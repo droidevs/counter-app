@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-@Deprecated("Use GetHistoryPagedUseCase instead.")
-class GetHistoryUseCase @Inject constructor(
+class GetHistoryPagedUseCase @Inject constructor(
     private val historyRepository: HistoryRepository,
     private val dispatchers: DispatcherProvider
 ) {
-    operator fun invoke(): Flow<Result<List<HistoryEvent>, DatabaseError>> =
-        historyRepository.getHistory().flowOn(dispatchers.io)
+    operator fun invoke(pageNumber: Int, pageSize: Int): Flow<Result<List<HistoryEvent>, DatabaseError>> =
+        historyRepository.getHistoryPaged(pageNumber, pageSize).flowOn(dispatchers.io)
 }
+

@@ -9,12 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-@Deprecated("Use GetAllCategoriesPagedUseCase instead.")
-class GetAllCategoriesUseCase @Inject constructor(
+class GetAllCategoriesPagedUseCase @Inject constructor(
     private val repository: CategoryRepository,
     private val dispatchers: DispatcherProvider
 ) {
-    operator fun invoke(): Flow<Result<List<Category>, DatabaseError>> {
-        return repository.allCategories().flowOn(dispatchers.io)
-    }
+    operator fun invoke(pageNumber: Int, pageSize: Int): Flow<Result<List<Category>, DatabaseError>> =
+        repository.allCategoriesPaged(pageNumber, pageSize).flowOn(dispatchers.io)
 }
+
