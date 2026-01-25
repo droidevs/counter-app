@@ -21,6 +21,7 @@ import io.droidevs.counterapp.ui.vm.actions.CounterEditAction
 import io.droidevs.counterapp.ui.vm.events.CounterEditEvent
 import io.droidevs.counterapp.ui.vm.mappers.toEditUiState
 import io.droidevs.counterapp.ui.vm.states.CounterEditUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -31,7 +32,8 @@ class CounterEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val counterUseCases: CounterUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private data class OverridesCache(
@@ -217,26 +219,28 @@ class CounterEditViewModel @Inject constructor(
             }
 
             viewModelScope.launch {
-                _isSaving.value = true
-                val request = UpdateCounterRequest(
-                    counterId = counter.id,
-                    newName = counter.name,
-                    newCount = counter.currentCount,
-                    canIncrease = counter.canIncrease,
-                    canDecrease = counter.canDecrease,
+                tracing.tracedSuspend("counteredit_save_counter") {
+                    _isSaving.value = true
+                    val request = UpdateCounterRequest(
+                        counterId = counter.id,
+                        newName = counter.name,
+                        newCount = counter.currentCount,
+                        canIncrease = counter.canIncrease,
+                        canDecrease = counter.canDecrease,
 
-                    // If using defaults, explicitly clear any per-counter overrides.
-                    incrementStep = if (counter.useDefaultBehavior) null else counter.incrementStep,
-                    decrementStep = if (counter.useDefaultBehavior) null else counter.decrementStep,
-                    minValue = if (counter.useDefaultBehavior) null else counter.minValue,
-                    maxValue = if (counter.useDefaultBehavior) null else counter.maxValue,
-                    defaultValue = if (counter.useDefaultBehavior) null else counter.defaultValue,
-                    useDefaultBehavior = counter.useDefaultBehavior,
+                        // If using defaults, explicitly clear any per-counter overrides.
+                        incrementStep = if (counter.useDefaultBehavior) null else counter.incrementStep,
+                        decrementStep = if (counter.useDefaultBehavior) null else counter.decrementStep,
+                        minValue = if (counter.useDefaultBehavior) null else counter.minValue,
+                        maxValue = if (counter.useDefaultBehavior) null else counter.maxValue,
+                        defaultValue = if (counter.useDefaultBehavior) null else counter.defaultValue,
+                        useDefaultBehavior = counter.useDefaultBehavior,
 
-                    lastUpdatedAt = Instant.now(),
-                    orderAnchorAt = Instant.now()
-                )
-                counterUseCases.updateCounter(request)
+                        lastUpdatedAt = Instant.now(),
+                        orderAnchorAt = Instant.now()
+                    )
+                    counterUseCases.updateCounter(request)
+                }
                     .onSuccess {
                         uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.counter_saved)))
                         _event.tryEmit(CounterEditEvent.NavigateBack)

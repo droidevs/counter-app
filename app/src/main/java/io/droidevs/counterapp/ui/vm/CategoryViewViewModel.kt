@@ -30,6 +30,8 @@ import io.droidevs.counterapp.ui.vm.states.CategoryViewUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import io.droidevs.counterapp.domain.errors.CounterDomainError
+import io.droidevs.counterapp.domain.result.flatMapSuspended
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,6 +53,7 @@ class CategoryViewViewModel @Inject constructor(
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val feedbackManager: CounterFeedbackManager,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val categoryId: String = savedStateHandle.get<String>("categoryId")
@@ -93,13 +96,12 @@ class CategoryViewViewModel @Inject constructor(
 
     fun onAction(action: CategoryViewAction) {
         when (action) {
-            CategoryViewAction.AddCounterClicked -> {
+            is CategoryViewAction.AddCounterClicked -> {
                 viewModelScope.launch {
                     _event.emit(CategoryViewEvent.NavigateToCreateCounter(categoryId))
                 }
             }
-
-            CategoryViewAction.DeleteCategoryClicked -> deleteCategory()
+            is CategoryViewAction.DeleteCategoryClicked -> deleteCategory()
 
             is CategoryViewAction.IncrementCounter -> incrementCounter(action.counter)
             is CategoryViewAction.DecrementCounter -> decrementCounter(action.counter)
@@ -112,9 +114,11 @@ class CategoryViewViewModel @Inject constructor(
 
     private fun deleteCategory() {
         viewModelScope.launch {
-            categoryUseCases.deleteCategory(
-                DeleteCategoryRequest(categoryId = categoryId)
-            )
+            tracing.tracedSuspend("categoryview_delete_category") {
+                categoryUseCases.deleteCategory(
+                    DeleteCategoryRequest(categoryId = categoryId)
+                )
+            }
                 .onSuccessSuspend {
                     _event.emit(CategoryViewEvent.NavigateBack)
                 }
@@ -132,23 +136,23 @@ class CategoryViewViewModel @Inject constructor(
         val domain = counter.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.incrementCounter(domain)
-                .onSuccessSuspend {
+            tracing.tracedSuspend("categoryview_increment_counter"){
+                counterUseCases.incrementCounter(domain)
+            }.onSuccessSuspend {
+                tracing.tracedSuspend("categoryview_increment_counter_feedback") {
                     feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
-                .onFailure { error ->
-                    when (error) {
-                        CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
-                        )
-                        is CounterDomainError.FailedToIncrement -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
-                        )
-                        else -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
-                        )
-                    }
+            }.onFailure { error ->
+                when (error) {
+                    CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
+                    )
+
+                    else -> uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
+                    )
                 }
+            }
         }
 
         markPendingReorder(domain)
@@ -160,23 +164,24 @@ class CategoryViewViewModel @Inject constructor(
         val domain = counter.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.decrementCounter(domain)
-                .onSuccessSuspend {
+            tracing.tracedSuspend("categoryview_decrement_counter") {
+                counterUseCases.decrementCounter(domain)
+            }.onSuccessSuspend {
+                tracing.tracedSuspend("categoryview_decrement_counter_feedback") {
                     feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }
-                .onFailure { error ->
-                    when (error) {
-                        CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
-                        )
-                        is CounterDomainError.FailedToDecrement -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
-                        )
-                        else -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
-                        )
-                    }
+            }
+            .onFailure { e ->
+                when (e) {
+                    CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
+                    )
+
+                    else -> uiMessageDispatcher.dispatch(
+                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
+                    )
                 }
+            }
         }
 
         markPendingReorder(domain)

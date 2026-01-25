@@ -11,6 +11,7 @@ import io.droidevs.counterapp.domain.result.resultSuspend
 import io.droidevs.counterapp.domain.usecases.permissions.PermissionUseCases
 import io.droidevs.counterapp.ui.vm.actions.PermissionAction
 import io.droidevs.counterapp.ui.vm.events.PermissionEvent
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PermissionViewModel @Inject constructor(
-    private val permissionUseCases: PermissionUseCases
+    private val permissionUseCases: PermissionUseCases,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<PermissionEvent>(extraBufferCapacity = 1)
@@ -35,7 +37,9 @@ class PermissionViewModel @Inject constructor(
         when (action) {
             PermissionAction.EnterSystemCategories -> {
                 viewModelScope.launch {
-                    ensureSystemCategoriesPermissions()
+                    tracing.tracedSuspend("permission_enter_system_categories") {
+                        ensureSystemCategoriesPermissions()
+                    }
                 }
             }
 
@@ -53,30 +57,34 @@ class PermissionViewModel @Inject constructor(
      * - Emits [PermissionEvent.RequestPermissions] when there are missing permissions.
      */
     suspend fun ensureSystemCategoriesPermissions(): Result<Unit, PermissionError> =
-        resultSuspend {
-            when (val validate = permissionUseCases.validateSystemManifest()) {
-                is Result.Failure -> return@resultSuspend Result.Failure(PermissionError.Internal(validate.error.message))
-                is Result.Success -> Unit
+        tracing.tracedSuspend("permission_ensure_system") {
+            resultSuspend {
+                when (val validate = permissionUseCases.validateSystemManifest()) {
+                    is Result.Failure -> return@resultSuspend Result.Failure(PermissionError.Internal(validate.error.message))
+                    is Result.Success -> Unit
+                }
+
+                val missingNow = permissionUseCases.getMissingSystemPermissions()
+                    .recoverWith { Result.Success(emptyList()) }
+                    .let { (it as Result.Success).data }
+
+                _missing.value = missingNow
+                if (missingNow.isEmpty()) return@resultSuspend Result.Success(Unit)
+
+                val manifestPerms = missingNow
+                    .flatMap { permissionUseCases.getManifestPermissions(it) }
+                    .distinct()
+
+                _event.tryEmit(PermissionEvent.RequestPermissions(manifestPerms))
+                Result.Success(Unit)
             }
-
-            val missingNow = permissionUseCases.getMissingSystemPermissions()
-                .recoverWith { Result.Success(emptyList()) }
-                .let { (it as Result.Success).data }
-
-            _missing.value = missingNow
-            if (missingNow.isEmpty()) return@resultSuspend Result.Success(Unit)
-
-            val manifestPerms = missingNow
-                .flatMap { permissionUseCases.getManifestPermissions(it) }
-                .distinct()
-
-            _event.tryEmit(PermissionEvent.RequestPermissions(manifestPerms))
-            Result.Success(Unit)
         }
 
     private fun refreshSystemPermissions() {
         viewModelScope.launch {
-            permissionUseCases.getMissingSystemPermissions()
+            tracing.tracedSuspend("permission_refresh_system") {
+                permissionUseCases.getMissingSystemPermissions()
+            }
                 .recoverWith { Result.Success(emptyList()) }
                 .let { result ->
                     if (result is Result.Success) {
@@ -90,11 +98,13 @@ class PermissionViewModel @Inject constructor(
         refreshSystemPermissions()
 
         viewModelScope.launch {
-            val anyDenied = grants.values.any { granted -> !granted }
-            if (!anyDenied) return@launch
+            tracing.tracedSuspend("permission_on_result") {
+                val anyDenied = grants.values.any { granted -> !granted }
+                if (!anyDenied) return@tracedSuspend
 
-            // Permanently denied detection is handled in Fragment (has Activity).
-            // VM just exposes missing permissions and emits request events.
+                // Permanently denied detection is handled in Fragment (has Activity).
+                // VM just exposes missing permissions and emits request events.
+            }
         }
     }
 }

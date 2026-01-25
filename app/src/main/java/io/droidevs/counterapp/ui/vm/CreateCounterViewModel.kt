@@ -23,6 +23,7 @@ import io.droidevs.counterapp.ui.vm.actions.CreateCounterAction
 import io.droidevs.counterapp.ui.vm.events.CreateCounterEvent
 import io.droidevs.counterapp.ui.vm.mappers.toCreateCounterUiState
 import io.droidevs.counterapp.ui.vm.states.CreateCounterUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -44,7 +45,8 @@ class CreateCounterViewModel @Inject constructor(
     private val counterUseCases: CounterUseCases,
     categoryUseCases: CategoryUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     data class EditModel(
@@ -263,30 +265,31 @@ class CreateCounterViewModel @Inject constructor(
             }
             return
         }
-
         viewModelScope.launch {
-            _editModel.update { it.copy(isSaving = true) }
+            tracing.tracedSuspend("create_counter_save") {
+                _editModel.update { it.copy(isSaving = true) }
 
-            val counter = Counter(
-                name = name,
-                currentCount = initialValue,
-                categoryId = currentModel.selectedCategoryId,
-                canIncrease = currentModel.canIncrease,
-                canDecrease = currentModel.canDecrease,
+                val counter = Counter(
+                    name = name,
+                    currentCount = initialValue,
+                    categoryId = currentModel.selectedCategoryId,
+                    canIncrease = currentModel.canIncrease,
+                    canDecrease = currentModel.canDecrease,
 
-                incrementStep = effectiveIncrementStep,
-                decrementStep = effectiveDecrementStep,
-                minValue = effectiveMinValue,
-                maxValue = effectiveMaxValue,
-                defaultValue = effectiveDefaultValue,
-                useDefaultBehavior = currentModel.useDefaultBehavior,
+                    incrementStep = effectiveIncrementStep,
+                    decrementStep = effectiveDecrementStep,
+                    minValue = effectiveMinValue,
+                    maxValue = effectiveMaxValue,
+                    defaultValue = effectiveDefaultValue,
+                    useDefaultBehavior = currentModel.useDefaultBehavior,
 
-                createdAt = Instant.now(),
-                lastUpdatedAt = Instant.now(),
-                orderAnchorAt = Instant.now()
-            )
+                    createdAt = Instant.now(),
+                    lastUpdatedAt = Instant.now(),
+                    orderAnchorAt = Instant.now()
+                )
 
-            counterUseCases.createCounter(CreateCounterRequest.of(counter))
+                counterUseCases.createCounter(CreateCounterRequest.of(counter))
+            }
                 .onSuccess { _: Unit ->
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(

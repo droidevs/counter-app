@@ -30,6 +30,7 @@ import io.droidevs.counterapp.ui.vm.states.HomeUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import io.droidevs.counterapp.domain.errors.CounterDomainError
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,6 +52,7 @@ class HomeViewModel @Inject constructor(
     private val dateFormatter: DateFormatter,
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val feedbackManager: CounterFeedbackManager,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
@@ -163,37 +165,37 @@ class HomeViewModel @Inject constructor(
             is HomeAction.DecrementCounter -> decrementCounter(action.counter)
             is HomeAction.CounterClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCounterView(action.counter.id))
+                    tracing.tracedSuspend("home_navigate_to_counter") { _event.emit(HomeEvent.NavigateToCounterView(action.counter.id)) }
                 }
             }
 
             HomeAction.AddCounterClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCreateCounter)
+                    tracing.tracedSuspend("home_navigate_to_create") { _event.emit(HomeEvent.NavigateToCreateCounter) }
                 }
             }
 
             is HomeAction.CategoryClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCategoryView(action.category.id))
+                    tracing.tracedSuspend("home_navigate_to_category") { _event.emit(HomeEvent.NavigateToCategoryView(action.category.id)) }
                 }
             }
 
             HomeAction.AddCategoryClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCreateCategory)
+                    tracing.tracedSuspend("home_navigate_to_create_category") { _event.emit(HomeEvent.NavigateToCreateCategory) }
                 }
             }
 
             HomeAction.ViewAllCountersClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCounterList)
+                    tracing.tracedSuspend( "home_view_all_counters") { _event.emit(HomeEvent.NavigateToCounterList) }
                 }
             }
 
             HomeAction.ViewAllCategoriesClicked -> {
                 viewModelScope.launch {
-                    _event.emit(HomeEvent.NavigateToCategoryList)
+                    tracing.tracedSuspend("home_view_all_categories") { _event.emit(HomeEvent.NavigateToCategoryList) }
                 }
             }
         }
@@ -218,16 +220,14 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            // IMPORTANT: update orderAnchorAt only after idle delay so list doesn't reorder while user is tapping.
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId = counterId,
-                    newCount = counter.currentCount,
-                    orderAnchorAt = Instant.now()
+            tracing.tracedSuspend("home_finish_interaction_flush_counter") {
+                counterUseCases.updateCounter(
+                    UpdateCounterRequest.of(
+                        counterId = counterId,
+                        newCount = counter.currentCount,
+                        orderAnchorAt = Instant.now()
+                    )
                 )
-            ).onFailure {
-                // Internal sync/order update. Don't toast the user.
-                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
 
@@ -241,16 +241,15 @@ class HomeViewModel @Inject constructor(
         if (counter == null || counter.id != counterId) return
 
         viewModelScope.launch {
-            // Flush both count and orderAnchorAt once.
-            counterUseCases.updateCounter(
-                UpdateCounterRequest.of(
-                    counterId = counterId,
-                    newCount = counter.currentCount,
-                    orderAnchorAt = Instant.now()
+            tracing.tracedSuspend("home_flush_interaction_flush_counter") {
+                // Flush both count and orderAnchorAt once.
+                counterUseCases.updateCounter(
+                    UpdateCounterRequest.of(
+                        counterId = counterId,
+                        newCount = counter.currentCount,
+                        orderAnchorAt = Instant.now()
+                    )
                 )
-            ).onFailure {
-                // Internal sync/order update. Don't toast the user.
-                // uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_update_counter_order)))
             }
         }
     }
@@ -263,7 +262,9 @@ class HomeViewModel @Inject constructor(
         activeCounter = counterUiModel.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.incrementCounter(counter = activeCounter!!)
+            tracing.tracedSuspend("home_increment_counter") {
+                counterUseCases.incrementCounter(counter = activeCounter!!)
+            }
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
                 }
@@ -288,7 +289,9 @@ class HomeViewModel @Inject constructor(
         activeCounter = counterUiModel.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.decrementCounter(counter = activeCounter!!)
+            tracing.tracedSuspend("home_decrement_counter") {
+                counterUseCases.decrementCounter(counter = activeCounter!!)
+            }
                 .onSuccessSuspend {
                     feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
                 }

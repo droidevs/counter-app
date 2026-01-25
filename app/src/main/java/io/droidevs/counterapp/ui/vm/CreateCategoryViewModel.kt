@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.vm.events.CreateCategoryEvent
 import io.droidevs.counterapp.ui.vm.states.CreateCategoryUiState
 import io.droidevs.counterapp.domain.result.onFailure
 import io.droidevs.counterapp.domain.result.onSuccess
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateCategoryViewModel @Inject constructor(
     private val categoryUseCases: CategoryUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing : TracingHelper
 ) : ViewModel() {
 
     private val _name = MutableStateFlow("")
@@ -79,16 +81,32 @@ class CreateCategoryViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isSaving.value = true
-            categoryUseCases.createCategory(CreateCategoryRequest.of(name = name, color = _selectedColor.value))
-                .onSuccess {
-                    uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(resId = R.string.category_created_message, args = arrayOf(name))))
-                    _event.tryEmit(CreateCategoryEvent.NavigateBack)
-                }
-                .onFailure { _ ->
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_create_category))
+
+            tracing.tracedSuspend("create_category_save") {
+                categoryUseCases.createCategory(
+                    CreateCategoryRequest.of(
+                        name = name,
+                        color = _selectedColor.value
                     )
-                }
+                )
+                    .onSuccess {
+                        uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(
+                                message = Message.Resource(
+                                    resId = R.string.category_created_message,
+                                    args = arrayOf(name)
+                                )
+                            )
+                        )
+                        _event.tryEmit(CreateCategoryEvent.NavigateBack)
+                    }
+                    .onFailure { _ ->
+                        uiMessageDispatcher.dispatch(
+                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_create_category))
+                        )
+                    }
+            }
+
             _isSaving.value = false
         }
     }

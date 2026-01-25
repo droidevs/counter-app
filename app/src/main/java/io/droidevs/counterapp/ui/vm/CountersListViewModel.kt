@@ -27,6 +27,7 @@ import io.droidevs.counterapp.ui.vm.states.CounterListUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
 import io.droidevs.counterapp.domain.errors.CounterDomainError
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class CountersListViewModel @Inject constructor(
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val dateFormatter: DateFormatter,
     private val feedbackManager: CounterFeedbackManager,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<CounterListEvent>(extraBufferCapacity = 1)
@@ -96,9 +98,13 @@ class CountersListViewModel @Inject constructor(
         val c = counterUiModel.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.incrementCounter(counter = c)
+            tracing.tracedSuspend("counterslist_increment_counter") {
+                counterUseCases.incrementCounter(counter = c)
+            }
                 .onSuccessSuspend {
-                    feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                    tracing.tracedSuspend("counterslist_increment_counter_feedback") {
+                        feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                    }
                 }
                 .onFailure { error ->
                     when (error) {
@@ -119,9 +125,13 @@ class CountersListViewModel @Inject constructor(
         val c = counterUiModel.toDomain()
 
         viewModelScope.launch {
-            counterUseCases.decrementCounter(counter = c)
+            tracing.tracedSuspend("counterslist_decrement_counter") {
+                counterUseCases.decrementCounter(counter = c)
+            }
                 .onSuccessSuspend {
-                    feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                    tracing.tracedSuspend("counterslist_decrement_counter_feedback") {
+                        feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                    }
                 }
                 .onFailure { error ->
                     when (error) {

@@ -16,6 +16,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.HardwarePreferenceAction
 import io.droidevs.counterapp.ui.vm.events.HardwarePreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.HardwarePreferenceUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HardwarePreferencesViewModel @Inject constructor(
     private val useCases: HardwarePreferenceUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<HardwarePreferenceEvent>(extraBufferCapacity = 1)
@@ -84,7 +86,9 @@ class HardwarePreferencesViewModel @Inject constructor(
 
     private fun setKeepScreenOn(keep: Boolean) {
         viewModelScope.launch {
-            useCases.setKeepScreenOn(keep)
+            tracing.tracedSuspend("hardwareprefs_set_keep_screen_on") {
+                useCases.setKeepScreenOn(keep)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.keep_screen_on_updated))
@@ -99,29 +103,31 @@ class HardwarePreferencesViewModel @Inject constructor(
     }
 
     private fun setHardwareButtonControl(enabled: Boolean) {
-        viewModelScope.launch {
-            useCases.setHardwareButtonControl(enabled)
-                .onSuccessSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.hardware_button_control_updated))
-                    )
-                }
-                .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_hardware_button_control))
-                    )
-                }
-        }
+         viewModelScope.launch {
+             tracing.tracedSuspend("hardwareprefs_set_hardware_button_control") {
+                 useCases.setHardwareButtonControl(enabled)
+             }.onSuccessSuspend {
+                 uiMessageDispatcher.dispatch(
+                     UiMessage.Toast(message = Message.Resource(R.string.hardware_button_control_updated))
+                 )
+             }
+             .onFailureSuspend {
+                 uiMessageDispatcher.dispatch(
+                     UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_hardware_button_control))
+                 )
+             }
+         }
     }
 
     private fun setSoundsOn(enabled: Boolean) {
         viewModelScope.launch {
-            useCases.setSoundsOn(enabled)
-                .onSuccessSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.sounds_updated))
-                    )
-                }
+            tracing.tracedSuspend("hardwareprefs_set_sounds_on") {
+                useCases.setSoundsOn(enabled)
+            }.onSuccessSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.sounds_updated))
+                )
+            }
                 .onFailureSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_sounds))
@@ -132,17 +138,18 @@ class HardwarePreferencesViewModel @Inject constructor(
 
     private fun setVibrationOn(enabled: Boolean) {
         viewModelScope.launch {
-            useCases.setVibrationOn(enabled)
-                .onSuccessSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.vibration_updated))
-                    )
-                }
-                .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_vibration))
-                    )
-                }
+            tracing.tracedSuspend("hardwareprefs_set_vibration_on") {
+                useCases.setVibrationOn(enabled)
+            }.onSuccessSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.vibration_updated))
+                )
+            }
+            .onFailureSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_vibration))
+                )
+            }
         }
     }
 }

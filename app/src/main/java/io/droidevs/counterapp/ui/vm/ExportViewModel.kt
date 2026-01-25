@@ -16,6 +16,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ExportAction
 import io.droidevs.counterapp.ui.vm.events.ExportEvent
 import io.droidevs.counterapp.domain.result.errors.FileError
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -25,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ExportViewModel @Inject constructor(
     private val exportUseCases: ExportUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<ExportEvent>(extraBufferCapacity = 1)
@@ -40,15 +42,18 @@ class ExportViewModel @Inject constructor(
 
     private fun requestExport() {
         viewModelScope.launch {
-            val formats = exportUseCases.getAvailableExportFormats()
-            _event.tryEmit(ExportEvent.ShowExportFormatDialog(formats))
+            tracing.tracedSuspend("export_request_formats") {
+                val formats = exportUseCases.getAvailableExportFormats()
+                _event.tryEmit(ExportEvent.ShowExportFormatDialog(formats))
+            }
         }
     }
 
     private fun export(format: ExportFormat) {
         viewModelScope.launch {
-            val result: Result<ExportSuccessResult, *> = exportUseCases.export(format)
-            result
+            tracing.tracedSuspend("export_do_export") {
+                exportUseCases.export(format)
+            }
                 .onSuccess { success ->
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(resId = R.string.export_success))

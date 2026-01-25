@@ -4,6 +4,7 @@ import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.errors.CounterDomainError
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.RootError
 import io.droidevs.counterapp.domain.result.mapError
 import io.droidevs.counterapp.domain.result.recoverWith
 import io.droidevs.counterapp.domain.result.recoverWithSuspended
@@ -18,7 +19,7 @@ class ResetCounterUseCase @Inject constructor(
     private val updateCounterUseCase: UpdateCounterUseCase,
     private val dispatchers: DispatcherProvider,
 ) {
-    suspend operator fun invoke(counter: Counter): Result<Unit, CounterDomainError> = withContext(dispatchers.io) {
+    suspend operator fun invoke(counter: Counter): Result<Unit, RootError> = withContext(dispatchers.io) {
         resultSuspend {
             // Prefer per-counter default if present.
             val directDefault = counter.defaultValue
@@ -29,12 +30,12 @@ class ResetCounterUseCase @Inject constructor(
                         newCount = directDefault,
                         lastUpdatedAt = Instant.now(),
                     )
-                ).mapError { CounterDomainError.FailedToReset() }
+                )
             }
 
             // Otherwise resolve behavior (may read global defaults if allowed).
             combineSuspended(
-                first = { resolveBehavior(counter).mapError { CounterDomainError.FailedToReset() } },
+                first = { resolveBehavior(counter) },
             ) { behavior ->
                 updateCounterUseCase(
                     UpdateCounterRequest(
@@ -42,18 +43,8 @@ class ResetCounterUseCase @Inject constructor(
                         newCount = behavior.defaultValue,
                         lastUpdatedAt = Instant.now(),
                     )
-                ).mapError { CounterDomainError.FailedToReset() }
+                )
             }
-                .recoverWithSuspended {
-                    // If preference resolution fails, still allow a reset to 0.
-                    updateCounterUseCase(
-                        UpdateCounterRequest(
-                            counterId = counter.id,
-                            newCount = 0,
-                            lastUpdatedAt = Instant.now(),
-                        )
-                    ).mapError { CounterDomainError.FailedToReset() }
-                }
         }
     }
 }

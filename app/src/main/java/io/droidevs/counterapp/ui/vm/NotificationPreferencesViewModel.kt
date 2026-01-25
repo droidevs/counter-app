@@ -16,6 +16,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.NotificationPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.NotificationPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.NotificationPreferenceUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationPreferencesViewModel @Inject constructor(
     private val useCases: NotificationPreferenceUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing : TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<NotificationPreferenceEvent>(extraBufferCapacity = 1)
@@ -84,7 +86,9 @@ class NotificationPreferencesViewModel @Inject constructor(
 
     private fun setCounterLimitNotification(enabled: Boolean) {
         viewModelScope.launch {
-            useCases.setCounterLimitNotification(enabled)
+            tracing.tracedSuspend("notificationprefs_set_counter_limit_notification") {
+                useCases.setCounterLimitNotification(enabled)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.counter_limit_notification_updated)))
                 }
@@ -96,7 +100,9 @@ class NotificationPreferencesViewModel @Inject constructor(
 
     private fun setDailySummaryNotification(enabled: Boolean) {
         viewModelScope.launch {
-            useCases.setDailySummaryNotification(enabled)
+            tracing.tracedSuspend("notificationprefs_set_daily_summary_notification") {
+                useCases.setDailySummaryNotification(enabled)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.daily_summary_notification_updated)))
                 }
@@ -108,7 +114,9 @@ class NotificationPreferencesViewModel @Inject constructor(
 
     private fun setNotificationSound(sound: String) {
         viewModelScope.launch {
-            useCases.setNotificationSound(sound)
+            tracing.tracedSuspend("notificationprefs_set_notification_sound") {
+                useCases.setNotificationSound(sound)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.notification_sound_updated)))
                 }
@@ -120,7 +128,9 @@ class NotificationPreferencesViewModel @Inject constructor(
 
     private fun setNotificationVibrationPattern(pattern: String) {
         viewModelScope.launch {
-            useCases.setNotificationVibrationPattern(pattern)
+            tracing.tracedSuspend("notificationprefs_set_notification_vibration_pattern") {
+                useCases.setNotificationVibrationPattern(pattern)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(UiMessage.Toast(message = Message.Resource(R.string.notification_vibration_pattern_updated)))
                 }

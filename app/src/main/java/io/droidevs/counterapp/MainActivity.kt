@@ -49,14 +49,19 @@ import androidx.navigation.navOptions
 import io.droidevs.counterapp.ui.hardware.ActiveContentFragmentProvider
 import io.droidevs.counterapp.ui.hardware.HardwareButtonControlManager
 import io.droidevs.counterapp.ui.hardware.HardwareButtonKeyDispatcher
-import io.droidevs.counterapp.domain.theme.ThemeObserverimport io.sentry.Sentry
-
+import io.droidevs.counterapp.domain.theme.ThemeObserver
+import io.sentry.Sentry
+import io.sentry.android.navigation.SentryNavigationListener
 
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabHost {
     var binding : ActivityMainBinding? = null
 
+    private val sentryNavListener = SentryNavigationListener(
+        enableNavigationBreadcrumbs = true, // enabled by default
+        enableNavigationTracing = true  // enabled by default
+    )
     @Inject lateinit var messageDispatcher: UiMessageDispatcher
 
     @Inject lateinit var actionHandler: UiActionHandler
@@ -287,6 +292,15 @@ class MainActivity : AppCompatActivity(), TabHost {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_SELECTED_TAB_ID, bottomNav.selectedItemId)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        navController.addOnDestinationChangedListener(sentryNavListener)
+    }
+    override fun onPause() {
+        super.onPause()
+        navController.removeOnDestinationChangedListener(sentryNavListener)
     }
 
     private fun isAtCurrentTabRoot(): Boolean {

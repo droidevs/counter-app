@@ -122,6 +122,10 @@ dependencies {
     implementation(libs.gson)
 
     implementation(libs.androidx.lifecycle.process)
+
+    implementation(libs.sentry.android)
+    implementation(libs.sentry.android.fragment)
+    implementation(libs.sentry.android.navigation)
 }
 
 sentry {

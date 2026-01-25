@@ -4,6 +4,7 @@ import io.droidevs.counterapp.domain.coroutines.DispatcherProvider
 import io.droidevs.counterapp.domain.errors.CounterDomainError
 import io.droidevs.counterapp.domain.model.Counter
 import io.droidevs.counterapp.domain.result.Result
+import io.droidevs.counterapp.domain.result.RootError
 import io.droidevs.counterapp.domain.result.mapError
 import io.droidevs.counterapp.domain.result.resultSuspend
 import io.droidevs.counterapp.domain.usecases.requests.UpdateCounterRequest
@@ -16,11 +17,9 @@ class DecrementCounterUseCase @Inject constructor(
     private val updateCounterUseCase: UpdateCounterUseCase,
     private val dispatchers: DispatcherProvider
 ) {
-    suspend operator fun invoke(counter: Counter): Result<Unit, CounterDomainError> = withContext(dispatchers.io) {
+    suspend operator fun invoke(counter: Counter): Result<Unit, RootError> = withContext(dispatchers.io) {
         resultSuspend {
-            combineSuspended(
-                first = { resolveBehavior(counter).mapError { CounterDomainError.FailedToDecrement() } },
-            ) { behavior ->
+            resolveBehavior(counter).combineSuspended { behavior ->
                 val oldValue = counter.currentCount
                 val newValue = oldValue - behavior.decrementStep
 
@@ -35,7 +34,7 @@ class DecrementCounterUseCase @Inject constructor(
                         newCount = newValue,
                         lastUpdatedAt = Instant.now()
                     )
-                ).mapError { CounterDomainError.FailedToDecrement() }
+                )
             }
         }
     }

@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.droidevs.counterapp.R
 import io.droidevs.counterapp.domain.result.Result
 import io.droidevs.counterapp.domain.result.dataOr
+import io.droidevs.counterapp.domain.result.flatMapSuspended
 import io.droidevs.counterapp.domain.result.onFailureSuspend
 import io.droidevs.counterapp.domain.result.onSuccessSuspend
 import io.droidevs.counterapp.domain.result.recoverWith
@@ -17,6 +18,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.BackupPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.BackupPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.BackupPreferenceUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +35,8 @@ import javax.inject.Inject
 class BackupPreferenceViewModel @Inject constructor(
     private val backup: BackupPreferenceUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val applyBackupScheduleUseCase: ApplyBackupScheduleUseCase
+    private val applyBackupScheduleUseCase: ApplyBackupScheduleUseCase,
+    private val tracingHelper: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<BackupPreferenceEvent>(extraBufferCapacity = 1)
@@ -88,9 +91,19 @@ class BackupPreferenceViewModel @Inject constructor(
 
     private fun setAutoBackup(enabled: Boolean) {
         viewModelScope.launch {
-            backup.setAutoBackup(enabled)
+            tracingHelper.tracedSuspendResult("set_auto_backup") {
+                backup.setAutoBackup(enabled)
+            }
+                .flatMapSuspended {
+                    tracingHelper.tracedSuspendResult("apply_backup_schedule") {
+                        applyBackupScheduleUseCase()
+                    }.recoverWith {
+                        // Even if applying the schedule fails, we consider the overall operation a success
+                        // because the preference was updated successfully.
+                        Result.Success(Unit)
+                    }
+                }
                 .onSuccessSuspend {
-                    applyBackupScheduleUseCase()
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
                             message = Message.Resource(R.string.auto_backup_updated)
@@ -110,22 +123,32 @@ class BackupPreferenceViewModel @Inject constructor(
     private fun setBackupInterval(hours: Long) {
         viewModelScope.launch {
             val coercedHours = hours.coerceIn(1L..720L)
-            backup.setBackupInterval(coercedHours)
-                .onSuccessSuspend {
+            tracingHelper.tracedSuspendResult("set_backup_interval") {
+                backup.setBackupInterval(coercedHours)
+            }
+            .flatMapSuspended {
+                tracingHelper.tracedSuspendResult("apply_backup_schedule") {
                     applyBackupScheduleUseCase()
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(
-                            message = Message.Resource(R.string.backup_interval_updated)
-                        )
-                    )
+                }.recoverWith {
+                    // Even if applying the schedule fails, we consider the overall operation a success
+                    // because the preference was updated successfully.
+                    Result.Success(Unit)
                 }
-                .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(
-                            message = Message.Resource(R.string.failed_to_update_backup_interval)
-                        )
+            }
+            .onSuccessSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(
+                        message = Message.Resource(R.string.backup_interval_updated)
                     )
-                }
+                )
+            }
+            .onFailureSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(
+                        message = Message.Resource(R.string.failed_to_update_backup_interval)
+                    )
+                )
+            }
         }
     }
 }

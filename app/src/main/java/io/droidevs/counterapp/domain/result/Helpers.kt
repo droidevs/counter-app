@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.domain.result
 
+import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,7 @@ suspend fun <D , E : RootError> runCatchingResult(
 } catch (e: CancellationException) {
     throw e
 } catch (e: Throwable) {
+    Sentry.captureException(e)
     Result.Failure(errorTransform(e))
 }
 
@@ -56,6 +58,7 @@ suspend fun <D , E : RootError> runCatchingWithResult(
 } catch (e: CancellationException) {
     throw e
 } catch (e: Throwable) {
+    Sentry.captureException(e)
     Result.Failure(errorTransform(e))
 }
 

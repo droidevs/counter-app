@@ -17,6 +17,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.DisplayPreferenceAction
 import io.droidevs.counterapp.ui.vm.events.DisplayPreferenceEvent
 import io.droidevs.counterapp.ui.vm.states.DisplayPreferenceUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DisplayPreferencesViewModel @Inject constructor(
     private val useCases: DisplayPreferenceUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<DisplayPreferenceEvent>(
@@ -97,7 +99,9 @@ class DisplayPreferencesViewModel @Inject constructor(
 
     private fun setTheme(value: Theme) {
         viewModelScope.launch {
-            useCases.setTheme(value)
+            tracing.tracedSuspend("displaypreferences_set_theme") {
+                useCases.setTheme(value)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
@@ -117,7 +121,9 @@ class DisplayPreferencesViewModel @Inject constructor(
 
     private fun setHideControls(hide: Boolean) {
         viewModelScope.launch {
-            useCases.setHideControls(hide)
+            tracing.tracedSuspend("displaypreferences_set_hide_controls") {
+                useCases.setHideControls(hide)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
@@ -137,7 +143,9 @@ class DisplayPreferencesViewModel @Inject constructor(
 
     private fun setHideLastUpdate(hide: Boolean) {
         viewModelScope.launch {
-            useCases.setHideLastUpdate(hide)
+            tracing.tracedSuspend("displaypreferences_set_hide_last_update") {
+                useCases.setHideLastUpdate(hide)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(
@@ -157,7 +165,9 @@ class DisplayPreferencesViewModel @Inject constructor(
 
     private fun setHideCounterCategoryLabel(hide: Boolean) {
         viewModelScope.launch {
-            useCases.setHideCounterCategoryLabel(hide)
+            tracing.tracedSuspend("displaypreferences_set_hide_counter_category_label") {
+                useCases.setHideCounterCategoryLabel(hide)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.labels_visibility_updated))

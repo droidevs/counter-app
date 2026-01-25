@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.message.UiMessage
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.CounterBehaviorPreferenceAction
 import io.droidevs.counterapp.ui.vm.states.CounterBehaviorPreferenceUiState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -27,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CounterPreferencesViewModel @Inject constructor(
     private val useCases: CounterPreferenceUseCases,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     val uiState: StateFlow<CounterBehaviorPreferenceUiState> = combine(
@@ -90,23 +92,27 @@ class CounterPreferencesViewModel @Inject constructor(
 
     private fun setIncrementStep(value: Int) {
         viewModelScope.launch {
-            useCases.setCounterIncrementStep(value.coerceAtLeast(1))
-                .onSuccessSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.increment_step_updated))
-                    )
-                }
-                .onFailureSuspend {
-                    uiMessageDispatcher.dispatch(
-                        UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_increment_step))
-                    )
-                }
+            tracing.tracedSuspend("prefs_set_counter_increment_step") {
+                useCases.setCounterIncrementStep(value.coerceAtLeast(1))
+            }
+            .onSuccessSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.increment_step_updated))
+                )
+            }
+            .onFailureSuspend {
+                uiMessageDispatcher.dispatch(
+                    UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_increment_step))
+                )
+            }
         }
     }
 
     private fun setDecrementStep(value: Int) {
         viewModelScope.launch {
-            useCases.setCounterDecrementStep(value.coerceAtLeast(1))
+            tracing.tracedSuspend("prefs_set_counter_decrement_step"){
+                useCases.setCounterDecrementStep(value.coerceAtLeast(1))
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.decrement_step_updated))
@@ -117,12 +123,15 @@ class CounterPreferencesViewModel @Inject constructor(
                         UiMessage.Toast(message = Message.Resource(R.string.failed_to_update_decrement_step))
                     )
                 }
+
         }
     }
 
     private fun setDefaultValue(value: Int) {
         viewModelScope.launch {
-            useCases.setDefaultCounterValue(value)
+            tracing.tracedSuspend("prefs_set_default_counter_value") {
+                useCases.setDefaultCounterValue(value)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.default_value_updated))
@@ -138,7 +147,9 @@ class CounterPreferencesViewModel @Inject constructor(
 
     private fun setMinimumValue(value: Int?) {
         viewModelScope.launch {
-            useCases.setMinimumCounterValue(value)
+            tracing.tracedSuspend("prefs_set_minimum_counter_value") {
+                useCases.setMinimumCounterValue(value)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.minimum_value_updated))
@@ -154,7 +165,9 @@ class CounterPreferencesViewModel @Inject constructor(
 
     private fun setMaximumValue(value: Int?) {
         viewModelScope.launch {
-            useCases.setMaximumCounterValue(value)
+            tracing.tracedSuspend("prefs_set_maximum_counter_value") {
+                useCases.setMaximumCounterValue(value)
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.maximum_value_updated))

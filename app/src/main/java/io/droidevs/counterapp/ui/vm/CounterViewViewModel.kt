@@ -26,6 +26,7 @@ import io.droidevs.counterapp.ui.vm.mappers.toViewUiState
 import io.droidevs.counterapp.ui.vm.states.CounterViewUiState
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackAction
 import io.droidevs.counterapp.domain.feedback.CounterFeedbackManager
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -43,6 +44,7 @@ class CounterViewViewModel @Inject constructor(
     private val uiMessageDispatcher: UiMessageDispatcher,
     private val dateFormatter: DateFormatter,
     private val feedbackManager: CounterFeedbackManager,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val counterId: String = savedStateHandle.get<String>("counterId")
@@ -103,17 +105,18 @@ class CounterViewViewModel @Inject constructor(
         if (!currentCounter.canIncrease) return
 
         viewModelScope.launch {
-            counterUseCases.incrementCounter(currentCounter.toDomain())
+            tracing.tracedSuspend("counterview_increment_counter") {
+                counterUseCases.incrementCounter(currentCounter.toDomain())
+            }
                 .onSuccessSuspend {
-                    feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                    tracing.tracedSuspend("counterview_increment_counter_feedback") {
+                        feedbackManager.onAction(CounterFeedbackAction.INCREMENT)
+                    }
                 }
                 .onFailure { error ->
                     when (error) {
                         CounterDomainError.IncrementBlockedByMaximum -> uiMessageDispatcher.dispatch(
                             UiMessage.Toast(message = Message.Resource(resId = R.string.counter_maximum_reached))
-                        )
-                        is CounterDomainError.FailedToIncrement -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
                         )
                         else -> uiMessageDispatcher.dispatch(
                             UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_increment_counter))
@@ -128,17 +131,18 @@ class CounterViewViewModel @Inject constructor(
         if (!currentCounter.canDecrease) return
 
         viewModelScope.launch {
-            counterUseCases.decrementCounter(currentCounter.toDomain())
+            tracing.tracedSuspend("counterview_decrement_counter") {
+                counterUseCases.decrementCounter(currentCounter.toDomain())
+            }
                 .onSuccessSuspend {
-                    feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                    tracing.tracedSuspend("counterview_decrement_counter_feedback") {
+                        feedbackManager.onAction(CounterFeedbackAction.DECREMENT)
+                    }
                 }
                 .onFailure { error ->
                     when (error) {
                         CounterDomainError.DecrementBlockedByMinimum -> uiMessageDispatcher.dispatch(
                             UiMessage.Toast(message = Message.Resource(resId = R.string.counter_minimum_reached))
-                        )
-                        is CounterDomainError.FailedToDecrement -> uiMessageDispatcher.dispatch(
-                            UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
                         )
                         else -> uiMessageDispatcher.dispatch(
                             UiMessage.Toast(message = Message.Resource(resId = R.string.failed_to_decrement_counter))
@@ -152,9 +156,13 @@ class CounterViewViewModel @Inject constructor(
         val currentCounter = uiState.value.counter ?: return
 
         viewModelScope.launch {
-            counterUseCases.resetCounter(currentCounter.toDomain())
+            tracing.tracedSuspend("counterview_reset_counter") {
+                counterUseCases.resetCounter(currentCounter.toDomain())
+            }
                 .onSuccessSuspend {
-                    feedbackManager.onAction(CounterFeedbackAction.RESET)
+                    tracing.tracedSuspend("counterview_reset_counter_feedback") {
+                        feedbackManager.onAction(CounterFeedbackAction.RESET)
+                    }
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(message = Message.Resource(R.string.counter_reset_success))
                     )
@@ -170,7 +178,9 @@ class CounterViewViewModel @Inject constructor(
     private fun delete() {
         viewModelScope.launch {
             val counterName = uiState.value.counter?.name ?: ""
-            counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
+            tracing.tracedSuspend("counterview_delete_counter") {
+                counterUseCases.deleteCounter(DeleteCounterRequest.of(counterId = counterId))
+            }
                 .onSuccessSuspend {
                     uiMessageDispatcher.dispatch(
                         UiMessage.Toast(

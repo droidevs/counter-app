@@ -15,6 +15,7 @@ import io.droidevs.counterapp.ui.message.UiMessage.Toast
 import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.ImportAction
 import io.droidevs.counterapp.ui.vm.events.ImportEvent
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -25,7 +26,8 @@ import javax.inject.Inject
 class ImportViewModel @Inject constructor(
     private val importUseCases: ImportUseCases,
     private val fileImportService: FileImportService,
-    private val uiMessageDispatcher: UiMessageDispatcher
+    private val uiMessageDispatcher: UiMessageDispatcher,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _event = MutableSharedFlow<ImportEvent>(extraBufferCapacity = 1)
@@ -40,22 +42,24 @@ class ImportViewModel @Inject constructor(
 
     private fun requestImport() {
         viewModelScope.launch {
-            val mimeTypes = fileImportService.getAvailableImportFormats().map { it.mimeType }.distinct().toTypedArray()
-            _event.tryEmit(ImportEvent.ShowImportFileChooser(mimeTypes = mimeTypes))
+            tracing.tracedSuspend("import_request") {
+                val mimeTypes = fileImportService.getAvailableImportFormats().map { it.mimeType }.distinct().toTypedArray()
+                _event.tryEmit(ImportEvent.ShowImportFileChooser(mimeTypes = mimeTypes))
+            }
         }
     }
 
     private fun import(fileUri: Uri) {
         viewModelScope.launch {
-            val result: Result<Unit, *> = importUseCases.import(fileUri)
-            result
-                .onSuccess {
-                    uiMessageDispatcher.dispatch(
-                        Toast(
-                            message = Message.Resource(R.string.counters_imported_successfully)
-                        )
+            tracing.tracedSuspend("import_do_import") {
+                importUseCases.import(fileUri)
+            }.onSuccess {
+                uiMessageDispatcher.dispatch(
+                    Toast(
+                        message = Message.Resource(R.string.counters_imported_successfully)
                     )
-                }
+                )
+            }
                 .onFailure { error ->
                     val resId = when (error) {
                         is io.droidevs.counterapp.domain.result.errors.FileError.UnsupportedFormat ->

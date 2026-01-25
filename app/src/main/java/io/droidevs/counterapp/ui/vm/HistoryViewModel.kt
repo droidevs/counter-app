@@ -18,6 +18,7 @@ import io.droidevs.counterapp.ui.message.dispatcher.UiMessageDispatcher
 import io.droidevs.counterapp.ui.vm.actions.HistoryViewAction
 import io.droidevs.counterapp.ui.vm.events.HistoryViewEvent
 import io.droidevs.counterapp.ui.vm.states.HistoryViewState
+import io.droidevs.counterapp.util.TracingHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,8 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val historyUseCases: HistoryUseCases,
     private val uiMessageDispatcher: UiMessageDispatcher,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val tracing: TracingHelper
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<HistoryViewEvent>()
@@ -79,12 +81,13 @@ class HistoryViewModel @Inject constructor(
 
     private fun clearHistory() {
         viewModelScope.launch {
-            historyUseCases.clearHistoryUseCase()
-                .onSuccess {
-                    uiMessageDispatcher.dispatch(
-                        Toast(message = Message.Resource(R.string.history_cleared))
-                    )
-                }
+            tracing.tracedSuspend("history_clear") {
+                historyUseCases.clearHistoryUseCase()
+            }.onSuccess {
+                uiMessageDispatcher.dispatch(
+                    Toast(message = Message.Resource(R.string.history_cleared))
+                )
+            }
                 .onFailure {
                     uiMessageDispatcher.dispatch(
                         Toast(message = Message.Resource(R.string.failed_to_clear_history))

@@ -18,12 +18,10 @@ object CounterFeedbackManagerModule {
     @Singleton
     fun provideCounterFeedbackManager(
         playSound: PlayCounterSoundUseCase,
-        vibrate: VibrateCounterUseCase,
-        errorHandler: CounterFeedbackErrorHandler,
+        vibrate: VibrateCounterUseCase
     ): CounterFeedbackManager = CounterFeedbackManager(
         playSound = playSound,
-        vibrate = vibrate,
-        errorHandler = errorHandler,
+        vibrate = vibrate
     )
 }
 
