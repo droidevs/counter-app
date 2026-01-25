@@ -48,8 +48,18 @@ interface CategoryDao {
     @Query("SELECT COUNT(*) FROM categories WHERE is_system = 0")
     fun getTotalCategoriesCount() : Flow<Int>
 
+    /**
+     * Deprecated: Use getUserCategoriesPaged instead.
+     */
+    @Deprecated("Use getUserCategoriesPaged(pageNumber, pageSize) for pagination support.")
     @Query("SELECT * FROM categories WHERE is_system = 0")
     fun getUserCategories(): Flow<List<CategoryEntity>>
+
+    /**
+     * New paginated method for user categories.
+     */
+    @Query("SELECT * FROM categories WHERE is_system = 0 LIMIT :pageSize OFFSET (:pageNumber * :pageSize)")
+    fun getUserCategoriesPaged(pageNumber: Int, pageSize: Int): Flow<List<CategoryEntity>>
 
     @Query("SELECT * FROM categories WHERE is_system = 1")
     fun getSystemCategories(): Flow<List<CategoryEntity>>

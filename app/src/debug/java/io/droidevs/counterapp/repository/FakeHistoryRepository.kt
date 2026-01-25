@@ -15,7 +15,10 @@ import java.time.Instant
 class FakeHistoryRepository(
     private val dummyData: DummyData
 ) : HistoryRepository {
-
+    /**
+     * Deprecated: Use getHistoryPaged instead.
+     */
+    @Deprecated("Use getHistoryPaged(pageNumber, pageSize) for pagination support.")
     override fun getHistory(): Flow<Result<List<HistoryEvent>, DatabaseError>> {
         return dummyData.historyEventsFlow.asStateFlow()
             .map { historyEvents ->
@@ -29,6 +32,25 @@ class FakeHistoryRepository(
                     }
                 }
                 Result.Success(history)
+            }
+    }
+
+    /**
+     * New paginated method for history events.
+     */
+    override fun getHistoryPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<HistoryEvent>, DatabaseError>> {
+        return dummyData.historyEventsFlow.asStateFlow()
+            .map { historyEvents ->
+                val counters = dummyData.counters.associateBy { it.id }
+                val history = historyEvents.mapNotNull { historyEvent ->
+                    counters[historyEvent.counterId]?.let {
+                        HistoryEventWithCounter(
+                            historyEvent = historyEvent,
+                            counter = it
+                        ).toDomain()
+                    }
+                }
+                Result.Success(history.drop(pageNumber * pageSize).take(pageSize))
             }
     }
 

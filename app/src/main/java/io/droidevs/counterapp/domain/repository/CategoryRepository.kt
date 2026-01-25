@@ -26,7 +26,16 @@ interface CategoryRepository {
 
     suspend fun exportCategories(): Result<List<Category>, DatabaseError>
 
+    /**
+     * Deprecated: Use allCategoriesPaged instead.
+     */
+    @Deprecated("Use allCategoriesPaged(pageNumber, pageSize) for pagination support.")
     fun allCategories(): Flow<Result<List<Category>, DatabaseError>>
+
+    /**
+     * New paginated method for categories.
+     */
+    fun allCategoriesPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Category>, DatabaseError>>
 
     suspend fun createCategory(category: Category): Result<Unit, DatabaseError>
 }

@@ -17,9 +17,21 @@ import javax.inject.Inject
 class HistoryRepositoryImpl @Inject constructor(
     private val historyEventDao: HistoryEventDao
 ) : HistoryRepository {
-
+    /**
+     * Deprecated: Use getHistoryPaged instead.
+     */
+    @Deprecated("Use getHistoryPaged(pageNumber, pageSize) for pagination support.")
     override fun getHistory(): Flow<Result<List<HistoryEvent>, DatabaseError>> = flowRunCatchingDatabase {
         historyEventDao.getAllEventsWithCounter().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    /**
+     * New paginated method for history events.
+     */
+    override fun getHistoryPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<HistoryEvent>, DatabaseError>> = flowRunCatchingDatabase {
+        historyEventDao.getAllEventsWithCounterPaged(pageNumber, pageSize).map { list ->
             list.map { it.toDomain() }
         }
     }

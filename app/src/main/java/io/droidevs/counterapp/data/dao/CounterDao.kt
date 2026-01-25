@@ -17,14 +17,38 @@ interface CounterDao {
     @Query("SELECT * FROM counters WHERE id = :id")
     fun getCounter(id: String): Flow<CounterEntity?>
 
+    /**
+     * Deprecated: Use getCountersPaged instead.
+     */
+    @Deprecated("Use getCountersPaged(pageNumber, pageSize) for pagination support.")
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
     fun getAll() : Flow<List<CounterEntity>>
 
+    /**
+     * Deprecated: Use getUserCountersPaged instead.
+     */
+    @Deprecated("Use getUserCountersPaged(pageNumber, pageSize) for pagination support.")
     @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC")
     fun getAllUserCounters() : Flow<List<CounterEntity>>
 
+    /**
+     * New paginated method for user counters.
+     */
+    @Query("SELECT * FROM counters WHERE is_system = 0 ORDER BY last_updated_at DESC LIMIT :pageSize OFFSET (:pageNumber * :pageSize)")
+    fun getUserCountersPaged(pageNumber: Int, pageSize: Int): Flow<List<CounterEntity>>
+
+    /**
+     * Deprecated: Use getSystemCountersPaged instead.
+     */
+    @Deprecated("Use getSystemCountersPaged(pageNumber, pageSize) for pagination support.")
     @Query("SELECT * FROM counters WHERE is_system = 1")
     fun getAllSystem(): Flow<List<CounterEntity>>
+
+    /**
+     * New paginated method for system counters.
+     */
+    @Query("SELECT * FROM counters WHERE is_system = 1 LIMIT :pageSize OFFSET (:pageNumber * :pageSize)")
+    fun getSystemCountersPaged(pageNumber: Int, pageSize: Int): Flow<List<CounterEntity>>
 
     @Query("SELECT * FROM counters WHERE kay = :key LIMIT 1")
     suspend fun getByKey(key: String): CounterEntity?

@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.repository
 
+import io.droidevs.counterapp.config.PaginationConfig
 import io.droidevs.counterapp.data.toDomain as counterEntityToDomain
 import io.droidevs.counterapp.domain.model.Category
 import io.droidevs.counterapp.domain.model.CategoryWithCounters
@@ -79,6 +80,10 @@ class FakeCategoryRepository(
         }
     }
 
+    /**
+     * Deprecated: Use allCategoriesPaged instead.
+     */
+    @Deprecated("Use allCategoriesPaged(pageNumber, pageSize) for pagination support.")
     override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> {
         return categoriesFlow.map { result ->
             when (result) {
@@ -87,6 +92,19 @@ class FakeCategoryRepository(
             }
         }
     }
+
+    /**
+     * New paginated method for categories.
+     */
+    override fun allCategoriesPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Category>, DatabaseError>> =
+        categoriesFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { !it.isSystem }
+                    .drop(pageNumber * pageSize)
+                    .take(pageSize))
+                is Result.Failure -> result
+            }
+        }
 
     override suspend fun createCategory(category: Category): Result<Unit, DatabaseError> {
         dummyData.categories.add(category.toEntity())
@@ -135,10 +153,11 @@ class FakeCategoryRepository(
     }
 
     override suspend fun exportCategories(): Result<List<Category>, DatabaseError> {
-        val categories = categoriesFlow.first()
-        return when (categories) {
-            is Result.Success -> Result.Success(categories.data.filter { !it.isSystem })
-            is Result.Failure -> categories
+        val result = categoriesFlow.first()
+        val categories = when (result) {
+            is Result.Success -> result.data
+            is Result.Failure -> emptyList()
         }
+        return Result.Success(categories)
     }
 }

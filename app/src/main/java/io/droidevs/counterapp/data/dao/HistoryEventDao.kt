@@ -21,9 +21,20 @@ interface HistoryEventDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertEventReturningId(event: HistoryEventEntity): Long
 
+    /**
+     * Deprecated: Use getAllEventsWithCounterPaged instead.
+     */
+    @Deprecated("Use getAllEventsWithCounterPaged(pageNumber, pageSize) for pagination support.")
     @Transaction
     @Query("SELECT * FROM history_events ORDER BY timestamp DESC")
     fun getAllEventsWithCounter(): Flow<List<HistoryEventWithCounter>>
+
+    /**
+     * New paginated method for history events.
+     */
+    @Transaction
+    @Query("SELECT * FROM history_events ORDER BY timestamp DESC LIMIT :pageSize OFFSET (:pageNumber * :pageSize)")
+    fun getAllEventsWithCounterPaged(pageNumber: Int, pageSize: Int): Flow<List<HistoryEventWithCounter>>
 
     @Query("DELETE FROM history_events")
     suspend fun clearAllEvents()

@@ -63,10 +63,20 @@ class CategoryRepositoryImpl(private val categoryDao: CategoryDao) : CategoryRep
             categoryDao.getUserCategories().first().map { it.toDomain() }
         }
 
-    override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> =
-        flowRunCatchingDatabase {
-            categoryDao.getUserCategories().map { list -> list.map { it.toDomain() } }
-        }
+    /**
+     * Deprecated: Use allCategoriesPaged instead.
+     */
+    @Deprecated("Use allCategoriesPaged(pageNumber, pageSize) for pagination support.")
+    override fun allCategories(): Flow<Result<List<Category>, DatabaseError>> = flowRunCatchingDatabase {
+        categoryDao.getUserCategories().map { list -> list.map { it.toDomain() } }
+    }
+
+    /**
+     * New paginated method for categories.
+     */
+    override fun allCategoriesPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Category>, DatabaseError>> = flowRunCatchingDatabase {
+        categoryDao.getUserCategoriesPaged(pageNumber, pageSize).map { list -> list.map { it.toDomain() } }
+    }
 
     override suspend fun createCategory(category: Category): Result<Unit, DatabaseError> =
         runCatchingDatabaseResult {

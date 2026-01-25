@@ -1,5 +1,6 @@
 package io.droidevs.counterapp.repository
 
+import io.droidevs.counterapp.config.PaginationConfig
 import io.droidevs.counterapp.data.toDomain
 import io.droidevs.counterapp.data.toEntity
 import io.droidevs.counterapp.domain.model.Counter
@@ -11,6 +12,7 @@ import io.droidevs.counterapp.domain.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 class FakeCounterRepository(
     private val dummyData: DummyData
@@ -86,6 +88,12 @@ class FakeCounterRepository(
         return Result.Success(Unit)
     }
 
+    override suspend fun deleteAllCounters(): Result<Unit, DatabaseError> {
+        dummyData.counters.clear()
+        dummyData.emitCounterUpdate()
+        return Result.Success(Unit)
+    }
+
     override fun getCountersWithCategories(): Flow<Result<List<CounterWithCategory>, DatabaseError>> {
         return countersFlow.map { result ->
             when (result) {
@@ -143,13 +151,79 @@ class FakeCounterRepository(
         }
     }
 
-    override fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>> {
-        return countersFlow.map { result ->
+    /**
+     * Deprecated: Use getAllCountersPaged instead.
+     */
+    @Deprecated("Use getAllCountersPaged(pageNumber, pageSize) for pagination support.")
+    override fun getAllCounters(): Flow<Result<List<Counter>, DatabaseError>> = countersFlow
+
+    /**
+     * New paginated method for counters.
+     */
+    override fun getAllCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>> =
+        countersFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { !it.isSystem }
+                    .drop(pageNumber * pageSize)
+                    .take(pageSize))
+                is Result.Failure -> result
+            }
+        }
+
+    /**
+     * Deprecated: Use getSystemCountersPaged instead.
+     */
+    @Deprecated("Use getSystemCountersPaged(pageNumber, pageSize) for pagination support.")
+    override fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>> =
+        countersFlow.map { result ->
             when (result) {
                 is Result.Success -> Result.Success(result.data.filter { it.isSystem })
                 is Result.Failure -> result
             }
         }
+
+    /**
+     * New paginated method for system counters.
+     */
+    override fun getSystemCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>> =
+        countersFlow.map { result ->
+            when (result) {
+                is Result.Success -> Result.Success(result.data.filter { it.isSystem }
+                    .drop(pageNumber * pageSize)
+                    .take(pageSize))
+                is Result.Failure -> result
+            }
+        }
+
+    override fun getCounter(id: String): Flow<Result<Counter, DatabaseError>> {
+        return countersFlow.map { result ->
+            when (result) {
+                is Result.Success -> {
+                    val counter = result.data.firstOrNull { it.id == id }
+                    if (counter != null) {
+                        Result.Success(counter)
+                    } else {
+                        Result.Failure(DatabaseError.NotFound)
+                    }
+                }
+                is Result.Failure -> result
+            }
+        }
+    }
+
+    override suspend fun exportCounters(): Result<List<Counter>, DatabaseError> {
+        val result = countersFlow.first()
+        val counters = when (result) {
+            is Result.Success -> result.data
+            is Result.Failure -> emptyList()
+        }
+        return Result.Success(counters)
+    }
+
+    override suspend fun importCounters(counters: List<Counter>): Result<Unit, DatabaseError> {
+        dummyData.counters.addAll(counters.map { it.toEntity() })
+        dummyData.emitCounterUpdate()
+        return Result.Success(Unit)
     }
 
     override suspend fun incrementSystemCounter(counterKey: String): Result<Unit, DatabaseError> {
@@ -175,41 +249,6 @@ class FakeCounterRepository(
             dummyData.counters[index] = newCounter
             dummyData.emitCounterUpdate()
         }
-        return Result.Success(Unit)
-    }
-
-    override suspend fun deleteAllCounters(): Result<Unit, DatabaseError> {
-        dummyData.counters.clear()
-        dummyData.emitCounterUpdate()
-        return Result.Success(Unit)
-    }
-
-    override fun getCounter(id: String): Flow<Result<Counter, DatabaseError>> {
-        return countersFlow.map { result ->
-            when (result) {
-                is Result.Success -> {
-                    val counter = result.data.firstOrNull { it.id == id }
-                    if (counter != null) {
-                        Result.Success(counter)
-                    } else {
-                        Result.Failure(DatabaseError.NotFound)
-                    }
-                }
-
-                is Result.Failure -> result
-            }
-        }
-    }
-
-    override fun getAllCounters(): Flow<Result<List<Counter>, DatabaseError>> = countersFlow
-
-    override suspend fun exportCounters(): Result<List<Counter>, DatabaseError> {
-        return Result.Success(dummyData.counters.map { it.toDomain() })
-    }
-
-    override suspend fun importCounters(counters: List<Counter>): Result<Unit, DatabaseError> {
-        dummyData.counters.addAll(counters.map { it.toEntity() })
-        dummyData.emitCounterUpdate()
         return Result.Success(Unit)
     }
 }

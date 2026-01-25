@@ -7,8 +7,16 @@ import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
 interface HistoryRepository {
-
+    /**
+     * Deprecated: Use getHistoryPaged instead.
+     */
+    @Deprecated("Use getHistoryPaged(pageNumber, pageSize) for pagination support.")
     fun getHistory(): Flow<Result<List<HistoryEvent>, DatabaseError>>
+
+    /**
+     * New paginated method for history events.
+     */
+    fun getHistoryPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<HistoryEvent>, DatabaseError>>
 
     suspend fun clearHistory(): Result<Unit, DatabaseError>
 

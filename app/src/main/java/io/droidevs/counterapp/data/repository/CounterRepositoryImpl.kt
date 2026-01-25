@@ -26,8 +26,21 @@ class CounterRepositoryImpl(
             .map { it?.toDomain() ?: throw DatabaseException.NoElementFound() }
     }
 
+    /**
+     * Deprecated: Use getAllCountersPaged instead.
+     */
+    @Deprecated("Use getAllCountersPaged(pageNumber, pageSize) for pagination support.")
     override fun getAllCounters(): Flow<Result<List<Counter>, DatabaseError>> = flowRunCatchingDatabase {
         dao.getAll().map { counters ->
+            counters.map { it.toDomain() }
+        }
+    }
+
+    /**
+     * New paginated method for counters.
+     */
+    override fun getAllCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>> = flowRunCatchingDatabase {
+        dao.getUserCountersPaged(pageNumber, pageSize).map { counters ->
             counters.map { it.toDomain() }
         }
     }
@@ -89,8 +102,21 @@ class CounterRepositoryImpl(
         }
     }
 
+    /**
+     * Deprecated: Use getSystemCountersPaged instead.
+     */
+    @Deprecated("Use getSystemCountersPaged(pageNumber, pageSize) for pagination support.")
     override fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>> = flowRunCatchingDatabase {
         dao.getAllSystem().map { counters ->
+            counters.map { it.toDomain() }
+        }
+    }
+
+    /**
+     * New paginated method for system counters.
+     */
+    override fun getSystemCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>> = flowRunCatchingDatabase {
+        dao.getSystemCountersPaged(pageNumber, pageSize).map { counters ->
             counters.map { it.toDomain() }
         }
     }

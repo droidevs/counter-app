@@ -10,7 +10,16 @@ interface CounterRepository {
 
 
     fun getCounter(id: String): Flow<Result<Counter, DatabaseError>>
+    /**
+     * Deprecated: Use getAllCountersPaged instead.
+     */
+    @Deprecated("Use getAllCountersPaged(pageNumber, pageSize) for pagination support.")
     fun getAllCounters(): Flow<Result<List<Counter>, DatabaseError>>
+
+    /**
+     * New paginated method for counters.
+     */
+    fun getAllCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>>
 
     fun getLastEdited(limit: Int) : Flow<Result<List<Counter>, DatabaseError>>
 
@@ -29,7 +38,16 @@ interface CounterRepository {
 
     fun getLastEditedWithCategory(limit : Int) : Flow<Result<List<CounterWithCategory>, DatabaseError>>
 
+    /**
+     * Deprecated: Use getSystemCountersPaged instead.
+     */
+    @Deprecated("Use getSystemCountersPaged(pageNumber, pageSize) for pagination support.")
     fun getSystemCounters(): Flow<Result<List<Counter>, DatabaseError>>
+
+    /**
+     * New paginated method for system counters.
+     */
+    fun getSystemCountersPaged(pageNumber: Int, pageSize: Int): Flow<Result<List<Counter>, DatabaseError>>
 
     suspend fun incrementSystemCounter(
         counterKey: String
